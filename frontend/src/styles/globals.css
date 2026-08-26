@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% -20%, rgba(79, 215, 255, 0.14), transparent 65%),
+    radial-gradient(ellipse at 85% 100%, rgba(139, 92, 246, 0.08), transparent 50%),
+    radial-gradient(ellipse at 10% 80%, rgba(54, 255, 176, 0.05), transparent 40%),
+    #040711;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  overflow: hidden;
+  color: #f1f5f9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Futuristic Sci-Fi Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(79, 215, 255, 0.28);
+  border-radius: 999px;
+  border: 1px solid rgba(79, 215, 255, 0.12);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 215, 255, 0.55);
+  box-shadow: 0 0 10px rgba(79, 215, 255, 0.5);
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Button Design System */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #040711;
+  background: linear-gradient(135deg, #4fd7ff 0%, #8ff3ff 100%);
+  border-radius: 9999px;
+  box-shadow: 0 0 18px rgba(79, 215, 255, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 24px rgba(79, 215, 255, 0.55);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(79, 215, 255, 0.25);
+  backdrop-filter: blur(12px);
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-secondary:hover {
+  background: rgba(79, 215, 255, 0.12);
+  border-color: rgba(79, 215, 255, 0.5);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(79, 215, 255, 0.2);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 9999px;
+  transition: all 0.15s ease;
+}
+.btn-ghost:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-destructive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ff5c7a;
+  background: rgba(255, 92, 122, 0.12);
+  border: 1px solid rgba(255, 92, 122, 0.35);
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+.btn-destructive:hover {
+  background: rgba(255, 92, 122, 0.25);
+  box-shadow: 0 0 15px rgba(255, 92, 122, 0.35);
+}
+
+/* Holographic & Cyber Accent Utilities */
+.cyber-card {
+  background: rgba(10, 16, 28, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(79, 215, 255, 0.16);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cyber-card:hover {
+  border-color: rgba(79, 215, 255, 0.45);
+  box-shadow: 0 0 20px rgba(79, 215, 255, 0.18), 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+.neon-glow {
+  text-shadow: 0 0 12px rgba(79, 215, 255, 0.6);
+}
+
+.glow-border-cyan {
+  border: 1px solid rgba(79, 215, 255, 0.35);
+  box-shadow: 0 0 15px rgba(79, 215, 255, 0.15);
+}
+
+@keyframes hud-scanline-move {
+  0% {
+    transform: translateY(-10%);
+  }
+  100% {
+    transform: translateY(110vh);
+  }
+}
+
+.hud-scanline {
+  animation: hud-scanline-move 7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-scanline {
+    animation: none;
+    display: none;
+  }
+}
+
+[data-gesture-selected="true"] {
+  outline: 2px solid rgba(79, 215, 255, 0.85);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
