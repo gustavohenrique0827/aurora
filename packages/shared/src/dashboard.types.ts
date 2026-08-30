@@ -18,6 +18,9 @@ export interface N8nWorkflowSummary {
   active: boolean;
   lastExecutionStatus: "success" | "error" | "running" | "unknown" | null;
   lastExecutionAt: string | null;
+  /** "agent" = a role/persona you can talk to or that runs on its own; "tool" = an internal
+   *  sub-workflow another agent calls (Axis/WhatsApp/n8n plumbing) - not itself an agent. */
+  kind: "agent" | "tool";
 }
 
 export interface N8nSnapshot {

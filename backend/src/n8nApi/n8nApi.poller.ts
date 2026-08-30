@@ -12,6 +12,14 @@ function mapExecutionStatus(status: string | undefined, finished: boolean): N8nW
   return "unknown";
 }
 
+// Internal sub-workflows an agent calls (Axis CRUD, WhatsApp send/read, n8n introspection) are
+// plumbing, not a role someone talks to - keep them out of the "agents" grouping in the UI.
+function classifyKind(name: string): N8nWorkflowSummary["kind"] {
+  const bare = name.replace(/^\[[^\]]+\]\s*/, "");
+  if (/^(WA )?Tool\s*-/i.test(bare)) return "tool";
+  return "agent";
+}
+
 async function pollOnce(): Promise<void> {
   try {
     const rawWorkflows = await fetchJarvisWorkflows();
@@ -26,6 +34,7 @@ async function pollOnce(): Promise<void> {
             active: w.active,
             lastExecutionStatus: execution ? mapExecutionStatus(execution.status, execution.finished) : null,
             lastExecutionAt: execution?.startedAt ?? null,
+            kind: classifyKind(w.name),
           } satisfies N8nWorkflowSummary;
         } catch {
           return {
@@ -34,6 +43,7 @@ async function pollOnce(): Promise<void> {
             active: w.active,
             lastExecutionStatus: null,
             lastExecutionAt: null,
+            kind: classifyKind(w.name),
           } satisfies N8nWorkflowSummary;
         }
       })

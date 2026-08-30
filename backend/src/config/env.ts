@@ -24,7 +24,7 @@ const envSchema = z.object({
 
   WAHA_URL: z.string().url(),
   WAHA_API_KEY: z.string().min(1, "WAHA_API_KEY is required for the WhatsApp status panel"),
-  WAHA_SESSION: z.string().default("Jarvis"),
+  WAHA_SESSION: z.string().default("Aurora-Equipe"),
 
   // Optional: Spotify Client Credentials (app-only auth, no user login) used
   // to resolve "toca X" to a real track and open it via spotify:track:<id>

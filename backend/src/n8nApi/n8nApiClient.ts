@@ -21,8 +21,9 @@ interface N8nExecutionRaw {
   stoppedAt: string | null;
 }
 
-const JARVIS_WORKFLOW_PREFIX = "[G-TECH AI OS]";
-
+// Gustavo owns the whole n8n instance and this dashboard is private to him (requireAuth) - show
+// every workflow that exists, not just the ones under the "[G-TECH AI OS]" prefix. The frontend
+// groups/labels them; nothing gets excluded here.
 export async function fetchJarvisWorkflows(): Promise<N8nWorkflowRaw[]> {
   const workflows: N8nWorkflowRaw[] = [];
   let cursor: string | undefined;
@@ -32,7 +33,7 @@ export async function fetchJarvisWorkflows(): Promise<N8nWorkflowRaw[]> {
       params: { limit: 100, cursor },
     });
     const page = (response.data?.data ?? []) as N8nWorkflowRaw[];
-    workflows.push(...page.filter((w) => w.name.startsWith(JARVIS_WORKFLOW_PREFIX)));
+    workflows.push(...page);
     cursor = response.data?.nextCursor ?? undefined;
   } while (cursor);
 
