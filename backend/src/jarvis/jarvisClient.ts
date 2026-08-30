@@ -13,11 +13,15 @@ interface SendOptions {
   message: string;
   sessionId: string;
   directorId?: DirectorId;
-  /** One image riding along with this turn (file attachment or a captured screen-share
-   * frame) — converted to n8n binary and passed to Aurora CORE's vision-enabled agent.
-   * See chatEvents.ts and the n8n workflow's base64→binary conversion node. */
+  /** One image riding along with this turn (file attachment, or a captured screen-share
+   * /camera frame) — converted to n8n binary and passed to Aurora CORE's vision-enabled
+   * agent. See chatEvents.ts and the n8n workflow's base64→binary conversion node. */
   imageBase64?: string;
   imageMimeType?: string;
+  /** One PDF attached instead of an image — Aurora CORE summarizes it via Gemini before
+   * the agent sees it (same pattern as the WhatsApp channel's document handling). */
+  documentBase64?: string;
+  documentMimeType?: string;
 }
 
 function buildChatInput({ message, directorId }: SendOptions): string {
@@ -73,6 +77,8 @@ export async function sendNonStreaming(options: SendOptions): Promise<JarvisRepl
         chatInput,
         imageBase64: options.imageBase64,
         imageMimeType: options.imageMimeType,
+        documentBase64: options.documentBase64,
+        documentMimeType: options.documentMimeType,
       },
       { timeout: 90_000 }
     );
@@ -103,6 +109,8 @@ export async function sendStreaming(options: SendOptions, onChunk: (delta: strin
       chatInput,
       imageBase64: options.imageBase64,
       imageMimeType: options.imageMimeType,
+      documentBase64: options.documentBase64,
+      documentMimeType: options.documentMimeType,
     },
     { timeout: 90_000, responseType: "stream" }
   );

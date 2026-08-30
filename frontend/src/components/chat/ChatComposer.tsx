@@ -1,15 +1,23 @@
 import { useRef, useState } from "react";
+import { Camera } from "lucide-react";
 import { MicButton } from "../voice/MicButton";
 import { VoiceSupportGate } from "../voice/VoiceSupportGate";
 import { FileAttachment } from "./FileAttachment";
 import { useJarvisStore } from "../../state/store";
+import { captureCameraFrame } from "../../lib/cameraCapture";
 
 interface ChatComposerProps {
-  onSend: (message: string, image?: { base64: string; mimeType: string }) => void;
+  onSend: (
+    message: string,
+    image?: { base64: string; mimeType: string },
+    document?: { base64: string; mimeType: string }
+  ) => void;
   startPushToTalk: () => void;
   stopPushToTalk: () => void;
   interrupt: () => void;
 }
+
+const PDF_MIME_TYPE = "application/pdf";
 
 function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }> {
   return new Promise((resolve, reject) => {
@@ -27,10 +35,12 @@ const TEXTAREA_MAX_PX = 128; // matches the old max-h-32
 
 export function ChatComposer({ onSend, startPushToTalk, stopPushToTalk, interrupt }: ChatComposerProps) {
   const [text, setText] = useState("");
-  // Only one image at a time — the vision pipeline (ChatSendPayload.imageBase64) and
-  // Aurora CORE's n8n workflow only carry a single image per turn.
+  // Only one attachment at a time (image OR PDF, never both) — the vision/document
+  // pipelines (ChatSendPayload.imageBase64 / documentBase64) and Aurora CORE's n8n
+  // workflow only carry a single attachment per turn.
   const [attachment, setAttachment] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
+  const [capturingCamera, setCapturingCamera] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isSpeaking = useJarvisStore((s) => s.isSpeaking);
@@ -45,16 +55,22 @@ export function ChatComposer({ onSend, startPushToTalk, stopPushToTalk, interrup
     if (!trimmed && !attachment) return;
 
     let image: { base64: string; mimeType: string } | undefined;
+    let document: { base64: string; mimeType: string } | undefined;
     if (attachment) {
       setSending(true);
       try {
-        image = await fileToBase64(attachment);
+        const encoded = await fileToBase64(attachment);
+        if (attachment.type === PDF_MIME_TYPE) {
+          document = encoded;
+        } else {
+          image = encoded;
+        }
       } finally {
         setSending(false);
       }
     }
 
-    onSend(trimmed, image);
+    onSend(trimmed, image, document);
     setText("");
     setAttachment(null);
     if (textareaRef.current) textareaRef.current.style.height = "auto";
@@ -63,6 +79,22 @@ export function ChatComposer({ onSend, startPushToTalk, stopPushToTalk, interrup
   const handleMicStart = () => {
     if (isSpeaking) interrupt();
     startPushToTalk();
+  };
+
+  const handleCameraClick = async () => {
+    setCapturingCamera(true);
+    try {
+      const frame = await captureCameraFrame();
+      // Reuse the existing file-attachment state/preview (FileAttachment.tsx) instead of
+      // a separate UI path — a captured photo behaves exactly like a picked one from here on.
+      const blob = await (await fetch(frame.dataUrl)).blob();
+      setAttachment(new File([blob], "foto.jpg", { type: frame.mimeType }));
+    } catch {
+      // User declined the camera permission prompt, or no camera available — no toast,
+      // same calm no-op as closing the native picker without choosing anything.
+    } finally {
+      setCapturingCamera(false);
+    }
   };
 
   return (
@@ -77,14 +109,23 @@ export function ChatComposer({ onSend, startPushToTalk, stopPushToTalk, interrup
           type="button"
           onClick={() => fileInputRef.current?.click()}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-jarvis-border bg-jarvis-panel text-white/60 hover:border-jarvis-cyan/60 hover:text-white"
-          aria-label="Anexar imagem"
+          aria-label="Anexar arquivo"
         >
           +
+        </button>
+        <button
+          type="button"
+          onClick={handleCameraClick}
+          disabled={capturingCamera}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-jarvis-border bg-jarvis-panel text-white/60 transition-opacity hover:border-jarvis-cyan/60 hover:text-white disabled:opacity-40"
+          aria-label="Tirar foto"
+        >
+          <Camera size={16} />
         </button>
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];

@@ -31,22 +31,31 @@ export interface ChatMessage {
    * is unreliable across machines/profiles, so real audio is generated in n8n and
    * played back via an <audio> element instead — see useGlobalVoiceAgent. */
   audioBase64?: string;
-  /** Present when the user attached a file or shared a screen frame — rendered as a
-   * thumbnail in the user's own bubble (MessageBubble.tsx). Not stored anywhere; lives
+  /** Present when the user attached a file or shared a screen/camera frame — rendered as
+   * a thumbnail in the user's own bubble (MessageBubble.tsx). Not stored anywhere; lives
    * only for the lifetime of the socket session. */
   imageBase64?: string;
   imageMimeType?: string;
+  /** Present when the user attached a PDF instead of an image — Aurora CORE summarizes
+   * it via Gemini before the agent ever sees it (same pattern as the WhatsApp channel's
+   * document handling), so there's no binary vision path for this, only a text summary. */
+  documentBase64?: string;
+  documentMimeType?: string;
 }
 
 export interface ChatSendPayload {
   conversationId: string;
   message: string;
   directorId?: DirectorId;
-  /** A single image (file attachment or one captured screen-share frame) riding along
-   * with this message — see EnergySphere/ScreenShareOffer for the capture side, and
-   * jarvisClient.ts for how it reaches Aurora CORE's vision-enabled agent. */
+  /** A single image (file attachment, or one captured screen-share/camera frame) riding
+   * along with this message — see ScreenShareOffer/CameraShareOffer for the capture
+   * side, and jarvisClient.ts for how it reaches Aurora CORE's vision-enabled agent. */
   imageBase64?: string;
   imageMimeType?: string;
+  /** A single PDF attached instead of an image — see ChatComposer's file picker and
+   * jarvisClient.ts for how it reaches Aurora CORE's document-summary pipeline. */
+  documentBase64?: string;
+  documentMimeType?: string;
 }
 
 export interface ChatChunkEvent {

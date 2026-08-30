@@ -4,6 +4,7 @@ import { useVoiceEngine } from "./useVoiceEngine";
 import { useWakeWord } from "./useWakeWord";
 import { useJarvisStore } from "../state/store";
 import { matchScreenVisionIntent } from "../lib/screenVisionIntent";
+import { matchCameraVisionIntent } from "../lib/cameraVisionIntent";
 import { matchDemonstrativeIntent } from "../lib/demonstrativeIntent";
 import { resolvePointedTarget } from "../lib/handTracking/pointedTarget";
 
@@ -70,18 +71,27 @@ export function useGlobalVoiceAgent() {
   const { messages, sendMessage } = useJarvisChat();
   const lastSpokenIdRef = useRef<string | null>(null);
   const [pendingScreenShare, setPendingScreenShare] = useState<string | null>(null);
+  const [pendingCameraShare, setPendingCameraShare] = useState<string | null>(null);
 
-  const handleSend = (text: string, image?: { base64: string; mimeType: string }) => {
-    if (!image && matchScreenVisionIntent(text)) {
+  const handleSend = (
+    text: string,
+    image?: { base64: string; mimeType: string },
+    document?: { base64: string; mimeType: string }
+  ) => {
+    if (!image && !document && matchScreenVisionIntent(text)) {
       setPendingScreenShare(text);
+      return;
+    }
+    if (!image && !document && matchCameraVisionIntent(text)) {
+      setPendingCameraShare(text);
       return;
     }
 
     const handledShortcuts = checkVoiceActionShortcuts(text);
     if (handledShortcuts) return;
 
-    const augmented = image ? text : maybeAugmentWithPointedTarget(text);
-    sendMessage(augmented, activeDirectorId, image);
+    const augmented = image || document ? text : maybeAugmentWithPointedTarget(text);
+    sendMessage(augmented, activeDirectorId, image, document);
   };
 
   const { startPushToTalk, stopPushToTalk, playAudioBase64, interrupt, primeAudio } = useVoiceEngine(handleSend);
@@ -96,9 +106,13 @@ export function useGlobalVoiceAgent() {
     if (last.audioBase64) playAudioBase64(last.audioBase64);
   }, [messages, playAudioBase64]);
 
-  const handleComposerSend = (text: string, image?: { base64: string; mimeType: string }) => {
+  const handleComposerSend = (
+    text: string,
+    image?: { base64: string; mimeType: string },
+    document?: { base64: string; mimeType: string }
+  ) => {
     primeAudio();
-    handleSend(text, image);
+    handleSend(text, image, document);
   };
 
   const confirmScreenShare = (image: { base64: string; mimeType: string }) => {
@@ -113,6 +127,18 @@ export function useGlobalVoiceAgent() {
     setPendingScreenShare(null);
   };
 
+  const confirmCameraShare = (image: { base64: string; mimeType: string }) => {
+    if (pendingCameraShare === null) return;
+    sendMessage(pendingCameraShare, activeDirectorId, image);
+    setPendingCameraShare(null);
+  };
+
+  const cancelCameraShare = () => {
+    if (pendingCameraShare === null) return;
+    sendMessage(pendingCameraShare, activeDirectorId);
+    setPendingCameraShare(null);
+  };
+
   return {
     startPushToTalk,
     stopPushToTalk,
@@ -121,5 +147,8 @@ export function useGlobalVoiceAgent() {
     pendingScreenShare,
     confirmScreenShare,
     cancelScreenShare,
+    pendingCameraShare,
+    confirmCameraShare,
+    cancelCameraShare,
   };
 }

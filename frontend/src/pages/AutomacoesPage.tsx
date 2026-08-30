@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { DIRECTORS } from "@jarvis/shared";
 import type { N8nWorkflowSummary } from "@jarvis/shared";
@@ -7,6 +7,8 @@ import {
   Cpu,
   ArrowRight,
   ChevronDown,
+  ChevronsDown,
+  ChevronsUp,
   CheckCircle2,
   XCircle,
   Loader2,
@@ -111,6 +113,45 @@ function ExecutionStatusDot({ w }: { w: N8nWorkflowSummary }) {
   );
 }
 
+function CollapsibleGroup({
+  title,
+  count,
+  icon: Icon,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  count: number;
+  icon?: typeof Briefcase;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-jarvis-cyan/15 bg-[#0a0f1d]/75 shadow-[0_8px_32px_rgba(0,0,0,0.37)] backdrop-blur-xl transition-all">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-2 border-b border-jarvis-cyan/15 bg-black/30 px-4 py-2.5 text-left hover:bg-black/40"
+      >
+        <div className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-jarvis-cyanBright" />
+          {Icon && <Icon size={12} className="text-white/30" />}
+          <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-white/80">{title}</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[10px] text-white/30">{count}</span>
+          <ChevronDown size={14} className={`text-white/40 transition-transform ${open ? "rotate-180" : ""}`} />
+        </div>
+      </button>
+      {open && <div className="p-4">{children}</div>}
+      <div className="pointer-events-none absolute top-0 right-0 h-2 w-2 border-t border-r border-jarvis-cyan/30" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-2 w-2 border-b border-l border-jarvis-cyan/30" />
+    </div>
+  );
+}
+
 function WorkflowCard({ w }: { w: N8nWorkflowSummary }) {
   return (
     <li className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-black/30 p-3 transition-all hover:border-jarvis-cyan/40 hover:bg-black/50">
@@ -134,9 +175,18 @@ function WorkflowCard({ w }: { w: N8nWorkflowSummary }) {
   );
 }
 
+const TOOLS_GROUP_KEY = "Ferramentas Internas";
+const ALL_GROUP_KEYS: string[] = [...AGENT_GROUP_ORDER, TOOLS_GROUP_KEY];
+
 export function AutomacoesPage() {
   const { snapshot, socketConnected } = useDashboardData();
-  const [toolsOpen, setToolsOpen] = useState(true);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(ALL_GROUP_KEYS.map((key) => [key, true]))
+  );
+
+  const toggleGroup = (key: string) => setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+  const setAllGroups = (value: boolean) =>
+    setOpenGroups(Object.fromEntries(ALL_GROUP_KEYS.map((key) => [key, value])));
 
   if (!socketConnected || !snapshot) {
     return (
@@ -195,6 +245,25 @@ export function AutomacoesPage() {
             <span className="text-white/40">{agents.length - agentActiveCount} inativos</span>
           </div>
 
+          <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/40 p-0.5 font-mono text-[11px]">
+            <button
+              type="button"
+              onClick={() => setAllGroups(true)}
+              className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/50 hover:bg-white/10 hover:text-white/80"
+            >
+              <ChevronsDown size={12} />
+              <span>Abrir tudo</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setAllGroups(false)}
+              className="flex items-center gap-1 rounded-full px-2.5 py-1 text-white/50 hover:bg-white/10 hover:text-white/80"
+            >
+              <ChevronsUp size={12} />
+              <span>Fechar tudo</span>
+            </button>
+          </div>
+
           <Link
             to="/directors/cto"
             className="flex items-center gap-1.5 rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/15 px-3.5 py-1 font-mono text-xs font-semibold text-jarvis-cyanBright hover:bg-jarvis-cyan/25 transition-all shadow-[0_0_15px_rgba(79,215,255,0.15)]"
@@ -206,55 +275,48 @@ export function AutomacoesPage() {
         </div>
       </div>
 
-      {/* 2. Categorized Agent Groups */}
-      {groups.map((group) => {
-        const Icon = GROUP_ICON[group.label];
-        return (
-          <GlassPanel
-            key={group.label}
-            title={group.label}
-            action={<span className="font-mono text-[10px] text-white/30">{group.workflows.length}</span>}
-          >
-            <div className="mb-2 flex items-center gap-1.5 text-white/30">
-              <Icon size={12} />
-            </div>
-            <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-              {group.workflows.map((w) => (
-                <WorkflowCard key={w.id} w={w} />
-              ))}
-            </ul>
-          </GlassPanel>
-        );
-      })}
+      {/* 2. Categorized Agent Groups - each one a dropdown, open/closed state lifted so "abrir/fechar tudo" can drive them all */}
+      {groups.map((group) => (
+        <CollapsibleGroup
+          key={group.label}
+          title={group.label}
+          count={group.workflows.length}
+          icon={GROUP_ICON[group.label]}
+          open={openGroups[group.label] ?? true}
+          onToggle={() => toggleGroup(group.label)}
+        >
+          <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            {group.workflows.map((w) => (
+              <WorkflowCard key={w.id} w={w} />
+            ))}
+          </ul>
+        </CollapsibleGroup>
+      ))}
 
       {/* 3. Internal tools - plumbing the agents above call, not agents themselves */}
       {tools.length > 0 && (
-        <div className="rounded-2xl border border-white/10 bg-black/20">
-          <button
-            type="button"
-            onClick={() => setToolsOpen((v) => !v)}
-            className="flex w-full items-center justify-between px-4 py-3 font-mono text-xs font-semibold text-white/50 hover:text-white/70"
-          >
-            <span>Ferramentas internas ({tools.length}) — usadas pelos agentes acima, não são agentes</span>
-            <ChevronDown size={14} className={`transition-transform ${toolsOpen ? "rotate-180" : ""}`} />
-          </button>
-          {toolsOpen && (
-            <div className="flex flex-col gap-3 border-t border-white/10 p-3">
-              {toolGroups.map((group) => (
-                <div key={group.label}>
-                  <p className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white/30">
-                    {group.label} ({group.workflows.length})
-                  </p>
-                  <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                    {group.workflows.map((w) => (
-                      <WorkflowCard key={w.id} w={w} />
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <CollapsibleGroup
+          title={TOOLS_GROUP_KEY}
+          count={tools.length}
+          icon={Boxes}
+          open={openGroups[TOOLS_GROUP_KEY] ?? true}
+          onToggle={() => toggleGroup(TOOLS_GROUP_KEY)}
+        >
+          <div className="flex flex-col gap-3">
+            {toolGroups.map((group) => (
+              <div key={group.label}>
+                <p className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white/30">
+                  {group.label} ({group.workflows.length})
+                </p>
+                <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                  {group.workflows.map((w) => (
+                    <WorkflowCard key={w.id} w={w} />
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </CollapsibleGroup>
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import { useJarvisChat } from "../../hooks/useJarvisChat";
 import { MessageList } from "./MessageList";
 import { ChatComposer } from "./ChatComposer";
 import { ScreenShareOffer } from "./ScreenShareOffer";
+import { CameraShareOffer } from "./CameraShareOffer";
 import { WakeWordToggle } from "../voice/WakeWordToggle";
 import { useJarvisStore } from "../../state/store";
 
@@ -9,10 +10,17 @@ export interface ChatPanelVoiceProps {
   startPushToTalk: () => void;
   stopPushToTalk: () => void;
   interrupt: () => void;
-  handleComposerSend: (text: string, image?: { base64: string; mimeType: string }) => void;
+  handleComposerSend: (
+    text: string,
+    image?: { base64: string; mimeType: string },
+    document?: { base64: string; mimeType: string }
+  ) => void;
   pendingScreenShare: string | null;
   confirmScreenShare: (image: { base64: string; mimeType: string }) => void;
   cancelScreenShare: () => void;
+  pendingCameraShare: string | null;
+  confirmCameraShare: (image: { base64: string; mimeType: string }) => void;
+  cancelCameraShare: () => void;
 }
 
 /**
@@ -34,6 +42,9 @@ export function ChatPanel({
   pendingScreenShare,
   confirmScreenShare,
   cancelScreenShare,
+  pendingCameraShare,
+  confirmCameraShare,
+  cancelCameraShare,
 }: ChatPanelVoiceProps) {
   const directorId = useJarvisStore((s) => s.activeDirectorId) ?? undefined;
   const { conversationId, messages, streamingBuffer, isAwaitingResponse } = useJarvisChat();
@@ -48,6 +59,7 @@ export function ChatPanel({
       </div>
       <MessageList messages={scopedMessages} streamingBuffer={streamingBuffer} isAwaitingResponse={isAwaitingResponse} />
       {pendingScreenShare !== null && <ScreenShareOffer onConfirm={confirmScreenShare} onCancel={cancelScreenShare} />}
+      {pendingCameraShare !== null && <CameraShareOffer onConfirm={confirmCameraShare} onCancel={cancelCameraShare} />}
       <ChatComposer onSend={handleComposerSend} startPushToTalk={startPushToTalk} stopPushToTalk={stopPushToTalk} interrupt={interrupt} />
     </div>
   );

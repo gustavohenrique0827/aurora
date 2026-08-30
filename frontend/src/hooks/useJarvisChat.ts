@@ -21,7 +21,12 @@ export function useJarvisChat() {
   }, []);
 
   const sendMessage = useCallback(
-    (message: string, directorId?: DirectorId, image?: { base64: string; mimeType: string }) => {
+    (
+      message: string,
+      directorId?: DirectorId,
+      image?: { base64: string; mimeType: string },
+      document?: { base64: string; mimeType: string }
+    ) => {
       const store = useJarvisStore.getState();
       store.addMessage({
         id: crypto.randomUUID(),
@@ -32,6 +37,8 @@ export function useJarvisChat() {
         directorId,
         imageBase64: image?.base64,
         imageMimeType: image?.mimeType,
+        documentBase64: document?.base64,
+        documentMimeType: document?.mimeType,
       });
       store.setAwaitingResponse(true);
       store.setSphereMode("thinking");
@@ -42,6 +49,8 @@ export function useJarvisChat() {
         directorId,
         imageBase64: image?.base64,
         imageMimeType: image?.mimeType,
+        documentBase64: document?.base64,
+        documentMimeType: document?.mimeType,
       });
     },
     [conversationId]

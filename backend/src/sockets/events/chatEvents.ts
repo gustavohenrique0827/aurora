@@ -9,7 +9,7 @@ import { resolveLocalIntent } from "../../localActions/localIntents";
 
 export function registerChatEvents(socket: Socket): void {
   socket.on(SOCKET_EVENTS.CHAT_SEND, async (payload: ChatSendPayload) => {
-    const { conversationId, message, directorId, imageBase64, imageMimeType } = payload;
+    const { conversationId, message, directorId, imageBase64, imageMimeType, documentBase64, documentMimeType } = payload;
 
     if (!message || !conversationId) {
       socket.emit(SOCKET_EVENTS.CHAT_ERROR, { conversationId, error: "mensagem inválida" });
@@ -54,19 +54,43 @@ export function registerChatEvents(socket: Socket): void {
       if (env.JARVIS_STREAMING_ENABLED) {
         try {
           fullText = await sendStreaming(
-            { message: outboundMessage, sessionId: conversationId, directorId, imageBase64, imageMimeType },
+            {
+              message: outboundMessage,
+              sessionId: conversationId,
+              directorId,
+              imageBase64,
+              imageMimeType,
+              documentBase64,
+              documentMimeType,
+            },
             (delta) => {
               socket.emit(SOCKET_EVENTS.CHAT_CHUNK, { conversationId, delta });
             }
           );
         } catch (streamErr) {
           logger.warn({ streamErr }, "chatEvents: streaming failed, falling back to non-streaming");
-          const reply = await sendNonStreaming({ message: outboundMessage, sessionId: conversationId, directorId, imageBase64, imageMimeType });
+          const reply = await sendNonStreaming({
+            message: outboundMessage,
+            sessionId: conversationId,
+            directorId,
+            imageBase64,
+            imageMimeType,
+            documentBase64,
+            documentMimeType,
+          });
           fullText = reply.text;
           audioBase64 = reply.audioBase64;
         }
       } else {
-        const reply = await sendNonStreaming({ message: outboundMessage, sessionId: conversationId, directorId, imageBase64, imageMimeType });
+        const reply = await sendNonStreaming({
+          message: outboundMessage,
+          sessionId: conversationId,
+          directorId,
+          imageBase64,
+          imageMimeType,
+          documentBase64,
+          documentMimeType,
+        });
         fullText = reply.text;
         audioBase64 = reply.audioBase64;
       }
