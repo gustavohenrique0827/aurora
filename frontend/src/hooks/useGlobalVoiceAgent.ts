@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useJarvisChat } from "./useJarvisChat";
 import { useVoiceEngine } from "./useVoiceEngine";
 import { useWakeWord } from "./useWakeWord";
@@ -8,9 +9,14 @@ import { matchCameraVisionIntent } from "../lib/cameraVisionIntent";
 import { matchDemonstrativeIntent } from "../lib/demonstrativeIntent";
 import { resolvePointedTarget } from "../lib/handTracking/pointedTarget";
 
-function checkVoiceActionShortcuts(text: string): boolean {
+function checkVoiceActionShortcuts(text: string, navigate: (path: string) => void): boolean {
   const norm = text.toLowerCase().trim();
   const state = useJarvisStore.getState();
+
+  if (norm.includes("consumo de tokens") || norm.includes("gastos dos agentes") || norm.includes("quanto eu gastei")) {
+    navigate("/consumo");
+    return true;
+  }
 
   if (norm.includes("iniciar apresentação") || norm.includes("abrir apresentação")) {
     state.setExperienceMode("presentation");
@@ -68,6 +74,7 @@ function maybeAugmentWithPointedTarget(text: string): string {
 
 export function useGlobalVoiceAgent() {
   const activeDirectorId = useJarvisStore((s) => s.activeDirectorId) ?? undefined;
+  const navigate = useNavigate();
   const { messages, sendMessage } = useJarvisChat();
   const lastSpokenIdRef = useRef<string | null>(null);
   const [pendingScreenShare, setPendingScreenShare] = useState<string | null>(null);
@@ -87,7 +94,7 @@ export function useGlobalVoiceAgent() {
       return;
     }
 
-    const handledShortcuts = checkVoiceActionShortcuts(text);
+    const handledShortcuts = checkVoiceActionShortcuts(text, navigate);
     if (handledShortcuts) return;
 
     const augmented = image || document ? text : maybeAugmentWithPointedTarget(text);

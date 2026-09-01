@@ -5,6 +5,7 @@ import { HomePage } from "../pages/HomePage";
 import { AuroraPage } from "../pages/AuroraPage";
 import { AgentesPage } from "../pages/AgentesPage";
 import { AutomacoesPage } from "../pages/AutomacoesPage";
+import { ConsumoPage } from "../pages/ConsumoPage";
 import { CrmPage } from "../pages/CrmPage";
 import { AnalyticsPage } from "../pages/AnalyticsPage";
 import { MemoriaPage } from "../pages/MemoriaPage";
@@ -44,6 +45,7 @@ export function AppRoutes() {
                 <Route path="/dashboard" element={<Navigate to="/" replace />} />
                 <Route path="/directors/:id" element={<DirectorPanel />} />
                 <Route path="/automacoes" element={<AutomacoesPage />} />
+                <Route path="/consumo" element={<ConsumoPage />} />
                 <Route path="/crm" element={<CrmPage />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
                 <Route path="/memoria" element={<MemoriaPage />} />

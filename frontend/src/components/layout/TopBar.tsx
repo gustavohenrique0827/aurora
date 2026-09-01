@@ -22,6 +22,7 @@ function getBreadcrumb(pathname: string): { parent?: string; title: string } {
   if (pathname.startsWith("/directors")) return { parent: "Diretoria", title: "Painel do Diretor" };
   if (pathname.startsWith("/crm")) return { parent: "Operações", title: "CRM & Clientes" };
   if (pathname.startsWith("/automacoes")) return { parent: "Operações", title: "Automações n8n" };
+  if (pathname.startsWith("/consumo")) return { parent: "Operações", title: "Consumo de Tokens" };
   if (pathname.startsWith("/agentes")) return { parent: "Operações", title: "Roster de Agentes" };
   if (pathname.startsWith("/memoria")) return { parent: "Sistema", title: "Memória" };
   if (pathname.startsWith("/analytics")) return { parent: "Sistema", title: "Analytics" };

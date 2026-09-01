@@ -16,6 +16,7 @@ import {
   BarChart3,
   Settings,
   Scan,
+  Coins,
 } from "lucide-react";
 
 export interface NavItem {
@@ -46,6 +47,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/directors/coo", label: "Projetos", icon: FolderKanban, hint: "COO AI — operações e processos" },
   { to: "/crm", label: "CRM", icon: Users, hint: "Leads e clientes (Axis)" },
   { to: "/automacoes", label: "Automações", icon: Workflow, hint: "Workflows n8n" },
+  { to: "/consumo", label: "Consumo", icon: Coins, hint: "Tokens e custo por agente" },
   { to: "/agentes", label: "Agentes", icon: Bot, hint: "Roster completo da Diretoria" },
   { to: "/memoria", label: "Memória", icon: Brain, hint: "Ainda não conectado" },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
