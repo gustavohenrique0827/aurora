@@ -1,66 +1,14 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { DIRECTORS } from "@jarvis/shared";
 import type { N8nWorkflowSummary } from "@jarvis/shared";
-import {
-  Workflow,
-  Cpu,
-  ArrowRight,
-  ChevronDown,
-  ChevronsDown,
-  ChevronsUp,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  Minus,
-  Briefcase,
-  Building2,
-  Microscope,
-  Sparkles,
-  Boxes,
-} from "lucide-react";
+import { Workflow, Cpu, ArrowRight, ChevronsDown, ChevronsUp, CheckCircle2, XCircle, Loader2, Minus, Boxes } from "lucide-react";
 import { GlassPanel } from "../components/common/GlassPanel";
+import { CollapsibleGroup } from "../components/common/CollapsibleGroup";
 import { DataStateBadge } from "../components/dashboard/DataStateBadge";
 import { NotConnectedPanel } from "../components/dashboard/panels/NotConnectedPanel";
 import { LoadingPulse } from "../components/common/LoadingPulse";
 import { useDashboardData } from "../hooks/useDashboardData";
-
-const GTECH_PREFIX = "[G-TECH AI OS]";
-
-const AGENT_GROUP_ORDER = [
-  "Diretoria Executiva",
-  "Gerências",
-  "Inteligência",
-  "Robôs de Pesquisa",
-  "Agentes Especiais",
-  "Outras Automações",
-] as const;
-type AgentGroup = (typeof AGENT_GROUP_ORDER)[number];
-
-const GROUP_ICON: Record<AgentGroup, typeof Briefcase> = {
-  "Diretoria Executiva": Briefcase,
-  Gerências: Building2,
-  Inteligência: Sparkles,
-  "Robôs de Pesquisa": Microscope,
-  "Agentes Especiais": Cpu,
-  "Outras Automações": Boxes,
-};
-
-function bareName(name: string): string {
-  return name.replace(/^\[[^\]]+\]\s*/, "");
-}
-
-function classify(w: N8nWorkflowSummary): AgentGroup {
-  // Anything outside the G-TECH AI OS roster is a client/CRM automation, not one of Aurora's
-  // own team agents - keep it visible, but clearly apart from "who you can talk to".
-  if (!w.name.startsWith(GTECH_PREFIX)) return "Outras Automações";
-  const name = bareName(w.name);
-  if (DIRECTORS.some((d) => d.name === name)) return "Diretoria Executiva";
-  if (/ger[eê]ncia/i.test(name)) return "Gerências";
-  if (/rob[oô] pesquisa/i.test(name)) return "Robôs de Pesquisa";
-  if (/intelligence/i.test(name)) return "Inteligência";
-  return "Agentes Especiais";
-}
+import { AGENT_GROUP_ORDER, GROUP_ICON, bareName, classify } from "../lib/agentGroups";
 
 type ToolGroup = "Axis (CRM/ERP)" | "WhatsApp" | "n8n" | "Outras";
 
@@ -110,45 +58,6 @@ function ExecutionStatusDot({ w }: { w: N8nWorkflowSummary }) {
       <Icon size={11} />
       <span className="hidden sm:inline">{label}</span>
     </span>
-  );
-}
-
-function CollapsibleGroup({
-  title,
-  count,
-  icon: Icon,
-  open,
-  onToggle,
-  children,
-}: {
-  title: string;
-  count: number;
-  icon?: typeof Briefcase;
-  open: boolean;
-  onToggle: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-jarvis-cyan/15 bg-[#0a0f1d]/75 shadow-[0_8px_32px_rgba(0,0,0,0.37)] backdrop-blur-xl transition-all">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex w-full items-center justify-between gap-2 border-b border-jarvis-cyan/15 bg-black/30 px-4 py-2.5 text-left hover:bg-black/40"
-      >
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-jarvis-cyanBright" />
-          {Icon && <Icon size={12} className="text-white/30" />}
-          <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-white/80">{title}</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-[10px] text-white/30">{count}</span>
-          <ChevronDown size={14} className={`text-white/40 transition-transform ${open ? "rotate-180" : ""}`} />
-        </div>
-      </button>
-      {open && <div className="p-4">{children}</div>}
-      <div className="pointer-events-none absolute top-0 right-0 h-2 w-2 border-t border-r border-jarvis-cyan/30" />
-      <div className="pointer-events-none absolute bottom-0 left-0 h-2 w-2 border-b border-l border-jarvis-cyan/30" />
-    </div>
   );
 }
 

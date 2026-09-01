@@ -11,6 +11,7 @@ import { requireAuth } from "./auth/auth.middleware";
 import { authRouter } from "./auth/auth.routes";
 import { directorsRouter } from "./directors/directors.routes";
 import { dashboardRouter } from "./dashboard/dashboard.routes";
+import { tokenUsageRouter } from "./tokenUsage/tokenUsage.routes";
 import { createSocketServer } from "./sockets/socketServer";
 import { startN8nPoller } from "./n8nApi/n8nApi.poller";
 import { startAxisPoller } from "./axis/axisKpi.poller";
@@ -32,6 +33,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/directors", requireAuth, chatRateLimiter, directorsRouter);
 app.use("/api/dashboard", requireAuth, dashboardRouter);
+app.use("/api/token-usage", requireAuth, tokenUsageRouter);
 
 app.use(errorHandler);
 
