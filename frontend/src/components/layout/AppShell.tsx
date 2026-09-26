@@ -3,6 +3,7 @@ import { TopBar } from "./TopBar";
 import { SideNav } from "./SideNav";
 import { HudOverlay } from "./HudOverlay";
 import { useGlobalVoiceAgent } from "../../hooks/useGlobalVoiceAgent";
+import { VoiceAgentContext } from "../../hooks/voiceAgentContext";
 import { useGlobalVisionAgent } from "../../hooks/useGlobalVisionAgent";
 import { usePointerMode } from "../../hooks/usePointerMode";
 import { useGestureCombos } from "../../hooks/useGestureCombos";
@@ -38,6 +39,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const cameraActive = useJarvisStore((s) => s.cameraActive);
 
   return (
+    <VoiceAgentContext.Provider value={voice}>
     <div className="relative flex h-screen flex-col">
       <HudOverlay />
       <TopBar />
@@ -49,5 +51,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <GestureCursor />
       <RadialMenu />
     </div>
+    </VoiceAgentContext.Provider>
   );
 }

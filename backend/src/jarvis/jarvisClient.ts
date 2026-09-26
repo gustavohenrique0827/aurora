@@ -58,6 +58,11 @@ function extractAudioBase64(responseData: unknown): string | undefined {
   return undefined;
 }
 
+// Aurora's model call can take well over a minute when Gemini is overloaded (primary 503 →
+// fallback model); 90s made the backend give up while n8n was still answering, so Gustavo
+// got silence. The n8n side has its own retry/fallback budget; this just has to outlast it.
+const N8N_REPLY_TIMEOUT_MS = 150_000;
+
 export class JarvisChatError extends Error {}
 
 export interface JarvisReply {
@@ -80,7 +85,7 @@ export async function sendNonStreaming(options: SendOptions): Promise<JarvisRepl
         documentBase64: options.documentBase64,
         documentMimeType: options.documentMimeType,
       },
-      { timeout: 90_000 }
+      { timeout: N8N_REPLY_TIMEOUT_MS }
     );
     return { text: extractOutputText(response.data), audioBase64: extractAudioBase64(response.data) };
   } catch (err) {
@@ -112,7 +117,7 @@ export async function sendStreaming(options: SendOptions, onChunk: (delta: strin
       documentBase64: options.documentBase64,
       documentMimeType: options.documentMimeType,
     },
-    { timeout: 90_000, responseType: "stream" }
+    { timeout: N8N_REPLY_TIMEOUT_MS, responseType: "stream" }
   );
 
   return new Promise<string>((resolve, reject) => {

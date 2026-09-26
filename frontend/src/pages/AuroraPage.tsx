@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Sliders,
   Tv,
@@ -11,11 +11,11 @@ import {
   Mic,
   Send,
   ChevronDown,
+  ChevronUp,
   ArrowRight,
   Maximize2,
 } from "lucide-react";
 import { EnergySphere } from "../components/sphere/EnergySphere";
-import { TranscriptOverlay } from "../components/voice/TranscriptOverlay";
 import { SpatialWindowManager } from "../components/vision/SpatialWindowManager";
 import { HolographicCursor } from "../components/vision/HolographicCursor";
 import { MultimodalHighlight } from "../components/vision/MultimodalHighlight";
@@ -24,8 +24,11 @@ import { DemoExperience } from "../components/vision/DemoExperience";
 import { CalibrationWizard } from "../components/vision/CalibrationWizard";
 import { DeviceManagerModal } from "../components/vision/DeviceManagerModal";
 import { SurfaceSettingsPanel } from "../components/vision/SurfaceSettingsPanel";
+import { AgentDetailPanel } from "../components/sphere/aurora/AgentDetailPanel";
 import { useJarvisStore } from "../state/store";
-import { useGlobalVoiceAgent } from "../hooks/useGlobalVoiceAgent";
+import { useVoiceAgent } from "../hooks/voiceAgentContext";
+import { WakeWordToggle } from "../components/voice/WakeWordToggle";
+import { ConversationCard } from "../components/aurora/ConversationCard";
 import { useJarvisChat } from "../hooks/useJarvisChat";
 import type { SpatialWindowType, SurfaceMode } from "@jarvis/shared";
 
@@ -54,13 +57,45 @@ export function AuroraPage() {
   const [showWindowMenu, setShowWindowMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [typedMessage, setTypedMessage] = useState("");
+  // Whole chat card open/closed (conversation + suggestions + camera row); closed leaves only
+  // the input row. Remembered per viewer.
+  const [chatCardOpen, setChatCardOpen] = useState(() => {
+    try {
+      return localStorage.getItem("aurora.chatCard.open") !== "0";
+    } catch {
+      return true;
+    }
+  });
+  const toggleChatCard = () =>
+    setChatCardOpen((o) => {
+      try {
+        localStorage.setItem("aurora.chatCard.open", o ? "0" : "1");
+      } catch {
+        /* per-viewer convenience only */
+      }
+      return !o;
+    });
+  const promptInputRef = useRef<HTMLInputElement>(null);
+  const setOpenedAgentKey = useJarvisStore((s) => s.setOpenedAgentKey);
+  const brainOpen = useJarvisStore((s) => s.brainOpen);
+  const setBrainOpen = useJarvisStore((s) => s.setBrainOpen);
 
-  const { startPushToTalk, stopPushToTalk } = useGlobalVoiceAgent();
-  const { sendMessage } = useJarvisChat();
+  // handleComposerSend (not a bare sendMessage) so a typed message also unlocks audio playback
+  // in the same user gesture — otherwise the browser silently blocks Aurora's spoken reply.
+  const { startPushToTalk, stopPushToTalk, handleComposerSend } = useVoiceAgent();
+  const { messages, isAwaitingResponse } = useJarvisChat();
 
   useEffect(() => {
     setActiveDirectorId(null);
   }, [setActiveDirectorId]);
+
+  useEffect(
+    () => () => {
+      setOpenedAgentKey(null);
+      setBrainOpen(false);
+    },
+    [setOpenedAgentKey, setBrainOpen]
+  );
 
   const openProjectorWindow = () => {
     window.open(
@@ -73,7 +108,7 @@ export function AuroraPage() {
   const handleSendPrompt = (textToSend?: string) => {
     const query = (textToSend || typedMessage).trim();
     if (!query) return;
-    sendMessage(query);
+    handleComposerSend(query);
     setTypedMessage("");
   };
 
@@ -274,7 +309,28 @@ export function AuroraPage() {
         <HolographicCursor />
 
         {/* Floating Voice Transcript & State Overlay */}
-        <TranscriptOverlay />
+
+        {/* Greeting under her before the first exchange; the conversation itself lives in the
+            ConversationCard above the chat bar. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-36 z-20 flex justify-center px-4">
+          {messages.length === 0 && !isAwaitingResponse ? (
+            <p
+              className={`text-center font-display text-lg font-medium tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-jarvis-cyanBright via-white to-fuchsia-300 transition-opacity duration-500 sm:text-2xl ${
+                sphereMode === "idle" && !isListening && !brainOpen ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              Bem-vindo, como posso ajudar hoje?
+            </p>
+          ) : null}
+        </div>
+
+        {/* Agent legend + detail card for the neuron tapped inside Aurora's head */}
+        <AgentDetailPanel
+          onAsk={(text) => {
+            setTypedMessage(text);
+            requestAnimationFrame(() => promptInputRef.current?.focus());
+          }}
+        />
 
         {/* Sci-Fi Corner Brackets */}
         <div className="pointer-events-none absolute top-2 left-2 h-4 w-4 border-t-2 border-l-2 border-jarvis-cyan/30" />
@@ -295,6 +351,16 @@ export function AuroraPage() {
         {/* Central Conversational Prompt & Voice Capsule */}
         <div className="pointer-events-auto w-full max-w-2xl">
           <div className="rounded-2xl border border-jarvis-cyan/35 bg-black/80 p-2 backdrop-blur-2xl shadow-[0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(79,215,255,0.15)]">
+            {chatCardOpen && (
+            <ConversationCard
+              messages={messages}
+              isAwaitingResponse={isAwaitingResponse}
+              onEdit={(text) => {
+                setTypedMessage(text);
+                requestAnimationFrame(() => promptInputRef.current?.focus());
+              }}
+            />
+            )}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -318,12 +384,16 @@ export function AuroraPage() {
               </button>
 
               <input
+                ref={promptInputRef}
                 type="text"
                 value={typedMessage}
                 onChange={(e) => setTypedMessage(e.target.value)}
                 placeholder="Fale ou digite um comando para a Aurora..."
                 className="flex-1 bg-transparent px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none"
               />
+
+              {/* Wake-word state lives in the bar, so a self-disabled listener never fails silently. */}
+              <WakeWordToggle compact />
 
               <button
                 type="submit"
@@ -333,9 +403,21 @@ export function AuroraPage() {
               >
                 <Send size={15} />
               </button>
+
+              <button
+                type="button"
+                onClick={toggleChatCard}
+                aria-expanded={chatCardOpen}
+                className="flex h-10 w-7 shrink-0 items-center justify-center rounded-lg text-white/45 transition-colors hover:bg-white/5 hover:text-white"
+                title={chatCardOpen ? "Fechar card (conversa e sugestões)" : "Abrir card (conversa e sugestões)"}
+                aria-label={chatCardOpen ? "Fechar card da conversa" : "Abrir card da conversa"}
+              >
+                {chatCardOpen ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+              </button>
             </form>
 
             {/* Quick Action Suggestion Chips */}
+            {chatCardOpen && (
             <div className="mt-2 flex flex-wrap items-center justify-between gap-1.5 border-t border-white/10 pt-2 px-1">
               <div className="flex flex-wrap items-center gap-1.5">
                 {quickPrompts.map((p, i) => (
@@ -377,6 +459,7 @@ export function AuroraPage() {
                 </button>
               </div>
             </div>
+            )}
           </div>
         </div>
       </footer>

@@ -38,6 +38,9 @@ interface SynapseNetworkProps {
    * imperatively (not a prop value) so per-frame damping never forces a re-render here,
    * matching the grabAmountRef pattern already used for the orb core. */
   grabAmountRef?: RefObject<number>;
+  /** Scales the traveling pulse light (1 = original). Kept low on shells that sit behind
+   * Aurora's face so their streaks don't compete with it. */
+  pulseGain?: number;
 }
 
 /**
@@ -68,6 +71,7 @@ export const SynapseNetwork = forwardRef<THREE.Group, SynapseNetworkProps>(funct
     externalPositions,
     grabbedRef,
     grabAmountRef,
+    pulseGain = 1,
   },
   forwardedRef
 ) {
@@ -153,6 +157,7 @@ export const SynapseNetwork = forwardRef<THREE.Group, SynapseNetworkProps>(funct
       uIntensity: { value: intensity },
       uColor: { value: new THREE.Color(...color) },
       uBaseOpacity: { value: baseOpacity },
+      uPulseGain: { value: pulseGain },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []

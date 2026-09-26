@@ -103,7 +103,11 @@ export function useGlobalVoiceAgent() {
 
   const { startPushToTalk, stopPushToTalk, playAudioBase64, interrupt, primeAudio } = useVoiceEngine(handleSend);
 
-  useWakeWord(() => startPushToTalk());
+  // "Aurora, <pedido>" in one breath → send the pedido directly; just "Aurora" → open the mic.
+  useWakeWord((command) => {
+    if (command) handleSend(command);
+    else startPushToTalk();
+  });
 
   useEffect(() => {
     const last = messages[messages.length - 1];

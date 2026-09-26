@@ -19,7 +19,20 @@ const RESTART_DELAY_MS = 400;
  * auto-restarts after Chrome's silence timeout, disables itself after repeated
  * failures rather than looping forever silently.
  */
-export function useWakeWord(onWake: () => void) {
+/** Words said after "Aurora" in the same breath ("Aurora, tudo bem?") — that's the command. */
+function commandAfterWake(transcript: string): string {
+  const at = transcript.lastIndexOf(WAKE_PHRASE);
+  return transcript.slice(at + WAKE_PHRASE.length).replace(/^[\s,.!?:;-]+/, "").trim();
+}
+
+// Chrome fires these routinely (silence timeout, our own stop/abort) — not real failures.
+const BENIGN_ERRORS = new Set(["no-speech", "aborted"]);
+
+/**
+ * onWake(command): command is what was said right after "Aurora" in the same utterance, or ""
+ * when only the name was said (then the caller should open push-to-talk for the command).
+ */
+export function useWakeWord(onWake: (command: string) => void) {
   const wakeWordEnabled = useJarvisStore((s) => s.wakeWordEnabled);
   const setWakeWordEnabled = useJarvisStore((s) => s.setWakeWordEnabled);
   // Privacy Mode (Seção 2) must kill the mic too, not just the camera — a background
@@ -37,6 +50,10 @@ export function useWakeWord(onWake: () => void) {
   // SECOND SpeechRecognition instance while push-to-talk's is starting up — Chrome
   // allows only one live recognition session per page, so one of the two breaks.
   const justTriggeredRef = useRef(false);
+  // Latest callback without restarting recognition on every render (an inline arrow changes
+  // identity each render; as an effect dep it aborted and restarted the mic constantly).
+  const onWakeRef = useRef(onWake);
+  onWakeRef.current = onWake;
 
   useEffect(() => {
     const Ctor = getRecognitionCtor();
@@ -51,26 +68,38 @@ export function useWakeWord(onWake: () => void) {
       recognition.continuous = true;
       recognition.interimResults = true;
 
+      let pendingWake: string | null = null;
+      recognition.onstart = () => {
+        failureCountRef.current = 0;
+      };
       recognition.onresult = (event) => {
+        if (pendingWake !== null) return;
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript.toLowerCase();
-          if (transcript.includes(WAKE_PHRASE)) {
-            failureCountRef.current = 0;
-            justTriggeredRef.current = true;
-            // Safety release in case the store flags below never end up covering
-            // this cycle for some reason — don't suppress restarts forever.
-            setTimeout(() => {
-              justTriggeredRef.current = false;
-            }, 4000);
-            recognition.stop();
-            onWake();
-            return;
-          }
+          const result = event.results[i];
+          const transcript = result[0].transcript.toLowerCase();
+          if (!transcript.includes(WAKE_PHRASE)) continue;
+          const command = commandAfterWake(transcript);
+          // Interim "aurora, tu…" — wait for the final result to get the whole command.
+          if (!result.isFinal && command.length > 0) return;
+          failureCountRef.current = 0;
+          justTriggeredRef.current = true;
+          // Safety release in case the store flags below never end up covering
+          // this cycle for some reason — don't suppress restarts forever.
+          setTimeout(() => {
+            justTriggeredRef.current = false;
+          }, 4000);
+          // Instant visual feedback: she perks up the moment she hears her name.
+          useJarvisStore.getState().setSphereMode("listening");
+          pendingWake = result.isFinal ? command : "";
+          // Fire only after this session has fully ended — starting push-to-talk's own
+          // recognition while this one is still live makes Chrome reject it.
+          recognition.stop();
+          return;
         }
       };
 
-      recognition.onerror = () => {
-        failureCountRef.current += 1;
+      recognition.onerror = (event) => {
+        if (!BENIGN_ERRORS.has(event.error)) failureCountRef.current += 1;
       };
 
       const checkAndRestart = () => {
@@ -97,6 +126,14 @@ export function useWakeWord(onWake: () => void) {
       };
 
       recognition.onend = () => {
+        if (pendingWake !== null) {
+          const command = pendingWake;
+          pendingWake = null;
+          if (!command && useJarvisStore.getState().sphereMode === "listening") {
+            useJarvisStore.getState().setSphereMode("idle");
+          }
+          onWakeRef.current(command);
+        }
         if (stopped || !enabledRef.current) return;
         restartTimeoutRef.current = setTimeout(checkAndRestart, RESTART_DELAY_MS);
       };
@@ -118,5 +155,5 @@ export function useWakeWord(onWake: () => void) {
       recognitionRef.current = null;
       failureCountRef.current = 0;
     };
-  }, [wakeWordEnabled, privacyMode, onWake, setWakeWordEnabled]);
+  }, [wakeWordEnabled, privacyMode, setWakeWordEnabled]);
 }

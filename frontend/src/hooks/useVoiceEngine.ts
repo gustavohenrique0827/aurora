@@ -23,6 +23,12 @@ export function useVoiceEngine(onFinalTranscript: (text: string) => void) {
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const playbackRef = useRef<HTMLAudioElement | null>(null);
+  // Output analyser on Aurora's own voice (drives the face's mouth via store.speechLevel).
+  const outCtxRef = useRef<AudioContext | null>(null);
+  const outAnalyserRef = useRef<AnalyserNode | null>(null);
+  const outConnectedRef = useRef(false);
+  const speechRafRef = useRef<number | null>(null);
+  const setSpeechLevel = useJarvisStore((s) => s.setSpeechLevel);
 
   useEffect(() => {
     const sttSupported = getRecognitionCtor() !== null;
@@ -91,7 +97,73 @@ export function useVoiceEngine(onFinalTranscript: (text: string) => void) {
    * to be unreliably broken on some machines even after priming; real audio
    * playback via <audio> is far more consistently supported.)
    */
+  const stopSpeechMetering = useCallback(() => {
+    if (speechRafRef.current) cancelAnimationFrame(speechRafRef.current);
+    speechRafRef.current = null;
+    setSpeechLevel(0);
+  }, [setSpeechLevel]);
+
+  /**
+   * Routes the playback element through an AnalyserNode so the face can lip-sync. Only
+   * connects once the AudioContext is actually "running": a MediaElementSource sends ALL
+   * of the element's sound through the context, so connecting while suspended would mute
+   * Aurora. If it isn't running yet, playback stays on the default path (face falls back to
+   * a procedural mouth) and a later call connects once a user gesture has resumed it.
+   */
+  const ensureOutputAnalyser = useCallback((el: HTMLAudioElement): AnalyserNode | null => {
+    try {
+      if (!outCtxRef.current) outCtxRef.current = new AudioContext();
+      const ctx = outCtxRef.current;
+      if (ctx.state !== "running") {
+        void ctx.resume().catch(() => undefined);
+        return outConnectedRef.current ? outAnalyserRef.current : null;
+      }
+      if (!outConnectedRef.current) {
+        const source = ctx.createMediaElementSource(el);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 512;
+        source.connect(analyser);
+        analyser.connect(ctx.destination);
+        outAnalyserRef.current = analyser;
+        outConnectedRef.current = true;
+      }
+      return outAnalyserRef.current;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const startSpeechMetering = useCallback(
+    (analyser: AnalyserNode | null) => {
+      stopSpeechMetering();
+      if (!analyser) return;
+      const data = new Uint8Array(analyser.fftSize);
+      const tick = () => {
+        analyser.getByteTimeDomainData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) {
+          const v = (data[i] - 128) / 128;
+          sum += v * v;
+        }
+        setSpeechLevel(Math.min(1, Math.sqrt(sum / data.length) * 3));
+        speechRafRef.current = requestAnimationFrame(tick);
+      };
+      tick();
+    },
+    [setSpeechLevel, stopSpeechMetering]
+  );
+
   const primeAudio = useCallback(() => {
+    // Same user gesture also unlocks the analyser's AudioContext for lip-sync later.
+    if (outCtxRef.current && outCtxRef.current.state !== "running") {
+      void outCtxRef.current.resume().catch(() => undefined);
+    } else if (!outCtxRef.current) {
+      try {
+        outCtxRef.current = new AudioContext();
+      } catch {
+        // No Web Audio — mouth uses the procedural fallback.
+      }
+    }
     const el = getPlaybackEl();
     const wasMuted = el.muted;
     el.muted = true;
@@ -174,24 +246,29 @@ export function useVoiceEngine(onFinalTranscript: (text: string) => void) {
     }
     setIsSpeaking(false);
     setSphereMode("idle");
-  }, [setIsSpeaking, setSphereMode]);
+    stopSpeechMetering();
+  }, [setIsSpeaking, setSphereMode, stopSpeechMetering]);
 
   const playAudioBase64 = useCallback(
     (base64: string) => {
       if (!base64) return;
       const el = getPlaybackEl();
       el.muted = false;
+      const analyser = ensureOutputAnalyser(el);
       el.onplay = () => {
         setIsSpeaking(true);
         setSphereMode("speaking");
+        startSpeechMetering(analyser);
       };
       el.onended = () => {
         setIsSpeaking(false);
         setSphereMode("idle");
+        stopSpeechMetering();
       };
       el.onerror = () => {
         setIsSpeaking(false);
         setSphereMode("idle");
+        stopSpeechMetering();
       };
       el.src = `data:audio/mpeg;base64,${base64}`;
       void el.play().catch((err) => {
@@ -199,12 +276,22 @@ export function useVoiceEngine(onFinalTranscript: (text: string) => void) {
         console.warn("Aurora: falha ao tocar áudio da resposta", err);
         setIsSpeaking(false);
         setSphereMode("idle");
+        stopSpeechMetering();
       });
     },
-    [getPlaybackEl, setIsSpeaking, setSphereMode]
+    [ensureOutputAnalyser, getPlaybackEl, setIsSpeaking, setSphereMode, startSpeechMetering, stopSpeechMetering]
   );
 
   useEffect(() => stopVolumeMetering, [stopVolumeMetering]);
+  useEffect(
+    () => () => {
+      stopSpeechMetering();
+      void outCtxRef.current?.close().catch(() => undefined);
+      outCtxRef.current = null;
+      outConnectedRef.current = false;
+    },
+    [stopSpeechMetering]
+  );
   useEffect(() => {
     const el = playbackRef.current;
     return () => {

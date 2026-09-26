@@ -83,7 +83,8 @@ export const sphereFragmentShader = /* glsl */ `
 
     // Subtle internal plasma shimmer
     float shimmer = 0.5 + 0.5 * sin(uTime * 1.2 + vPosition.y * 3.5);
-    vec3 core = uColor * (0.15 + 0.25 * shimmer);
+    // Kept dim in the center: Aurora's synapse face lives inside this glass and must read through it.
+    vec3 core = uColor * (0.05 + 0.08 * shimmer);
 
     // Holographic rim glow with electric edge
     vec3 rim = uColor * fresnel * (1.1 + uIntensity * 0.35);
@@ -91,7 +92,7 @@ export const sphereFragmentShader = /* glsl */ `
     // Moving scan bands across the surface
     float band = sin(vPosition.y * 9.0 - uTime * (1.4 + uIntensity * 0.5)) * 0.5 + 0.5;
     band = smoothstep(0.85, 1.0, band);
-    vec3 scan = uColor * band * (0.5 + uIntensity * 0.4);
+    vec3 scan = uColor * band * (0.25 + uIntensity * 0.2);
 
     // Inner wireframe lattice hint
     float grid = sin(vPosition.x * 18.0) * sin(vPosition.z * 18.0);
@@ -99,7 +100,7 @@ export const sphereFragmentShader = /* glsl */ `
     vec3 lattice = uColor * grid;
 
     vec3 color = core + rim + scan + lattice;
-    float alpha = clamp(0.2 + fresnel * 0.65 + band * 0.25 + grid * 0.2, 0.0, 0.88);
+    float alpha = clamp(0.05 + fresnel * 0.7 + band * 0.1 + grid * 0.15, 0.0, 0.85);
 
     gl_FragColor = vec4(color, alpha);
   }

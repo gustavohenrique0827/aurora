@@ -18,6 +18,7 @@ export const synapseFragmentShader = /* glsl */ `
   uniform float uSpeed;
   uniform float uIntensity;
   uniform float uBaseOpacity;
+  uniform float uPulseGain;
 
   varying float vProgress;
   varying float vSeed;
@@ -32,8 +33,8 @@ export const synapseFragmentShader = /* glsl */ `
     float pulse = smoothstep(0.16, 0.0, dist);
 
     vec3 baseColor = uColor * uBaseOpacity;
-    vec3 pulseColor = uColor * pulse * (1.6 + uIntensity);
+    vec3 pulseColor = uColor * pulse * (1.6 + uIntensity) * uPulseGain;
 
-    gl_FragColor = vec4(baseColor + pulseColor, uBaseOpacity * 1.4 + pulse * 0.85);
+    gl_FragColor = vec4(baseColor + pulseColor, uBaseOpacity * 1.4 + pulse * 0.85 * uPulseGain);
   }
 `;

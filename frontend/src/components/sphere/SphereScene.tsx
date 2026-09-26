@@ -3,13 +3,10 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSphereReactivity } from "../../hooks/useSphereReactivity";
 import { sphereFragmentShader, sphereVertexShader } from "./sphereShaders";
-import { OrbitalRings } from "./OrbitalRings";
-import { SphereCore } from "./SphereCore";
 import { SynapseNetwork } from "./SynapseNetwork";
 import type { SynapseFocus } from "./AgentConstellation";
 import { fibonacciSpherePoints } from "./sphereMath";
-import { ParticleField } from "./ParticleField";
-import { AgentConstellation } from "./AgentConstellation";
+import { SynapseFace } from "./aurora/SynapseFace";
 import { useJarvisStore } from "../../state/store";
 import type { HandFrame, HandSide } from "../../lib/handTracking/types";
 
@@ -387,8 +384,14 @@ export function SphereScene({ lowPower, interacting }: SphereSceneProps) {
       <pointLight position={[3, 3, 3]} intensity={1.2} color={new THREE.Color(...baseColor)} />
       <pointLight position={[-3, -2, -3]} intensity={0.6} color="#ffffff" />
 
+      {/* Front key light: gives the agent pearls inside the head their glossy highlight. */}
+      <pointLight position={[0, 1.4, 4]} intensity={0.9} color="#ffffff" />
+
       <group ref={interactionRef}>
-      <mesh ref={meshRef}>
+      {/* Aurora is a head of synapses now, not a glass orb. The orb mesh stays (invisible) only
+          as the raycast target for the camera hand-gesture grab/click/menu logic above —
+          three.js raycasting ignores `visible`, so those gestures keep working unchanged. */}
+      <mesh ref={meshRef} visible={false}>
         <icosahedronGeometry args={[1, geometryDetail / 16]} />
         <shaderMaterial
           ref={materialRef}
@@ -396,61 +399,35 @@ export function SphereScene({ lowPower, interacting }: SphereSceneProps) {
           fragmentShader={sphereFragmentShader}
           uniforms={uniforms}
           transparent
+          depthWrite={false}
           side={THREE.FrontSide}
         />
       </mesh>
 
-      <group scale={0.34}>
-        <SphereCore color={baseColor} intensity={intensity} grabAmountRef={grabAmountRef} />
-      </group>
+      <SynapseFace baseColor={baseColor} mode={mode} lowPower={lowPower} />
 
-      {/* Abstract brain texture — two restrained shells (the first pass with 3 heavy,
-          overlapping shells + a miscalibrated point shader is what read as "horrível";
-          this is the smaller, corrected version). */}
-      <SynapseNetwork
-        ref={synapseGroupRef}
-        color={baseColor}
-        intensity={intensity}
-        nodeCount={innerSynapseNodeCount}
-        externalPositions={synapseNodePositions}
-        grabbedRef={synapseGrabRef}
-        grabAmountRef={synapseGrabAmountRef}
-        neighborLinks={2}
-        longRangeRatio={0.25}
-        radius={0.96}
-        tilt={[0.3, 0, 0.1]}
-        rotationSpeed={0.06}
-        rotationAxis={[0, 1, 0.15]}
-        baseOpacity={0.09}
-        nodeSize={0.018}
-      />
-      {!lowPower && (
+      {/* Kept mounted but hidden: its node positions/world matrix are still the hit-test data
+          for the pinch "agarrar sinapse" gesture. The visible synapses are the head itself. */}
+      <group visible={false}>
         <SynapseNetwork
+          ref={synapseGroupRef}
           color={baseColor}
           intensity={intensity}
-          nodeCount={70}
+          nodeCount={innerSynapseNodeCount}
+          externalPositions={synapseNodePositions}
+          grabbedRef={synapseGrabRef}
+          grabAmountRef={synapseGrabAmountRef}
           neighborLinks={2}
-          longRangeRatio={0.2}
-          radius={1.12}
-          tilt={[1.1, 0, 0.4]}
-          rotationSpeed={-0.04}
-          rotationAxis={[0.2, 1, 0.3]}
-          baseOpacity={0.06}
-          nodeSize={0.015}
+          longRangeRatio={0.25}
+          radius={0.96}
+          tilt={[0.3, 0, 0.1]}
+          rotationSpeed={0.06}
+          rotationAxis={[0, 1, 0.15]}
+          baseOpacity={0.03}
+          nodeSize={0.012}
+          pulseGain={0.22}
         />
-      )}
-
-      {/* The real agent roster — connects the hologram to actual Aurora state instead of
-          being pure decoration. Always rendered, even under lowPower: this is the one
-          element in the scene that isn't just ambiance (Gustavo relies on seeing which
-          directors/agents are actually active), and it was the thing reported disappearing
-          mid-gesture back when render quality silently dropped. It's cheap regardless —
-          a handful of small icosahedra + labels, not the O(n²) edge computation the second
-          SynapseNetwork shell below does. */}
-      <AgentConstellation color={baseColor} radius={1.68} focusRef={synapseFocusRef} />
-
-      {!lowPower && <ParticleField color={baseColor} active={mode === "thinking" || mode === "listening"} />}
-      <OrbitalRings color={baseColor} active={mode === "thinking" || mode === "listening" || mode === "speaking"} />
+      </group>
       </group>
     </group>
   );

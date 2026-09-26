@@ -7,6 +7,7 @@ import { DIRECTORS } from "@jarvis/shared";
 import type { DirectorId, N8nWorkflowSummary } from "@jarvis/shared";
 import { useJarvisStore } from "../../state/store";
 import { fibonacciSpherePoints } from "./sphereMath";
+import { stripWorkflowPrefix } from "./aurora/agentRoster";
 
 /** A grabbed synapse's unit-sphere direction + how "open" it currently is (0..1, damped).
  * `direction` lives in the same unit-sphere convention as this component's own home
@@ -22,6 +23,9 @@ interface AgentConstellationProps {
   color: [number, number, number];
   radius?: number;
   focusRef?: RefObject<SynapseFocus>;
+  /** Director labels + click-to-select. Off when the colored agent neurons inside the face
+   * (aurora/SynapseFace.tsx) already represent the directors, so they aren't shown twice. */
+  labels?: boolean;
 }
 
 const INACTIVE_COLOR = new THREE.Color(0.5, 0.53, 0.58);
@@ -40,6 +44,8 @@ interface AgentNodeProps {
   coreColor: THREE.Color;
   directorId: DirectorId | null;
   onSelect: (id: DirectorId) => void;
+  /** Multiplies the link-to-core opacity (lower when the face is in front of it). */
+  lineOpacityScale: number;
 }
 
 /** One real n8n workflow: a node wired to the core by a synapse line, colored by its actual `active` flag. Directors (the 10-strong Diretoria Executiva) get a bigger node and a label; the other ~20+ workflows (Gerências, Robôs, produção) render as smaller unlabeled nodes so the sphere reads as one dense, real system instead of ten decorated names. Director nodes are also clickable — same effect as picking that director anywhere else in the app (scopes the persistent chat to them).
@@ -48,7 +54,7 @@ interface AgentNodeProps {
  * synapse's focus point and back — see the "agarrar sinapse" feature in SphereScene.tsx.
  * `homePosition` is only the mount-time/rest value; every frame the mesh, connecting line
  * and label all read from `currentPosRef` instead. */
-function AgentNode({ homePosition, clusterOffset, focusRef, label, active, isCurrent, isDirector, coreColor, directorId, onSelect }: AgentNodeProps) {
+function AgentNode({ homePosition, clusterOffset, focusRef, label, active, isCurrent, isDirector, coreColor, directorId, onSelect, lineOpacityScale }: AgentNodeProps) {
   const nodeGroupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
   const lineGeometryRef = useRef<THREE.BufferGeometry>(null);
@@ -115,7 +121,7 @@ function AgentNode({ homePosition, clusterOffset, focusRef, label, active, isCur
         <bufferGeometry ref={lineGeometryRef}>
           <bufferAttribute attach="attributes-position" args={[linePositions, 3]} count={2} array={linePositions} itemSize={3} />
         </bufferGeometry>
-        <lineBasicMaterial color={color} transparent opacity={hovered ? 0.6 : active || isCurrent ? 0.32 : 0.08} />
+        <lineBasicMaterial color={color} transparent opacity={(hovered ? 0.6 : active || isCurrent ? 0.32 : 0.08) * lineOpacityScale} />
       </line>
 
       <group ref={nodeGroupRef} position={homePosition}>
@@ -157,13 +163,13 @@ function AgentNode({ homePosition, clusterOffset, focusRef, label, active, isCur
 }
 
 function shortLabel(workflowName: string): string | null {
-  const name = workflowName.replace("[G-TECH AI OS] ", "");
+  const name = stripWorkflowPrefix(workflowName);
   const director = DIRECTORS.find((d) => d.name === name);
   return director ? director.name.replace(" AI", "") : null;
 }
 
 function matchDirectorId(workflowName: string): DirectorId | null {
-  const name = workflowName.replace("[G-TECH AI OS] ", "");
+  const name = stripWorkflowPrefix(workflowName);
   return DIRECTORS.find((d) => d.name === name)?.id ?? null;
 }
 
@@ -181,13 +187,16 @@ function matchDirectorId(workflowName: string): DirectorId | null {
  * shown never changes because of this, only where it's drawn: still the same real
  * workflows, same real active/inactive colors, same real click-to-select.
  */
-export function AgentConstellation({ color, radius = 1.4, focusRef }: AgentConstellationProps) {
+export function AgentConstellation({ color, radius = 1.4, focusRef, labels = true }: AgentConstellationProps) {
   const groupRef = useRef<THREE.Group>(null);
   const snapshot = useJarvisStore((s) => s.dashboardSnapshot);
   const activeDirectorId = useJarvisStore((s) => s.activeDirectorId);
   const setActiveDirectorId = useJarvisStore((s) => s.setActiveDirectorId);
 
-  const workflows: N8nWorkflowSummary[] = snapshot?.n8n.data?.workflows ?? [];
+  const allWorkflows: N8nWorkflowSummary[] = snapshot?.n8n.data?.workflows ?? [];
+  // Without labels this is background texture behind Aurora's face: only real agents (not the
+  // ~200 internal tool sub-workflows), so it stays a readable orbit instead of a dense cloud.
+  const workflows = labels ? allWorkflows : allWorkflows.filter((w) => w.kind !== "tool");
   const positions = useMemo(() => fibonacciSpherePoints(Math.max(workflows.length, 1)), [workflows.length]);
   // A tight, deterministic fan-out (same distribution, much smaller radius) so clustered
   // nodes spread apart instead of stacking on the exact same point inside the synapse.
@@ -213,13 +222,14 @@ export function AgentConstellation({ color, radius = 1.4, focusRef }: AgentConst
           homePosition={positions[i]}
           clusterOffset={clusterOffsets[i]}
           focusRef={focusRef}
-          label={shortLabel(workflow.name)}
+          label={labels ? shortLabel(workflow.name) : null}
           active={workflow.active}
           isCurrent={activeDirectorId !== null && matchDirectorId(workflow.name) === activeDirectorId}
-          isDirector={shortLabel(workflow.name) !== null}
+          isDirector={labels && shortLabel(workflow.name) !== null}
           coreColor={coreColor}
-          directorId={matchDirectorId(workflow.name)}
+          directorId={labels ? matchDirectorId(workflow.name) : null}
           onSelect={setActiveDirectorId}
+          lineOpacityScale={labels ? 1 : 0}
         />
       ))}
     </group>
