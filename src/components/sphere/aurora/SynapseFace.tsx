@@ -22,8 +22,8 @@ const HEAD_SCALE = 1.3;
 /** Lifts the head so the neck clears the greeting + prompt bar overlaid at the bottom. */
 const HEAD_OFFSET_Y = 0.3;
 const WHITE = new THREE.Color(1, 1, 1);
-const HAIR_A = new THREE.Color("#ff8a2a");
-const HAIR_B = new THREE.Color("#ffd2a0");
+const HAIR_A = new THREE.Color("#c9611c");
+const HAIR_B = new THREE.Color("#f2b685");
 
 /** Brain inside the cranium (head space) and where it goes when opened: out in front of her face. */
 /** Interval between heavy geometry rebuilds (see useFrame). */
@@ -34,8 +34,8 @@ const BRAIN_OPEN = { pos: new THREE.Vector3(0, 0.12, 1.0), scale: 1.35 };
 const REGION_BRIGHTNESS: Record<FaceRegion, number> = {
   fill: 0.95,
   halo: 0.8,
-  grid: 0.8,
-  outline: 1.0,
+  grid: 1.05,
+  outline: 1.3,
   eye: 1.9,
   iris: 2.1,
   pupil: 2.8,
@@ -43,7 +43,7 @@ const REGION_BRIGHTNESS: Record<FaceRegion, number> = {
   nose: 1.3,
   lipUpper: 1.75,
   lipLower: 1.75,
-  hair: 0.85,
+  hair: 0.5,
 };
 
 const REGION_INTRO_DELAY: Record<FaceRegion, [number, number]> = {
@@ -607,10 +607,10 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
 
         switch (pt.region) {
           case "grid":
-            col.copy(base).lerp(headTint[i], 0.5).lerp(WHITE, 0.12);
+            col.copy(base).lerp(headTint[i], 0.16).lerp(WHITE, 0.2);
             break;
           case "outline":
-            col.copy(base).lerp(headTint[i], 0.3);
+            col.copy(base).lerp(headTint[i], 0.12).lerp(WHITE, 0.1);
             break;
           case "halo":
             col.copy(base).lerp(headTint[i], 0.8);
@@ -645,7 +645,7 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
       head.links.forEach(([ia, ib], li) => {
         const o = li * 6;
         const kind = head.linkKinds[li];
-        const alpha = lineAlpha * (kind === "feature" ? 0.9 : kind === "grid" ? 0.32 : kind === "hair" ? 0.45 : 0.24);
+        const alpha = lineAlpha * (kind === "feature" ? 0.9 : kind === "grid" ? 0.5 : kind === "hair" ? 0.2 : 0.3);
         buffers.headLinePos[o] = hp[ia * 3];
         buffers.headLinePos[o + 1] = hp[ia * 3 + 1];
         buffers.headLinePos[o + 2] = hp[ia * 3 + 2];

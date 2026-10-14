@@ -409,7 +409,7 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
     const l = Math.hypot(v[0], v[1], v[2]) || 1;
     return [v[0] / l, v[1] / l, v[2] / l];
   };
-  const strandCount = hi ? 230 : 110;
+  const strandCount = hi ? 140 : 80;
   const strandLen = hi ? 20 : 13;
   let made = 0;
   let tries = 0;
@@ -460,7 +460,7 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
 
   // Combed cap: dense lines from the middle part down over the whole scalp (behind the ears
   // and the nape), so no patch of skull ever shows between the long strands.
-  const capLines = hi ? 70 : 36;
+  const capLines = hi ? 40 : 24;
   const capLen = hi ? 16 : 10;
   for (const side of [-1, 1] as const) {
     for (let c = 0; c < capLines; c++) {
