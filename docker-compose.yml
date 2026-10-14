@@ -4,11 +4,11 @@ services:
   backend:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: Dockerfile
     container_name: jarvis-backend
     restart: unless-stopped
     env_file:
-      - backend/.env
+      - .env
     environment:
       - PORT=3001
     expose:
@@ -25,7 +25,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: frontend/Dockerfile
+      dockerfile: Dockerfile.web
     container_name: jarvis-frontend
     restart: unless-stopped
     depends_on:

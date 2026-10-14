@@ -1,6 +1,6 @@
 {
-  "buildCommand": "npm run build -w @jarvis/frontend",
-  "outputDirectory": "frontend/dist",
+  "buildCommand": "npm run build:web",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/:path*", "destination": "https://jarvis-api.vr4mar.easypanel.host/api/:path*" },
     { "source": "/socket.io/:path*", "destination": "https://jarvis-api.vr4mar.easypanel.host/socket.io/:path*" },

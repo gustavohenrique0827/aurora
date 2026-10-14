@@ -13,9 +13,9 @@ com o webhook do `[G-TECH AI OS] JARVIS CORE`, nunca executa lógica de IA por c
 Navegador (React/Vite/R3F) ⇄ WebSocket/REST ⇄ Backend (Node/Express/Socket.io) ⇄ n8n / Axis / WAHA
 ```
 
-- **frontend/** — React + TypeScript + Vite + TailwindCSS + Framer Motion + React Three Fiber.
-- **backend/** — Node.js + Express + Socket.io (TypeScript). Único lugar com segredos.
-- **packages/shared/** — tipos TypeScript e contrato de eventos Socket.io compartilhados.
+- **src/** (+ `index.html`) — React + TypeScript + Vite + TailwindCSS + Framer Motion + React Three Fiber.
+- **server/** — Node.js + Express + Socket.io (TypeScript). Único lugar com segredos.
+- **shared/** — tipos TypeScript e contrato de eventos Socket.io compartilhados.
 
 ## Regra estrutural: nunca dado fabricado
 
@@ -28,14 +28,13 @@ o que não está conectado aparece como "não conectado", nunca como zero ou pla
 Pré-requisitos: Node 20+, Docker (opcional para testar o build de produção).
 
 ```bash
-cp .env.example backend/.env
-# preencha backend/.env com os valores reais (ver seção "Variáveis de ambiente")
+cp .env.example .env
+# preencha .env com os valores reais (ver seção "Variáveis de ambiente")
 
 npm install
-npm run build --workspace=packages/shared   # necessário 1x antes do dev do backend/frontend
 
-npm run dev:backend    # terminal 1 — http://localhost:3001
-npm run dev:frontend   # terminal 2 — http://localhost:5173 (proxy pro backend já configurado)
+npm run dev:server     # terminal 1 — http://localhost:3001
+npm run dev:web      # terminal 2 — http://localhost:5173 (proxy pro backend já configurado)
 ```
 
 ## Variáveis de ambiente
