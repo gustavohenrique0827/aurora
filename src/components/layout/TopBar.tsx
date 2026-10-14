@@ -35,7 +35,7 @@ export function TopBar() {
   const [clock, setClock] = useState(() => new Date());
   const [paletteOpen, setPaletteOpen] = useState(false);
   const setAuthenticated = useJarvisStore((s) => s.setAuthenticated);
-  const socketConnected = useJarvisStore((s) => s.socketConnected);
+  const apiConnected = useJarvisStore((s) => s.apiConnected);
   const toggleMobileNav = useJarvisStore((s) => s.toggleMobileNav);
   const { snapshot } = useDashboardData();
 
@@ -64,8 +64,8 @@ export function TopBar() {
 
   const n8n = snapshot?.n8n;
   const totalAgents = n8n?.data ? n8n.data.activeCount + n8n.data.inactiveCount : null;
-  const systemLabel = !socketConnected ? "Reconectando" : n8n?.status === "error" ? "Degradado" : "Online";
-  const systemColor = !socketConnected ? "bg-jarvis-red shadow-[0_0_8px_#ff5c7a]" : n8n?.status === "error" ? "bg-jarvis-amber shadow-[0_0_8px_#ffb454]" : "bg-jarvis-green shadow-[0_0_8px_#5cffb0]";
+  const systemLabel = !apiConnected ? "Reconectando" : n8n?.status === "error" ? "Degradado" : "Online";
+  const systemColor = !apiConnected ? "bg-jarvis-red shadow-[0_0_8px_#ff5c7a]" : n8n?.status === "error" ? "bg-jarvis-amber shadow-[0_0_8px_#ffb454]" : "bg-jarvis-green shadow-[0_0_8px_#5cffb0]";
 
   return (
     <header className="relative z-50 flex items-center justify-between border-b border-jarvis-cyan/15 bg-[#050813]/85 px-4 py-2.5 backdrop-blur-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4)]">

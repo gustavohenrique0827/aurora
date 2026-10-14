@@ -6,9 +6,9 @@ import { LoadingPulse } from "../components/common/LoadingPulse";
 import { BarChart3, Activity } from "lucide-react";
 
 export function AnalyticsPage() {
-  const { snapshot, socketConnected } = useDashboardData();
+  const { snapshot, apiConnected } = useDashboardData();
 
-  if (!socketConnected || !snapshot) {
+  if (!apiConnected || !snapshot) {
     return (
       <div className="flex h-full items-center justify-center">
         <LoadingPulse label="Sincronizando Métricas em Tempo Real..." />

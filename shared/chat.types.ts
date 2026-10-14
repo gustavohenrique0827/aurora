@@ -33,7 +33,7 @@ export interface ChatMessage {
   audioBase64?: string;
   /** Present when the user attached a file or shared a screen/camera frame — rendered as
    * a thumbnail in the user's own bubble (MessageBubble.tsx). Not stored anywhere; lives
-   * only for the lifetime of the socket session. */
+   * only for the lifetime of the browser session. */
   imageBase64?: string;
   imageMimeType?: string;
   /** Present when the user attached a PDF instead of an image — Aurora CORE summarizes

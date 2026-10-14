@@ -15,9 +15,9 @@ const TABLE_LABEL: Record<string, string> = {
 };
 
 export function CrmPage() {
-  const { snapshot, socketConnected } = useDashboardData();
+  const { snapshot, apiConnected } = useDashboardData();
 
-  if (!socketConnected || !snapshot) {
+  if (!apiConnected || !snapshot) {
     return (
       <div className="flex h-full items-center justify-center">
         <LoadingPulse label="Sincronizando CRM SPY..." />

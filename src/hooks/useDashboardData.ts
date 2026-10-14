@@ -1,15 +1,15 @@
 import { useEffect } from "react";
-import { getSocket } from "../state/socket";
+import { startDashboardPolling } from "../state/realtime";
 import { useJarvisStore } from "../state/store";
 
-/** Subscribes to live dashboard:update pushes. Initial snapshot arrives right after socket connect (see socketServer.ts). */
+/** Keeps the dashboard snapshot fresh by polling /api/dashboard/snapshot (see realtime.ts). */
 export function useDashboardData() {
   useEffect(() => {
-    getSocket();
+    startDashboardPolling();
   }, []);
 
   const snapshot = useJarvisStore((s) => s.dashboardSnapshot);
-  const socketConnected = useJarvisStore((s) => s.socketConnected);
+  const apiConnected = useJarvisStore((s) => s.apiConnected);
 
-  return { snapshot, socketConnected };
+  return { snapshot, apiConnected };
 }

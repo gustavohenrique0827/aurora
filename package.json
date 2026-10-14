@@ -8,11 +8,10 @@
     "dev:server": "tsx watch server/index.ts",
     "dev:web": "vite",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.server.json",
-    "build": "npm run build:web && npm run build:server",
+    "build": "npm run build:web && npm run build:api",
     "build:web": "tsc --noEmit -p tsconfig.json && vite build",
-    "build:server": "esbuild server/index.ts --bundle --platform=node --format=cjs --target=node20 --packages=external --outfile=dist-server/index.cjs",
-    "start": "node dist-server/index.cjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:api": "esbuild server/app.ts --bundle --platform=node --format=cjs --target=node20 --tsconfig=tsconfig.server.json --outfile=dist-api/app.cjs"
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.1.1",
@@ -39,8 +38,6 @@
     "react-router-dom": "^6.27.0",
     "rehype-highlight": "^7.0.1",
     "remark-gfm": "^4.0.0",
-    "socket.io": "^4.8.0",
-    "socket.io-client": "^4.8.0",
     "three": "^0.169.0",
     "zod": "^3.23.8",
     "zustand": "^4.5.5"

@@ -1,7 +1,6 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import type { DirectorId } from "@jarvis/shared";
-import { SOCKET_EVENTS } from "@jarvis/shared";
-import { getSocket } from "../state/socket";
+import { sendChat } from "../state/realtime";
 import { useJarvisStore } from "../state/store";
 
 // Fixo (não mais um UUID por navegador) e compartilhado com o widget da Aurora no SPY —
@@ -15,10 +14,6 @@ export function useJarvisChat() {
   const messages = useJarvisStore((s) => s.messages);
   const streamingBuffer = useJarvisStore((s) => s.streamingBuffers[conversationId] ?? "");
   const isAwaitingResponse = useJarvisStore((s) => s.isAwaitingResponse);
-
-  useEffect(() => {
-    getSocket(); // ensure connection is established as soon as chat is used
-  }, []);
 
   const sendMessage = useCallback(
     (
@@ -43,7 +38,7 @@ export function useJarvisChat() {
       store.setAwaitingResponse(true);
       store.setSphereMode("thinking");
 
-      getSocket().emit(SOCKET_EVENTS.CHAT_SEND, {
+      void sendChat({
         conversationId,
         message,
         directorId,

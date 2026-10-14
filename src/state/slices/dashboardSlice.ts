@@ -3,14 +3,14 @@ import type { DashboardSnapshot } from "@jarvis/shared";
 
 export interface DashboardSlice {
   dashboardSnapshot: DashboardSnapshot | null;
-  socketConnected: boolean;
+  apiConnected: boolean;
   setDashboardSnapshot: (snapshot: DashboardSnapshot) => void;
-  setSocketConnected: (value: boolean) => void;
+  setApiConnected: (value: boolean) => void;
 }
 
 export const createDashboardSlice: StateCreator<DashboardSlice> = (set) => ({
   dashboardSnapshot: null,
-  socketConnected: false,
+  apiConnected: false,
   setDashboardSnapshot: (snapshot) => set({ dashboardSnapshot: snapshot }),
-  setSocketConnected: (value) => set({ socketConnected: value }),
+  setApiConnected: (value) => set({ apiConnected: value }),
 });
