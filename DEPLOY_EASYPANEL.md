@@ -35,11 +35,11 @@ dashboard (leitura).
 1. **New App** → **From Git Repository** (ou **From Docker Compose**, se preferir apontar
    direto pro `docker-compose.yml` deste diretório).
 2. Se for por Git: aponte pro repositório, branch, e diretório raiz `jarvis-os/`.
-3. EasyPanel deve detectar o `docker-compose.yml` (dois serviços: `backend` e `frontend`).
+3. EasyPanel deve detectar o `docker-compose.yml` (dois serviços: `backend` — `Dockerfile` — e `frontend` — `Dockerfile.web`).
 
 ## 5. Configurar as variáveis de ambiente
 
-No serviço **backend**, cole todas as variáveis de `backend/.env` (mesma lista de
+No serviço **backend**, cole todas as variáveis de `.env` (mesma lista de
 `.env.example`) na aba de environment variables do EasyPanel — não como arquivo, como
 variáveis mesmo, é o padrão do EasyPanel.
 
