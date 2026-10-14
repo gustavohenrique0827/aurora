@@ -34,7 +34,7 @@ dashboard (leitura).
 
 1. **New App** → **From Git Repository** (ou **From Docker Compose**, se preferir apontar
    direto pro `docker-compose.yml` deste diretório).
-2. Se for por Git: aponte pro repositório, branch, e diretório raiz `jarvis-os/`.
+2. Se for por Git: aponte pro repositório e branch; o diretório raiz é a raiz do repositório.
 3. EasyPanel deve detectar o `docker-compose.yml` (dois serviços: `backend` — `Dockerfile` — e `frontend` — `Dockerfile.web`).
 
 ## 5. Configurar as variáveis de ambiente
@@ -81,3 +81,16 @@ Depois que os dois serviços subirem:
   painel de logs do EasyPanel) mostram qual delas está falhando.
 - **Voz não funciona**: confirme que está usando Chrome ou Edge, e que o site está em HTTPS
   (Web Speech API exige contexto seguro).
+
+## 8. Interface na Vercel (opção usada em produção)
+
+A interface fica na Vercel e só o serviço **backend** roda no EasyPanel (o servidor usa Socket.io
+e pollers contínuos, que não cabem em funções serverless).
+
+- Importe o repositório na Vercel com **Root Directory vazio**; o `vercel.json` define o build
+  (`npm run build:web`) e a saída (`dist`).
+- Não configure variáveis de ambiente na Vercel — os segredos (incluindo
+  `SPY_SUPABASE_SERVICE_ROLE_KEY`) ficam só no backend do EasyPanel.
+- `/api/*` e `/socket.io/*` são repassados pelo `vercel.json` para o domínio do backend; ajuste o
+  destino lá se o domínio do backend mudar.
+- Nesse cenário o serviço **frontend** do `docker-compose.yml` não é necessário.
