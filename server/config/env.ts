@@ -10,10 +10,6 @@ const envSchema = z.object({
   JARVIS_SESSION_SECRET: z.string().min(16, "JARVIS_SESSION_SECRET must be set to a real secret"),
 
   N8N_CHAT_WEBHOOK_URL: z.string().url(),
-  JARVIS_STREAMING_ENABLED: z
-    .string()
-    .default("false")
-    .transform((v) => v === "true"),
 
   N8N_API_URL: z.string().url(),
   N8N_API_KEY: z.string().min(1, "N8N_API_KEY is required for the dashboard workflow panel"),

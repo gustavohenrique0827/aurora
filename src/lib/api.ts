@@ -1,6 +1,6 @@
 import type { TokenUsageSnapshot } from "@jarvis/shared";
 
-const API_BASE = ""; // same-origin — nginx proxies /api to the backend in production, vite proxy handles it in dev
+const API_BASE = ""; // same-origin — Vercel serves /api/* from the serverless function, the vite proxy handles it in dev
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
@@ -21,6 +21,7 @@ export const api = {
   me: () => request<{ ok: true; sub: string }>("/api/auth/me"),
   askDirector: (directorId: string, message: string, conversationId: string) =>
     request(`/api/directors/${directorId}/ask`, { method: "POST", body: JSON.stringify({ message, conversationId }) }),
-  dashboardSnapshot: () => request("/api/dashboard/snapshot"),
+  dashboardSnapshot: <T>() => request<T>("/api/dashboard/snapshot"),
+  chat: <T>(payload: unknown) => request<T>("/api/chat", { method: "POST", body: JSON.stringify(payload) }),
   tokenUsageSummary: () => request<TokenUsageSnapshot>("/api/token-usage/summary"),
 };

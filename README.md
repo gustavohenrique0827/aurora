@@ -10,12 +10,12 @@ com o webhook do `[G-TECH AI OS] JARVIS CORE`, nunca executa lógica de IA por c
 ## Arquitetura
 
 ```
-Navegador (React/Vite/R3F) ⇄ WebSocket/REST ⇄ Backend (Node/Express/Socket.io) ⇄ n8n / Axis / WAHA
+Navegador (React/Vite/R3F) ⇄ REST ⇄ Funções serverless da Vercel (Express em api/) ⇄ n8n / SPY / WAHA
 ```
 
 - **src/** (+ `index.html`) — React + TypeScript + Vite + TailwindCSS + Framer Motion + React Three Fiber.
-- **server/** — Node.js + Express + Socket.io (TypeScript). Único lugar com segredos.
-- **shared/** — tipos TypeScript e contrato de eventos Socket.io compartilhados.
+- **server/** — Express (TypeScript), empacotado como função da Vercel (`api/index.js`). Único lugar com segredos.
+- **shared/** — tipos TypeScript compartilhados.
 
 ## Regra estrutural: nunca dado fabricado
 
@@ -25,7 +25,7 @@ o que não está conectado aparece como "não conectado", nunca como zero ou pla
 
 ## Rodando localmente
 
-Pré-requisitos: Node 20+, Docker (opcional para testar o build de produção).
+Pré-requisitos: Node 20+, 
 
 ```bash
 cp .env.example .env
@@ -46,13 +46,12 @@ Ver `.env.example` na raiz — é a lista definitiva. Resumo do que cada uma faz
 | `JARVIS_AUTH_TOKEN` | Token de login (usuário único — você) |
 | `JARVIS_SESSION_SECRET` | Assina o cookie de sessão |
 | `N8N_CHAT_WEBHOOK_URL` | Webhook de chat do JARVIS CORE (workflow precisa estar **ativo**) |
-| `JARVIS_STREAMING_ENABLED` | Liga o modo streaming experimental (deixe `false` até validar) |
 | `N8N_API_URL` / `N8N_API_KEY` | Painel de workflows do dashboard (API REST do n8n) |
 | `AXIS_SUPABASE_URL` / `AXIS_SUPABASE_ANON_KEY` / `AXIS_TENANT_ID` | Painel de KPIs do Axis |
 | `WAHA_URL` / `WAHA_API_KEY` / `WAHA_SESSION` | Painel de status do WhatsApp |
 
 Nenhuma dessas chaves chega ao navegador — o frontend só fala com o próprio backend (mesma
-origem, via proxy do nginx em produção).
+origem: a Vercel serve a interface e `/api/*`).
 
 ## Limitações conhecidas (documentadas, não escondidas)
 
@@ -61,9 +60,7 @@ origem, via proxy do nginx em produção).
 - **Wake-word ("Jarvis")**: melhor esforço — pode parar sozinho após silêncio, precisa da aba
   aberta, consome rede (o reconhecimento do Chrome é via nuvem, não on-device). Desligado por
   padrão; sempre dá pra usar o botão de microfone manualmente.
-- **Streaming**: o modo `responseMode: streaming` do n8n é historicamente inconsistente em nós
-  LangChain community. O caminho padrão (não-streaming) é o confiável; streaming é opt-in via
-  `JARVIS_STREAMING_ENABLED=true` com fallback automático se falhar.
+- **Sem tempo real por socket**: na Vercel o dashboard é atualizado por polling (30s) e o chat é uma chamada HTTP única (`POST /api/chat`, até 300s).
 - **Anexos de arquivo**: só preview local nesta v1 — o webhook do JARVIS CORE ainda não aceita
   binário, então o anexo aparece marcado como "ainda não enviado ao JARVIS", nunca fingindo que
   foi processado.
@@ -76,4 +73,7 @@ uma conta Supabase separada ainda não provisionada), visualizações mais profu
 
 ## Deploy
 
-Ver `DEPLOY_EASYPANEL.md` para o passo a passo completo no EasyPanel.
+Tudo roda na Vercel: importe o repositório (Root Directory vazio), cadastre as variáveis de
+`.env.example` em Settings → Environment Variables (inclusive `SPY_SUPABASE_SERVICE_ROLE_KEY`) e faça o deploy.
+`vercel.json` define o build (`npm run build`), a função `api/index.js` (maxDuration 300s) e o fallback da SPA.
+O limite de 300s e a duração das chamadas dependem do plano da Vercel.

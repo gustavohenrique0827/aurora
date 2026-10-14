@@ -17,7 +17,7 @@ function spyCount(counts: { table: string; count: number }[] | undefined, table:
 }
 
 export function HomePage() {
-  const { snapshot, socketConnected } = useDashboardData();
+  const { snapshot, apiConnected } = useDashboardData();
   const { sendMessage } = useJarvisChat();
   const setCommsDockOpen = useJarvisStore((s) => s.setCommsDockOpen);
   const [prompt, setPrompt] = useState("");
@@ -30,7 +30,7 @@ export function HomePage() {
     setPrompt("");
   };
 
-  if (!socketConnected || !snapshot) {
+  if (!apiConnected || !snapshot) {
     return (
       <div className="flex h-full items-center justify-center">
         <LoadingPulse label="Sincronizando Central de Comando..." />

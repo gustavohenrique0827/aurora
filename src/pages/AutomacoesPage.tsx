@@ -77,7 +77,7 @@ const TOOLS_GROUP_KEY = "Ferramentas Internas";
 const ALL_GROUP_KEYS: string[] = [...AGENT_GROUP_ORDER, TOOLS_GROUP_KEY];
 
 export function AutomacoesPage() {
-  const { snapshot, socketConnected } = useDashboardData();
+  const { snapshot, apiConnected } = useDashboardData();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(ALL_GROUP_KEYS.map((key) => [key, true]))
   );
@@ -86,7 +86,7 @@ export function AutomacoesPage() {
   const setAllGroups = (value: boolean) =>
     setOpenGroups(Object.fromEntries(ALL_GROUP_KEYS.map((key) => [key, value])));
 
-  if (!socketConnected || !snapshot) {
+  if (!apiConnected || !snapshot) {
     return (
       <div className="flex h-full items-center justify-center">
         <LoadingPulse label="Sincronizando Workflows do n8n..." />

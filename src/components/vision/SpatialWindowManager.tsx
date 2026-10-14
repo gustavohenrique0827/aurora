@@ -51,7 +51,7 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
   const toggleMinimizeWindow = useJarvisStore((s) => s.toggleMinimizeWindow);
   const toggleMaximizeWindow = useJarvisStore((s) => s.toggleMaximizeWindow);
 
-  const { snapshot, socketConnected } = useDashboardData();
+  const { snapshot, apiConnected } = useDashboardData();
 
   // Dragging state for mouse/touch
   const [draggingId, setDraggingId] = useState<string | null>(null);

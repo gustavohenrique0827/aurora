@@ -1,9 +1,11 @@
 {
-  "buildCommand": "npm run build:web",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/index.js": { "maxDuration": 300, "includeFiles": "dist-api/**" }
+  },
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://jarvis-api.vr4mar.easypanel.host/api/:path*" },
-    { "source": "/socket.io/:path*", "destination": "https://jarvis-api.vr4mar.easypanel.host/socket.io/:path*" },
+    { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
