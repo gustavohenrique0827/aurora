@@ -332,11 +332,6 @@ export function AuroraPage() {
           }}
         />
 
-        {/* Sci-Fi Corner Brackets */}
-        <div className="pointer-events-none absolute top-2 left-2 h-4 w-4 border-t-2 border-l-2 border-jarvis-accent/30" />
-        <div className="pointer-events-none absolute top-2 right-2 h-4 w-4 border-t-2 border-r-2 border-jarvis-accent/30" />
-        <div className="pointer-events-none absolute bottom-2 left-2 h-4 w-4 border-b-2 border-l-2 border-jarvis-accent/30" />
-        <div className="pointer-events-none absolute bottom-2 right-2 h-4 w-4 border-b-2 border-r-2 border-jarvis-accent/30" />
 
         {/* Surface Settings Drawer */}
         {showSurfaceSettings && (

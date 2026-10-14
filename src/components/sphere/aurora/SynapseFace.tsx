@@ -22,10 +22,12 @@ const HEAD_SCALE = 1.3;
 /** Lifts the head so the neck clears the greeting + prompt bar overlaid at the bottom. */
 const HEAD_OFFSET_Y = 0.3;
 const WHITE = new THREE.Color(1, 1, 1);
-const HAIR_A = new THREE.Color("#b58cff");
-const HAIR_B = new THREE.Color("#6fd8ff");
+const HAIR_A = new THREE.Color("#ff8a2a");
+const HAIR_B = new THREE.Color("#ffd2a0");
 
 /** Brain inside the cranium (head space) and where it goes when opened: out in front of her face. */
+/** Interval between heavy geometry rebuilds (see useFrame). */
+const HEAVY_INTERVAL_S = 1 / 30 - 0.002;
 const BRAIN_CLOSED = { pos: new THREE.Vector3(0, 0.4, -0.3), scale: 1 };
 const BRAIN_OPEN = { pos: new THREE.Vector3(0, 0.12, 1.0), scale: 1.35 };
 
@@ -291,6 +293,7 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
     lastActiveAt: 0,
     prevMode: mode as SphereMode,
     wake: 0,
+    heavyAcc: 0,
     nextBlinkAt: 2.8,
     blinkStart: -10,
     doubleBlink: false,
@@ -500,190 +503,200 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
       (auroraHaloRef.current.material as THREE.MeshBasicMaterial).opacity = 0.2 + powerOn * 0.2 + (mode === "thinking" || mode === "analyzing" ? 0.12 : 0);
     }
 
-    // --- Head points (face deformations + shading) ------------------------------------------
+    // Heavy per-point/per-link rebuild (~25k points + ~14k links) runs at ~30Hz instead of every
+    // frame: the camera/orbit still renders at full refresh rate, only the face deformation and
+    // shimmer are sampled at 30Hz (imperceptible), which halves the CPU cost. During the intro
+    // swirl it runs every frame so the opening animation stays smooth.
     const hp = buffers.headPos;
-    const hc = buffers.headCol;
-    const listening = mode === "listening";
-    const modeBoost = mode === "thinking" || mode === "analyzing" ? 1.15 : 1;
-    for (let i = 0; i < n; i++) {
-      const pt = head.points[i];
-      let x = pt.x;
-      let y = pt.y;
-      let z = pt.z;
-      let b = REGION_BRIGHTNESS[pt.region];
+    a.heavyAcc += delta;
+    const runHeavy = introRunning || a.heavyAcc >= HEAVY_INTERVAL_S;
+    const heavyDelta = a.heavyAcc;
+    if (runHeavy) {
+    a.heavyAcc = 0;
+      // --- Head points (face deformations + shading) ------------------------------------------
+      const hc = buffers.headCol;
+      const listening = mode === "listening";
+      const modeBoost = mode === "thinking" || mode === "analyzing" ? 1.15 : 1;
+      for (let i = 0; i < n; i++) {
+        const pt = head.points[i];
+        let x = pt.x;
+        let y = pt.y;
+        let z = pt.z;
+        let b = REGION_BRIGHTNESS[pt.region];
 
-      switch (pt.region) {
-        case "eye": {
-          const cy = pt.side !== 0 ? head.eyes[pt.side].y - 0.004 : y;
-          if (pt.u > 0) y = cy + (y - cy) * a.eyeOpen;
-          else if (pt.u < 0) y = cy + (y - cy) * (0.6 + 0.4 * Math.min(1, a.eyeOpen));
-          break;
-        }
-        case "iris":
-        case "pupil": {
-          const open = Math.min(1, a.eyeOpen);
-          const cy = pt.side !== 0 ? head.eyes[pt.side].y : y;
-          x += a.gaze.x * 0.028;
-          y = cy + (y - cy) * open + a.gaze.y * 0.016 * open;
-          b *= smoothstep(0.2, 0.6, a.eyeOpen);
-          break;
-        }
-        case "brow": {
-          const inner = 1 - pt.u;
-          y += a.brow * 0.03 - a.furrow * 0.02 * inner + a.furrow * 0.006 * pt.u;
-          x -= pt.side * a.furrow * 0.012 * inner;
-          break;
-        }
-        case "lipUpper":
-        case "lipLower": {
-          const w = 1 - pt.u * pt.u;
-          x *= 1 - a.mouth * 0.08;
-          if (pt.region === "lipUpper") y += a.mouth * 0.015 * w;
-          else y -= a.mouth * 0.075 * Math.pow(w, 0.7);
-          y += a.smile * 0.022 * pt.u * pt.u - a.smile * 0.004 * w;
-          b *= 1 + a.mouth * 0.5;
-          break;
-        }
-        case "grid":
-        case "nose": {
-          if (y < MOUTH_Y - 0.01 && y > -1.0 && pt.region !== "nose") {
-            const jaw = clamp01((MOUTH_Y - y) / 0.33) * (1 - clamp01((Math.abs(x) - 0.18) / 0.35));
-            y -= a.mouth * 0.06 * jaw;
+        switch (pt.region) {
+          case "eye": {
+            const cy = pt.side !== 0 ? head.eyes[pt.side].y - 0.004 : y;
+            if (pt.u > 0) y = cy + (y - cy) * a.eyeOpen;
+            else if (pt.u < 0) y = cy + (y - cy) * (0.6 + 0.4 * Math.min(1, a.eyeOpen));
+            break;
           }
-          const dxc = Math.abs(x) - head.mouth.halfWidth - 0.04;
-          const dyc = y - (MOUTH_Y + 0.07);
-          y += a.smile * 0.018 * Math.exp(-(dxc * dxc + dyc * dyc) / 0.008);
-          break;
+          case "iris":
+          case "pupil": {
+            const open = Math.min(1, a.eyeOpen);
+            const cy = pt.side !== 0 ? head.eyes[pt.side].y : y;
+            x += a.gaze.x * 0.028;
+            y = cy + (y - cy) * open + a.gaze.y * 0.016 * open;
+            b *= smoothstep(0.2, 0.6, a.eyeOpen);
+            break;
+          }
+          case "brow": {
+            const inner = 1 - pt.u;
+            y += a.brow * 0.03 - a.furrow * 0.02 * inner + a.furrow * 0.006 * pt.u;
+            x -= pt.side * a.furrow * 0.012 * inner;
+            break;
+          }
+          case "lipUpper":
+          case "lipLower": {
+            const w = 1 - pt.u * pt.u;
+            x *= 1 - a.mouth * 0.08;
+            if (pt.region === "lipUpper") y += a.mouth * 0.015 * w;
+            else y -= a.mouth * 0.075 * Math.pow(w, 0.7);
+            y += a.smile * 0.022 * pt.u * pt.u - a.smile * 0.004 * w;
+            b *= 1 + a.mouth * 0.5;
+            break;
+          }
+          case "grid":
+          case "nose": {
+            if (y < MOUTH_Y - 0.01 && y > -1.0 && pt.region !== "nose") {
+              const jaw = clamp01((MOUTH_Y - y) / 0.33) * (1 - clamp01((Math.abs(x) - 0.18) / 0.35));
+              y -= a.mouth * 0.06 * jaw;
+            }
+            const dxc = Math.abs(x) - head.mouth.halfWidth - 0.04;
+            const dyc = y - (MOUTH_Y + 0.07);
+            y += a.smile * 0.018 * Math.exp(-(dxc * dxc + dyc * dyc) / 0.008);
+            break;
+          }
+          default:
+            break;
         }
-        default:
-          break;
+
+        if (pt.region === "hair") {
+          // Gentle sway, stronger toward the tips.
+          const sway = Math.sin(t * 0.9 + pt.seed * 6.28 + pt.u * 2.5) * 0.028 * Math.pow(pt.u, 1.5);
+          x += pt.side * sway;
+          z += Math.cos(t * 0.7 + pt.seed * 4) * 0.02 * Math.pow(pt.u, 1.5);
+          // Light pulses running down each strand.
+          b *= 0.55 + 0.45 * (1 - pt.u) + 1.1 * Math.max(0, Math.sin(t * 1.6 - pt.u * 9 + pt.seed * 12) - 0.85) * 6;
+        } else if (listening && micVolume > 0.02) {
+          const r = Math.sqrt(x * x + y * y);
+          z += micVolume * 0.05 * Math.sin(r * 18 - t * 9);
+        }
+
+        if (introRunning) {
+          const [d0, dr] = REGION_INTRO_DELAY[pt.region] ?? [0.5, 0.8];
+          const prog = easeOutCubic(clamp01((introT - (d0 + pt.seed * dr)) / 1.1));
+          const swirl = (1 - prog) * 1.4;
+          const sx = scatter[i * 3];
+          const sz = scatter[i * 3 + 2];
+          const rx = sx * Math.cos(swirl) - sz * Math.sin(swirl);
+          const rz = sx * Math.sin(swirl) + sz * Math.cos(swirl);
+          x = rx + (x - rx) * prog;
+          y = scatter[i * 3 + 1] + (y - scatter[i * 3 + 1]) * prog;
+          z = rz + (z - rz) * prog;
+          b *= 0.25 + 0.75 * prog;
+        }
+
+        hp[i * 3] = x;
+        hp[i * 3 + 1] = y;
+        hp[i * 3 + 2] = z;
+
+        if (pt.region !== "halo" && pt.region !== "hair") b *= 0.4 + 0.8 * pt.facing;
+        const twinkle = pt.region === "halo" ? 0.7 + 0.3 * Math.sin(t * (1.2 + pt.seed * 2.5) + pt.seed * 40) : 0.88 + 0.12 * Math.sin(t * 1.7 + pt.seed * 20);
+        const k = (b * twinkle * modeBoost + powerOn * 0.5 + a.wake * 0.35) * headFade;
+
+        switch (pt.region) {
+          case "grid":
+            col.copy(base).lerp(headTint[i], 0.5).lerp(WHITE, 0.12);
+            break;
+          case "outline":
+            col.copy(base).lerp(headTint[i], 0.3);
+            break;
+          case "halo":
+            col.copy(base).lerp(headTint[i], 0.8);
+            break;
+          case "hair":
+            col.copy(HAIR_A).lerp(HAIR_B, pt.seed * 0.7 + pt.u * 0.3);
+            break;
+          case "pupil":
+            col.copy(base).lerp(WHITE, 0.65);
+            break;
+          default:
+            col.copy(base).lerp(WHITE, 0.35);
+        }
+        if (openedColor) col.lerp(openedColor, openAmountMax * 0.35);
+        const f = headFlash.current[i];
+        headFlash.current[i] = Math.max(0, f - heavyDelta * 2.2);
+        const fc = headFlashColor.current[i];
+        hc[i * 3] = col.r * k + fc.r * f;
+        hc[i * 3 + 1] = col.g * k + fc.g * f;
+        hc[i * 3 + 2] = col.b * k + fc.b * f;
       }
-
-      if (pt.region === "hair") {
-        // Gentle sway, stronger toward the tips.
-        const sway = Math.sin(t * 0.9 + pt.seed * 6.28 + pt.u * 2.5) * 0.028 * Math.pow(pt.u, 1.5);
-        x += pt.side * sway;
-        z += Math.cos(t * 0.7 + pt.seed * 4) * 0.02 * Math.pow(pt.u, 1.5);
-        // Light pulses running down each strand.
-        b *= 0.55 + 0.45 * (1 - pt.u) + 1.1 * Math.max(0, Math.sin(t * 1.6 - pt.u * 9 + pt.seed * 12) - 0.85) * 6;
-      } else if (listening && micVolume > 0.02) {
-        const r = Math.sqrt(x * x + y * y);
-        z += micVolume * 0.05 * Math.sin(r * 18 - t * 9);
-      }
-
-      if (introRunning) {
-        const [d0, dr] = REGION_INTRO_DELAY[pt.region] ?? [0.5, 0.8];
-        const prog = easeOutCubic(clamp01((introT - (d0 + pt.seed * dr)) / 1.1));
-        const swirl = (1 - prog) * 1.4;
-        const sx = scatter[i * 3];
-        const sz = scatter[i * 3 + 2];
-        const rx = sx * Math.cos(swirl) - sz * Math.sin(swirl);
-        const rz = sx * Math.sin(swirl) + sz * Math.cos(swirl);
-        x = rx + (x - rx) * prog;
-        y = scatter[i * 3 + 1] + (y - scatter[i * 3 + 1]) * prog;
-        z = rz + (z - rz) * prog;
-        b *= 0.25 + 0.75 * prog;
-      }
-
-      hp[i * 3] = x;
-      hp[i * 3 + 1] = y;
-      hp[i * 3 + 2] = z;
-
-      if (pt.region !== "halo" && pt.region !== "hair") b *= 0.4 + 0.8 * pt.facing;
-      const twinkle = pt.region === "halo" ? 0.7 + 0.3 * Math.sin(t * (1.2 + pt.seed * 2.5) + pt.seed * 40) : 0.88 + 0.12 * Math.sin(t * 1.7 + pt.seed * 20);
-      const k = (b * twinkle * modeBoost + powerOn * 0.5 + a.wake * 0.35) * headFade;
-
-      switch (pt.region) {
-        case "grid":
-          col.copy(base).lerp(headTint[i], 0.5).lerp(WHITE, 0.12);
-          break;
-        case "outline":
-          col.copy(base).lerp(headTint[i], 0.3);
-          break;
-        case "halo":
-          col.copy(base).lerp(headTint[i], 0.8);
-          break;
-        case "hair":
-          col.copy(HAIR_A).lerp(HAIR_B, pt.seed * 0.7 + pt.u * 0.3);
-          break;
-        case "pupil":
-          col.copy(base).lerp(WHITE, 0.65);
-          break;
-        default:
-          col.copy(base).lerp(WHITE, 0.35);
-      }
-      if (openedColor) col.lerp(openedColor, openAmountMax * 0.35);
-      const f = headFlash.current[i];
-      headFlash.current[i] = Math.max(0, f - delta * 2.2);
-      const fc = headFlashColor.current[i];
-      hc[i * 3] = col.r * k + fc.r * f;
-      hc[i * 3 + 1] = col.g * k + fc.g * f;
-      hc[i * 3 + 2] = col.b * k + fc.b * f;
-    }
-    headGroups.forEach((g) => {
-      g.idx.forEach((i, k) => {
-        g.pos[k * 3] = hp[i * 3];
-        g.pos[k * 3 + 1] = hp[i * 3 + 1];
-        g.pos[k * 3 + 2] = hp[i * 3 + 2];
-        g.col[k * 3] = hc[i * 3];
-        g.col[k * 3 + 1] = hc[i * 3 + 1];
-        g.col[k * 3 + 2] = hc[i * 3 + 2];
+      headGroups.forEach((g) => {
+        g.idx.forEach((i, k) => {
+          g.pos[k * 3] = hp[i * 3];
+          g.pos[k * 3 + 1] = hp[i * 3 + 1];
+          g.pos[k * 3 + 2] = hp[i * 3 + 2];
+          g.col[k * 3] = hc[i * 3];
+          g.col[k * 3 + 1] = hc[i * 3 + 1];
+          g.col[k * 3 + 2] = hc[i * 3 + 2];
+        });
       });
-    });
-    head.links.forEach(([ia, ib], li) => {
-      const o = li * 6;
-      const kind = head.linkKinds[li];
-      const alpha = lineAlpha * (kind === "feature" ? 0.9 : kind === "grid" ? 0.32 : kind === "hair" ? 0.45 : 0.24);
-      buffers.headLinePos[o] = hp[ia * 3];
-      buffers.headLinePos[o + 1] = hp[ia * 3 + 1];
-      buffers.headLinePos[o + 2] = hp[ia * 3 + 2];
-      buffers.headLinePos[o + 3] = hp[ib * 3];
-      buffers.headLinePos[o + 4] = hp[ib * 3 + 1];
-      buffers.headLinePos[o + 5] = hp[ib * 3 + 2];
-      buffers.headLineCol[o] = hc[ia * 3] * alpha;
-      buffers.headLineCol[o + 1] = hc[ia * 3 + 1] * alpha;
-      buffers.headLineCol[o + 2] = hc[ia * 3 + 2] * alpha;
-      buffers.headLineCol[o + 3] = hc[ib * 3] * alpha;
-      buffers.headLineCol[o + 4] = hc[ib * 3 + 1] * alpha;
-      buffers.headLineCol[o + 5] = hc[ib * 3 + 2] * alpha;
-    });
-
-    // --- Brain colors: each lobe in its agent's color ---------------------------------------
-    const bc = buffers.brainCol;
-    const brainAlpha = smoothstep(0.9, 2.0, introT);
-    for (let i = 0; i < bn; i++) {
-      const pt = brain.points[i];
-      const tw = 0.75 + 0.25 * Math.sin(t * (1.1 + pt.seed * 2) + pt.seed * 30);
-      let k = (pt.region === "cortex" ? 0.9 : 1.25) * tw * brainGlow * brainAlpha;
-      col.copy(brainTint[i]).lerp(base, pt.region === "stem" ? 0.6 : 0.15);
-      if (openedIndex >= 0) {
-        const d = agentAnchors[openedIndex].distanceTo(tmpA.set(pt.x, pt.y, pt.z));
-        k *= d < 0.22 ? 1.4 : 0.55;
-      }
-      const f = brainFlash.current[i];
-      brainFlash.current[i] = Math.max(0, f - delta * 2.4);
-      const fc = brainFlashColor.current[i];
-      bc[i * 3] = col.r * k + fc.r * f;
-      bc[i * 3 + 1] = col.g * k + fc.g * f;
-      bc[i * 3 + 2] = col.b * k + fc.b * f;
-    }
-    brainGroups.forEach((g) => {
-      g.idx.forEach((i, k) => {
-        g.col[k * 3] = bc[i * 3];
-        g.col[k * 3 + 1] = bc[i * 3 + 1];
-        g.col[k * 3 + 2] = bc[i * 3 + 2];
+      head.links.forEach(([ia, ib], li) => {
+        const o = li * 6;
+        const kind = head.linkKinds[li];
+        const alpha = lineAlpha * (kind === "feature" ? 0.9 : kind === "grid" ? 0.32 : kind === "hair" ? 0.45 : 0.24);
+        buffers.headLinePos[o] = hp[ia * 3];
+        buffers.headLinePos[o + 1] = hp[ia * 3 + 1];
+        buffers.headLinePos[o + 2] = hp[ia * 3 + 2];
+        buffers.headLinePos[o + 3] = hp[ib * 3];
+        buffers.headLinePos[o + 4] = hp[ib * 3 + 1];
+        buffers.headLinePos[o + 5] = hp[ib * 3 + 2];
+        buffers.headLineCol[o] = hc[ia * 3] * alpha;
+        buffers.headLineCol[o + 1] = hc[ia * 3 + 1] * alpha;
+        buffers.headLineCol[o + 2] = hc[ia * 3 + 2] * alpha;
+        buffers.headLineCol[o + 3] = hc[ib * 3] * alpha;
+        buffers.headLineCol[o + 4] = hc[ib * 3 + 1] * alpha;
+        buffers.headLineCol[o + 5] = hc[ib * 3 + 2] * alpha;
       });
-    });
-    brain.links.forEach(([ia, ib], li) => {
-      const o = li * 6;
-      const alpha = brain.points[ia].region === "sulcus" ? 1.0 : brain.points[ia].region === "cortex" ? 0.55 : 0.7;
-      buffers.brainLineCol[o] = bc[ia * 3] * alpha;
-      buffers.brainLineCol[o + 1] = bc[ia * 3 + 1] * alpha;
-      buffers.brainLineCol[o + 2] = bc[ia * 3 + 2] * alpha;
-      buffers.brainLineCol[o + 3] = bc[ib * 3] * alpha;
-      buffers.brainLineCol[o + 4] = bc[ib * 3 + 1] * alpha;
-      buffers.brainLineCol[o + 5] = bc[ib * 3 + 2] * alpha;
-    });
+
+      // --- Brain colors: each lobe in its agent's color ---------------------------------------
+      const bc = buffers.brainCol;
+      const brainAlpha = smoothstep(0.9, 2.0, introT);
+      for (let i = 0; i < bn; i++) {
+        const pt = brain.points[i];
+        const tw = 0.75 + 0.25 * Math.sin(t * (1.1 + pt.seed * 2) + pt.seed * 30);
+        let k = (pt.region === "cortex" ? 0.9 : 1.25) * tw * brainGlow * brainAlpha;
+        col.copy(brainTint[i]).lerp(base, pt.region === "stem" ? 0.6 : 0.15);
+        if (openedIndex >= 0) {
+          const d = agentAnchors[openedIndex].distanceTo(tmpA.set(pt.x, pt.y, pt.z));
+          k *= d < 0.22 ? 1.4 : 0.55;
+        }
+        const f = brainFlash.current[i];
+        brainFlash.current[i] = Math.max(0, f - heavyDelta * 2.4);
+        const fc = brainFlashColor.current[i];
+        bc[i * 3] = col.r * k + fc.r * f;
+        bc[i * 3 + 1] = col.g * k + fc.g * f;
+        bc[i * 3 + 2] = col.b * k + fc.b * f;
+      }
+      brainGroups.forEach((g) => {
+        g.idx.forEach((i, k) => {
+          g.col[k * 3] = bc[i * 3];
+          g.col[k * 3 + 1] = bc[i * 3 + 1];
+          g.col[k * 3 + 2] = bc[i * 3 + 2];
+        });
+      });
+      brain.links.forEach(([ia, ib], li) => {
+        const o = li * 6;
+        const alpha = brain.points[ia].region === "sulcus" ? 1.0 : brain.points[ia].region === "cortex" ? 0.55 : 0.7;
+        buffers.brainLineCol[o] = bc[ia * 3] * alpha;
+        buffers.brainLineCol[o + 1] = bc[ia * 3 + 1] * alpha;
+        buffers.brainLineCol[o + 2] = bc[ia * 3 + 2] * alpha;
+        buffers.brainLineCol[o + 3] = bc[ib * 3] * alpha;
+        buffers.brainLineCol[o + 4] = bc[ib * 3 + 1] * alpha;
+        buffers.brainLineCol[o + 5] = bc[ib * 3 + 2] * alpha;
+      });
+    }
 
     // --- Arcs AURORA → agents, with a delegation pulse running along them --------------------
     const thinking = mode === "thinking" || mode === "analyzing" || mode === "executing";
@@ -780,14 +793,9 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
       buffers.pulseCol[o + 2] = c.b * fade;
     });
 
-    for (const geom of [
-      ...headGeomRefs.current,
-      ...brainGeomRefs.current,
-      headLineGeomRef.current,
-      brainLineGeomRef.current,
-      arcGeomRef.current,
-      pulseGeomRef.current,
-    ]) {
+    const dirty = [arcGeomRef.current, pulseGeomRef.current];
+    if (runHeavy) dirty.push(...headGeomRefs.current, ...brainGeomRefs.current, headLineGeomRef.current, brainLineGeomRef.current);
+    for (const geom of dirty) {
       if (!geom) continue;
       (geom.attributes.position as THREE.BufferAttribute).needsUpdate = true;
       (geom.attributes.color as THREE.BufferAttribute).needsUpdate = true;
@@ -884,11 +892,11 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
         <group position={coreLocal}>
           <mesh ref={auroraCoreRef}>
             <sphereGeometry args={[0.045, 32, 32]} />
-            <meshStandardMaterial color="#f4f7ff" emissive="#dfe8ff" emissiveIntensity={0.9} roughness={0.18} metalness={0.15} toneMapped={false} />
+            <meshStandardMaterial color="#fff6ec" emissive="#ffe3c8" emissiveIntensity={0.9} roughness={0.18} metalness={0.15} toneMapped={false} />
           </mesh>
           <mesh ref={auroraHaloRef}>
             <sphereGeometry args={[0.09, 24, 24]} />
-            <meshBasicMaterial color="#cfe2ff" transparent opacity={0.2} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+            <meshBasicMaterial color="#ffd9b0" transparent opacity={0.2} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
           </mesh>
           <mesh
             onClick={onAuroraClick}

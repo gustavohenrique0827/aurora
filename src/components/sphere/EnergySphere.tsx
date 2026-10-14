@@ -1,8 +1,8 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { EffectComposer, Bloom, Vignette, ChromaticAberration } from "@react-three/postprocessing";
-import { PerspectiveCamera, Vector2 } from "three";
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
+import { PerspectiveCamera } from "three";
 import { SphereScene } from "./SphereScene";
 import { useJarvisStore } from "../../state/store";
 
@@ -86,6 +86,10 @@ export function EnergySphere() {
     <div className="h-full w-full">
       <Canvas
         camera={{ position: [0, 0, 5.6], fov: BASE_FOV }}
+        // Cap the pixel ratio (retina/4K screens otherwise render 4-9x the pixels) and drop MSAA:
+        // the scene is points/lines + bloom, where MSAA adds cost without visible benefit.
+        dpr={lowPower ? 1 : [1, 1.5]}
+        gl={{ antialias: false, powerPreference: "high-performance", stencil: false }}
         onCreated={({ gl }) => {
           gl.domElement.addEventListener(
             "webglcontextlost",
@@ -116,18 +120,13 @@ export function EnergySphere() {
             onEnd={() => setInteracting(false)}
           />
           {!lowPower && (
-            <EffectComposer>
+            <EffectComposer multisampling={0} depthBuffer={false}>
               <Bloom
                 intensity={0.6}
                 luminanceThreshold={0.65}
                 luminanceSmoothing={0.35}
                 mipmapBlur
                 radius={0.45}
-              />
-              <ChromaticAberration
-                offset={new Vector2(0.0004, 0.0004)}
-                radialModulation={false}
-                modulationOffset={0}
               />
               <Vignette darkness={0.8} offset={0.3} />
             </EffectComposer>
