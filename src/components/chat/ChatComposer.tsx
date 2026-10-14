@@ -108,7 +108,7 @@ export function ChatComposer({ onSend, startPushToTalk, stopPushToTalk, interrup
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-jarvis-border bg-jarvis-panel text-white/60 hover:border-jarvis-cyan/60 hover:text-white"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-jarvis-border bg-jarvis-panel text-white/60 hover:border-jarvis-accent/60 hover:text-white"
           aria-label="Anexar arquivo"
         >
           +
@@ -117,7 +117,7 @@ export function ChatComposer({ onSend, startPushToTalk, stopPushToTalk, interrup
           type="button"
           onClick={handleCameraClick}
           disabled={capturingCamera}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-jarvis-border bg-jarvis-panel text-white/60 transition-opacity hover:border-jarvis-cyan/60 hover:text-white disabled:opacity-40"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-jarvis-border bg-jarvis-panel text-white/60 transition-opacity hover:border-jarvis-accent/60 hover:text-white disabled:opacity-40"
           aria-label="Tirar foto"
         >
           <Camera size={16} />
@@ -149,7 +149,7 @@ export function ChatComposer({ onSend, startPushToTalk, stopPushToTalk, interrup
           }}
           rows={1}
           placeholder="Fale com a Aurora..."
-          className="max-h-32 flex-1 resize-none overflow-y-auto rounded-2xl border border-jarvis-border bg-black/20 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-jarvis-cyan/60 focus:outline-none"
+          className="max-h-32 flex-1 resize-none overflow-y-auto rounded-2xl border border-jarvis-border bg-black/20 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-jarvis-accent/60 focus:outline-none"
         />
 
         <VoiceSupportGate>
@@ -160,7 +160,7 @@ export function ChatComposer({ onSend, startPushToTalk, stopPushToTalk, interrup
           type="button"
           onClick={handleSend}
           disabled={(!text.trim() && !attachment) || sending}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/15 text-jarvis-cyanBright transition-opacity disabled:opacity-30"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-jarvis-accent/40 bg-jarvis-accent/15 text-jarvis-accentBright transition-opacity disabled:opacity-30"
           aria-label="Enviar"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

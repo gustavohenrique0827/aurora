@@ -41,13 +41,13 @@ export function SurfaceSettingsPanel({ onOpenCalibration }: SurfaceSettingsPanel
                   onClick={() => setActiveProfile(m.id)}
                   className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition-all ${
                     isSelected
-                      ? "border-jarvis-cyanBright bg-jarvis-cyan/15 text-white shadow-[0_0_15px_rgba(79,215,255,0.2)]"
+                      ? "border-jarvis-accentBright bg-jarvis-accent/15 text-white shadow-[0_0_15px_rgba(255,122,26,0.1)]"
                       : "border-jarvis-border/60 bg-black/20 text-white/60 hover:border-jarvis-border hover:text-white/80"
                   }`}
                 >
                   <div className="flex w-full items-center justify-between font-semibold">
                     <span>{m.label}</span>
-                    {isSelected && <Check size={12} className="text-jarvis-cyanBright" />}
+                    {isSelected && <Check size={12} className="text-jarvis-accentBright" />}
                   </div>
                   <span className="mt-1 text-[10px] text-white/40 leading-tight">{m.desc}</span>
                 </button>
@@ -59,7 +59,7 @@ export function SurfaceSettingsPanel({ onOpenCalibration }: SurfaceSettingsPanel
         {/* Dark Room Mode */}
         <div className="flex items-center justify-between rounded-xl border border-jarvis-border/60 bg-black/25 p-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-jarvis-cyan/10 text-jarvis-cyanBright">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-jarvis-accent/10 text-jarvis-accentBright">
               <Moon size={15} />
             </div>
             <div>
@@ -72,7 +72,7 @@ export function SurfaceSettingsPanel({ onOpenCalibration }: SurfaceSettingsPanel
             onClick={() => updateActiveProfile((p) => ({ ...p, darkRoomMode: !p.darkRoomMode }))}
             className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
               activeProfile.darkRoomMode
-                ? "border-jarvis-cyanBright bg-jarvis-cyanBright/20 text-jarvis-cyanBright"
+                ? "border-jarvis-accentBright bg-jarvis-accentBright/20 text-jarvis-accentBright"
                 : "border-jarvis-border text-white/50 hover:text-white"
             }`}
           >
@@ -85,7 +85,7 @@ export function SurfaceSettingsPanel({ onOpenCalibration }: SurfaceSettingsPanel
           <div>
             <div className="mb-1.5 flex justify-between">
               <span className="text-white/70">Brilho Holográfico</span>
-              <span className="font-mono text-jarvis-cyanBright">{activeProfile.brightness}%</span>
+              <span className="font-mono text-jarvis-accentBright">{activeProfile.brightness}%</span>
             </div>
             <input
               type="range"
@@ -95,14 +95,14 @@ export function SurfaceSettingsPanel({ onOpenCalibration }: SurfaceSettingsPanel
               onChange={(e) =>
                 updateActiveProfile((p) => ({ ...p, brightness: Number(e.target.value) }))
               }
-              className="w-full accent-jarvis-cyan"
+              className="w-full accent-jarvis-accent"
             />
           </div>
 
           <div>
             <div className="mb-1.5 flex justify-between">
               <span className="text-white/70">Contraste</span>
-              <span className="font-mono text-jarvis-cyanBright">{activeProfile.contrast}%</span>
+              <span className="font-mono text-jarvis-accentBright">{activeProfile.contrast}%</span>
             </div>
             <input
               type="range"
@@ -112,7 +112,7 @@ export function SurfaceSettingsPanel({ onOpenCalibration }: SurfaceSettingsPanel
               onChange={(e) =>
                 updateActiveProfile((p) => ({ ...p, contrast: Number(e.target.value) }))
               }
-              className="w-full accent-jarvis-cyan"
+              className="w-full accent-jarvis-accent"
             />
           </div>
         </div>
@@ -128,7 +128,7 @@ export function SurfaceSettingsPanel({ onOpenCalibration }: SurfaceSettingsPanel
                 onClick={() => updateActiveProfile((p) => ({ ...p, rotation: deg }))}
                 className={`rounded-lg border px-2.5 py-1 font-mono text-[11px] ${
                   activeProfile.rotation === deg
-                    ? "border-jarvis-cyan bg-jarvis-cyan/15 text-jarvis-cyanBright font-bold"
+                    ? "border-jarvis-accent bg-jarvis-accent/15 text-jarvis-accentBright font-bold"
                     : "border-jarvis-border text-white/50 hover:text-white"
                 }`}
               >
@@ -141,7 +141,7 @@ export function SurfaceSettingsPanel({ onOpenCalibration }: SurfaceSettingsPanel
             <button
               type="button"
               onClick={onOpenCalibration}
-              className="flex items-center gap-1 rounded-lg border border-jarvis-cyan/40 bg-jarvis-cyan/10 px-3 py-1 text-xs text-jarvis-cyanBright hover:bg-jarvis-cyan/20"
+              className="flex items-center gap-1 rounded-lg border border-jarvis-accent/40 bg-jarvis-accent/10 px-3 py-1 text-xs text-jarvis-accentBright hover:bg-jarvis-accent/20"
             >
               <Sliders size={12} /> Calibração 4 Pontos
             </button>

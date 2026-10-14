@@ -54,7 +54,7 @@ function ResponsiveFov() {
 function CssPulseFallback() {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="h-40 w-40 rounded-full bg-jarvis-cyan/30 shadow-glow animate-pulseGlow blur-[1px]" />
+      <div className="h-40 w-40 rounded-full bg-jarvis-accent/30 shadow-glow animate-pulseGlow blur-[1px]" />
     </div>
   );
 }

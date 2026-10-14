@@ -100,7 +100,7 @@ function HandReadout({
             </div>
           )}
           <div>vel: {hand.velocity.toFixed(2)}/s</div>
-          {recentEvent && <div className="text-jarvis-cyanBright">gesto: {recentEvent}</div>}
+          {recentEvent && <div className="text-jarvis-accentBright">gesto: {recentEvent}</div>}
         </>
       ) : (
         <div className="text-white/25">não detectada</div>
@@ -134,9 +134,9 @@ export function GestureDebugPanel() {
       const hands = useJarvisStore.getState().hands;
       if (canvas && ctx) {
         ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-        ctx.fillStyle = "rgba(79, 215, 255, 0.05)";
+        ctx.fillStyle = "rgba(255,122,26, 0.05)";
         ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-        if (hands.left) drawHand(ctx, hands.left, "#8ff3ff");
+        if (hands.left) drawHand(ctx, hands.left, "#ffa24d");
         if (hands.right) drawHand(ctx, hands.right, "#5cffb0");
       }
       (["left", "right"] as HandSide[]).forEach((side) => {
@@ -216,7 +216,7 @@ export function GestureDebugPanel() {
           <ul className="max-h-24 space-y-0.5 overflow-y-auto font-mono text-[10px] text-white/50">
             {gestureHistory.map((entry) => (
               <li key={entry.id}>
-                <span className={entry.side === "left" ? "text-jarvis-cyan" : "text-jarvis-green"}>
+                <span className={entry.side === "left" ? "text-jarvis-accent" : "text-jarvis-green"}>
                   {entry.side === "left" ? "E" : "D"}
                 </span>{" "}
                 {entry.label}

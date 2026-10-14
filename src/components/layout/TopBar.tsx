@@ -68,7 +68,7 @@ export function TopBar() {
   const systemColor = !apiConnected ? "bg-jarvis-red shadow-[0_0_8px_#ff5c7a]" : n8n?.status === "error" ? "bg-jarvis-amber shadow-[0_0_8px_#ffb454]" : "bg-jarvis-green shadow-[0_0_8px_#5cffb0]";
 
   return (
-    <header className="relative z-50 flex items-center justify-between border-b border-jarvis-cyan/15 bg-[#050813]/85 px-4 py-2.5 backdrop-blur-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+    <header className="relative z-50 flex items-center justify-between border-b border-jarvis-accent/15 bg-[#0a0b0d]/85 px-4 py-2.5 backdrop-blur-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
       {/* Left: Brand & Route Breadcrumb */}
       <div className="flex items-center gap-3.5">
         <button
@@ -82,14 +82,14 @@ export function TopBar() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 transition-transform hover:scale-105">
-          <div className="relative flex h-7 w-7 items-center justify-center rounded-lg border border-jarvis-cyan/30 bg-jarvis-cyan/10 shadow-[0_0_12px_rgba(79,215,255,0.25)]">
-            <span className="h-2 w-2 rounded-full bg-jarvis-cyanBright animate-ping" />
-            <span className="absolute h-2 w-2 rounded-full bg-jarvis-cyanBright" />
+          <div className="relative flex h-7 w-7 items-center justify-center rounded-lg border border-jarvis-accent/30 bg-jarvis-accent/10 shadow-[0_0_12px_rgba(255,122,26,0.12)]">
+            <span className="h-2 w-2 rounded-full bg-jarvis-accentBright animate-ping" />
+            <span className="absolute h-2 w-2 rounded-full bg-jarvis-accentBright" />
           </div>
           <div className="hidden sm:block">
             <div className="flex items-center gap-1.5 leading-none">
               <span className="font-display text-sm font-bold tracking-[0.2em] text-white">AURORA</span>
-              <span className="rounded bg-jarvis-cyan/15 px-1 py-0.2 font-mono text-[8px] font-bold text-jarvis-cyanBright">AI OS</span>
+              <span className="rounded bg-jarvis-accent/15 px-1 py-0.2 font-mono text-[8px] font-bold text-jarvis-accentBright">AI OS</span>
             </div>
           </div>
         </Link>
@@ -110,9 +110,9 @@ export function TopBar() {
       <button
         type="button"
         onClick={() => setPaletteOpen(true)}
-        className="group hidden items-center gap-3 rounded-full border border-jarvis-cyan/20 bg-black/40 px-4 py-1.5 text-xs text-white/40 transition-all hover:border-jarvis-cyan/50 hover:bg-black/60 hover:text-white/80 hover:shadow-[0_0_15px_rgba(79,215,255,0.15)] lg:flex"
+        className="group hidden items-center gap-3 rounded-full border border-jarvis-accent/20 bg-black/40 px-4 py-1.5 text-xs text-white/40 transition-all hover:border-jarvis-accent/50 hover:bg-black/60 hover:text-white/80 hover:shadow-[0_0_15px_rgba(255,122,26,0.15)] lg:flex"
       >
-        <Search size={13} className="text-jarvis-cyan/70 transition-colors group-hover:text-jarvis-cyanBright" />
+        <Search size={13} className="text-jarvis-accent/70 transition-colors group-hover:text-jarvis-accentBright" />
         <span className="font-sans">Buscar módulo, comando, diretor...</span>
         <kbd className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-white/40 group-hover:text-white/70">⌘K</kbd>
       </button>
@@ -128,7 +128,7 @@ export function TopBar() {
           <span className="font-semibold text-white/80">{systemLabel}</span>
           <span className="h-2.5 w-[1px] bg-white/10" />
           <span className="text-white/40">Agentes:</span>
-          <span className="font-semibold text-jarvis-cyanBright">
+          <span className="font-semibold text-jarvis-accentBright">
             {totalAgents !== null ? `${n8n!.data!.activeCount}/${totalAgents}` : "—"}
           </span>
         </div>
@@ -148,8 +148,8 @@ export function TopBar() {
         </button>
 
         {/* User Profile Pill */}
-        <div className="flex items-center gap-2 rounded-full border border-jarvis-cyan/20 bg-black/40 pl-1 pr-2.5 py-1">
-          <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-jarvis-cyan to-jarvis-cyanBright text-[9px] font-bold text-black shadow-[0_0_8px_rgba(79,215,255,0.3)]">
+        <div className="flex items-center gap-2 rounded-full border border-jarvis-accent/20 bg-black/40 pl-1 pr-2.5 py-1">
+          <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-jarvis-accent to-jarvis-accentBright text-[9px] font-bold text-black shadow-[0_0_8px_rgba(255,122,26,0.1)]">
             GH
           </div>
           <div className="hidden leading-tight md:block">

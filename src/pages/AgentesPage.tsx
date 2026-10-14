@@ -13,11 +13,11 @@ export function AgentesPage() {
   return (
     <div className="flex h-full flex-col overflow-y-auto p-5 font-sans">
       {/* Header with Situational Hierarchy */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-jarvis-cyan/15 pb-4">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-jarvis-accent/15 pb-4">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-display text-lg font-bold tracking-wide text-white">Diretoria Executiva</h1>
-            <span className="rounded-full bg-jarvis-cyan/15 px-2.5 py-0.5 font-mono text-[10px] font-bold text-jarvis-cyanBright">
+            <span className="rounded-full bg-jarvis-accent/15 px-2.5 py-0.5 font-mono text-[10px] font-bold text-jarvis-accentBright">
               10 Diretores AI
             </span>
           </div>
@@ -42,9 +42,9 @@ export function AgentesPage() {
 
       {/* Tactical Sub-layer Footer Card */}
       {(gerenciasCount > 0 || researchCount > 0) && (
-        <div className="mt-4 flex items-center justify-between rounded-2xl border border-jarvis-cyan/15 bg-[#0a0f1d]/60 p-4 backdrop-blur-xl">
+        <div className="mt-4 flex items-center justify-between rounded-2xl border border-jarvis-accent/15 bg-[#101114]/60 p-4 backdrop-blur-xl">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-black/40 text-jarvis-cyanBright">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-black/40 text-jarvis-accentBright">
               <Bot size={18} />
             </div>
             <div>
@@ -56,7 +56,7 @@ export function AgentesPage() {
           </div>
           <Link
             to="/automacoes"
-            className="flex items-center gap-1.5 rounded-full border border-jarvis-cyan/30 bg-jarvis-cyan/10 px-3.5 py-1.5 font-mono text-xs font-semibold text-jarvis-cyanBright hover:bg-jarvis-cyan/20 transition-all"
+            className="flex items-center gap-1.5 rounded-full border border-jarvis-accent/30 bg-jarvis-accent/10 px-3.5 py-1.5 font-mono text-xs font-semibold text-jarvis-accentBright hover:bg-jarvis-accent/20 transition-all"
           >
             <span>Ver em Automações</span>
             <ArrowRight size={12} />

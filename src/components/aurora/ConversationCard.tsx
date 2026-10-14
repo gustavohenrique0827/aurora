@@ -55,13 +55,13 @@ export function ConversationCard({
               <button
                 type="button"
                 onClick={() => onEdit(m.content)}
-                className="mt-1 rounded-md p-1 text-white/35 opacity-0 transition-opacity hover:text-jarvis-cyanBright focus-visible:opacity-100 group-hover:opacity-100"
+                className="mt-1 rounded-md p-1 text-white/35 opacity-0 transition-opacity hover:text-jarvis-accentBright focus-visible:opacity-100 group-hover:opacity-100"
                 title="Editar e reenviar"
                 aria-label="Editar esta pergunta e reenviar"
               >
                 <Pencil size={12} />
               </button>
-              <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-jarvis-cyan/15 px-3 py-2 text-sm text-white">
+              <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-jarvis-accent/15 px-3 py-2 text-sm text-white">
                 {m.content}
               </p>
             </div>
@@ -81,14 +81,14 @@ export function ConversationCard({
 
         {isListening && (
           <div className="flex justify-end">
-            <p className="max-w-[85%] rounded-2xl rounded-br-md border border-dashed border-jarvis-cyan/50 px-3 py-2 text-sm italic text-jarvis-cyanBright">
+            <p className="max-w-[85%] rounded-2xl rounded-br-md border border-dashed border-jarvis-accent/50 px-3 py-2 text-sm italic text-jarvis-accentBright">
               {interimTranscript || "Ouvindo…"}
             </p>
           </div>
         )}
 
         {isAwaitingResponse && (
-          <p className="font-mono text-xs tracking-wider text-jarvis-cyanBright/80">
+          <p className="font-mono text-xs tracking-wider text-jarvis-accentBright/80">
             Aurora está pensando…
           </p>
         )}

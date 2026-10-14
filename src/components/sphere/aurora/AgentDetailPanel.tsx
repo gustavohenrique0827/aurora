@@ -89,7 +89,7 @@ export function AgentDetailPanel({ onAsk }: AgentDetailPanelProps) {
           type="button"
           aria-pressed={brainOpen}
           onClick={() => setBrainOpen(!brainOpen)}
-          className={`mb-2 flex items-center gap-2 rounded-full border px-2.5 py-1.5 font-mono text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-cyanBright ${
+          className={`mb-2 flex items-center gap-2 rounded-full border px-2.5 py-1.5 font-mono text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-accentBright ${
             brainOpen ? "border-white/40 bg-white/10 text-white" : "border-white/10 bg-black/40 text-white/70 hover:border-white/25 hover:text-white"
           }`}
         >
@@ -104,7 +104,7 @@ export function AgentDetailPanel({ onAsk }: AgentDetailPanelProps) {
               type="button"
               aria-pressed={selected}
               onClick={() => setOpenedAgentKey(selected ? null : a.key)}
-              className={`group flex items-center gap-2 rounded-full border px-2.5 py-1 font-mono text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-cyanBright ${
+              className={`group flex items-center gap-2 rounded-full border px-2.5 py-1 font-mono text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-accentBright ${
                 selected
                   ? "border-white/40 bg-white/10 text-white"
                   : "border-white/5 bg-black/40 text-white/55 hover:border-white/20 hover:text-white"
@@ -134,7 +134,7 @@ export function AgentDetailPanel({ onAsk }: AgentDetailPanelProps) {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 24, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 320, damping: 30 }}
-            className="pointer-events-auto absolute right-4 top-20 z-40 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-2 border-dashed bg-[#0b1020]/90 backdrop-blur-2xl"
+            className="pointer-events-auto absolute right-4 top-20 z-40 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-2 border-dashed bg-[#101114]/90 backdrop-blur-2xl"
             style={{ borderColor: `${agent.color}80`, boxShadow: `0 0 40px ${agent.color}26` }}
           >
             <div className="p-4">
@@ -151,7 +151,7 @@ export function AgentDetailPanel({ onAsk }: AgentDetailPanelProps) {
                   type="button"
                   onClick={() => setOpenedAgentKey(null)}
                   aria-label="Fechar"
-                  className="rounded-lg p-1 text-white/50 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-cyanBright"
+                  className="rounded-lg p-1 text-white/50 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-accentBright"
                 >
                   <X size={16} />
                 </button>
@@ -227,7 +227,7 @@ export function AgentDetailPanel({ onAsk }: AgentDetailPanelProps) {
                     onAsk(`Aurora, consulte o ${agent.name} e me diga `);
                     setOpenedAgentKey(null);
                   }}
-                  className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/85 transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-cyanBright"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/85 transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-accentBright"
                 >
                   <Sparkles size={15} />
                   Pedir para a Aurora consultar

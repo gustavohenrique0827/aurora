@@ -34,8 +34,8 @@ export function CommsDock({ voice }: { voice: ChatPanelVoiceProps }) {
           <PanelRightOpen size={17} />
         </button>
         <div className="relative">
-          <Mic size={15} className={isListening ? "text-jarvis-cyanBright" : "text-white/25"} />
-          {isListening && <span className="absolute inset-0 -m-1.5 animate-breathe rounded-full bg-jarvis-cyan/20" />}
+          <Mic size={15} className={isListening ? "text-jarvis-accentBright" : "text-white/25"} />
+          {isListening && <span className="absolute inset-0 -m-1.5 animate-breathe rounded-full bg-jarvis-accent/20" />}
         </div>
       </div>
     );

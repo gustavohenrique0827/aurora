@@ -22,11 +22,11 @@ export function GestureCursor() {
       <div
         className={`h-6 w-6 rounded-full border-2 transition-all duration-100 ${
           pinchActive
-            ? "scale-75 border-jarvis-cyanBright bg-jarvis-cyanBright/30"
-            : "scale-100 border-jarvis-cyan/80 bg-jarvis-cyan/10"
+            ? "scale-75 border-jarvis-accentBright bg-jarvis-accentBright/30"
+            : "scale-100 border-jarvis-accent/80 bg-jarvis-accent/10"
         }`}
       />
-      <div className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-jarvis-cyanBright" />
+      <div className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-jarvis-accentBright" />
     </div>
   );
 }

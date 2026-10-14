@@ -29,7 +29,7 @@ export function CameraPermissionGate() {
         className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors disabled:opacity-40 ${
           cameraActive
             ? "border-jarvis-green/40 bg-jarvis-green/10 text-jarvis-green"
-            : "border-jarvis-border bg-jarvis-surface text-white/50 hover:border-jarvis-cyan/40 hover:text-white/80"
+            : "border-jarvis-border bg-jarvis-surface text-white/50 hover:border-jarvis-accent/40 hover:text-white/80"
         }`}
       >
         {cameraActive ? <Camera size={13} /> : <CameraOff size={13} />}

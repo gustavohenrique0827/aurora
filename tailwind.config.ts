@@ -6,24 +6,25 @@ export default {
     extend: {
       colors: {
         jarvis: {
-          bg: "#05070d",
-          panel: "rgba(15, 22, 38, 0.55)",
+          bg: "#08090b",
+          panel: "rgba(16, 17, 20, 0.88)",
           // Nested/secondary surface inside a GlassPanel (stat tiles, list rows) — one tier
           // lighter than jarvis.panel so hierarchy reads without a new component variant.
           surface: "rgba(255, 255, 255, 0.03)",
           surfaceHover: "rgba(255, 255, 255, 0.06)",
-          border: "rgba(90, 200, 255, 0.18)",
-          borderBright: "rgba(90, 200, 255, 0.4)",
-          cyan: "#4fd7ff",
-          cyanBright: "#8ff3ff",
-          amber: "#ffb454",
-          red: "#ff5c7a",
-          green: "#5cffb0",
+          border: "rgba(255, 255, 255, 0.09)",
+          borderBright: "rgba(255, 255, 255, 0.2)",
+          // Single brand accent (orange). Status colors below are reserved for state only.
+          accent: "#ff7a1a",
+          accentBright: "#ffa24d",
+          amber: "#f5c242",
+          red: "#ff5c5c",
+          green: "#4ade80",
         },
       },
       boxShadow: {
-        glow: "0 0 24px rgba(79, 215, 255, 0.35)",
-        glowSoft: "0 0 12px rgba(79, 215, 255, 0.2)",
+        glow: "0 0 24px rgba(255,122,26, 0.35)",
+        glowSoft: "0 0 12px rgba(255,122,26, 0.2)",
         glowRed: "0 0 16px rgba(255, 92, 122, 0.3)",
         glowGreen: "0 0 16px rgba(92, 255, 176, 0.3)",
         glowAmber: "0 0 16px rgba(255, 180, 84, 0.3)",

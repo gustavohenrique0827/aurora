@@ -24,7 +24,7 @@ export function SpyKpiPanel({ state }: { state: DataState<SpyKpiSnapshot> }) {
           <div className="grid grid-cols-2 gap-3">
             {state.data.counts.map((c) => (
               <div key={c.table} className="rounded-lg border border-jarvis-border/60 bg-black/20 px-3 py-2">
-                <div className="text-xl font-semibold text-jarvis-cyanBright">{c.count}</div>
+                <div className="text-xl font-semibold text-jarvis-accentBright">{c.count}</div>
                 <div className="text-[10px] uppercase tracking-wider text-white/40">{TABLE_LABEL[c.table] ?? c.table}</div>
               </div>
             ))}

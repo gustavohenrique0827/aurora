@@ -31,9 +31,9 @@ export function ScreenShareOffer({ onConfirm, onCancel }: ScreenShareOfferProps)
   };
 
   return (
-    <div className="mx-4 mb-2 flex flex-col gap-2 rounded-xl border border-jarvis-cyan/30 bg-jarvis-cyan/10 px-4 py-3 text-sm text-white/85">
+    <div className="mx-4 mb-2 flex flex-col gap-2 rounded-xl border border-jarvis-accent/30 bg-jarvis-accent/10 px-4 py-3 text-sm text-white/85">
       <div className="flex items-center gap-2">
-        <Monitor size={16} className="shrink-0 text-jarvis-cyanBright" />
+        <Monitor size={16} className="shrink-0 text-jarvis-accentBright" />
         <span>Aurora pede permissão pra ver sua tela — escolha o que compartilhar.</span>
       </div>
       {status === "error" && <div className="text-xs text-jarvis-amber">{errorMessage}</div>}
@@ -42,7 +42,7 @@ export function ScreenShareOffer({ onConfirm, onCancel }: ScreenShareOfferProps)
           type="button"
           onClick={handleShare}
           disabled={status === "capturing"}
-          className="rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/15 px-3.5 py-1.5 text-xs font-medium text-jarvis-cyanBright transition-opacity disabled:opacity-50"
+          className="rounded-full border border-jarvis-accent/40 bg-jarvis-accent/15 px-3.5 py-1.5 text-xs font-medium text-jarvis-accentBright transition-opacity disabled:opacity-50"
         >
           {status === "capturing" ? "Abrindo seletor..." : "Compartilhar tela"}
         </button>

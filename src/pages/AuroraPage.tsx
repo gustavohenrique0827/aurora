@@ -129,22 +129,22 @@ export function AuroraPage() {
   ];
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden bg-[#040810] select-none font-sans">
+    <div className="relative flex h-full flex-col overflow-hidden bg-[#08090b] select-none font-sans">
       {/* Subtle Holographic Grid Accent */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-jarvis-cyan/5 via-transparent to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-jarvis-accent/5 via-transparent to-transparent" />
 
       {/* 1. Floating Holographic Top HUD */}
       <header className="pointer-events-none absolute top-3 left-4 right-4 z-30 flex items-center justify-between">
         {/* Left: Telemetry & Surface Mode Selector */}
         <div className="pointer-events-auto flex items-center gap-2">
-          <div className="flex items-center gap-2.5 rounded-full border border-jarvis-cyan/30 bg-black/60 px-3.5 py-1.5 backdrop-blur-xl shadow-[0_0_20px_rgba(79,215,255,0.12)]">
+          <div className="flex items-center gap-2.5 rounded-full border border-jarvis-accent/30 bg-black/60 px-3.5 py-1.5 backdrop-blur-xl shadow-[0_0_20px_rgba(255,122,26,0.12)]">
             <span
               className={`h-2 w-2 rounded-full ${
                 sphereMode === "analyzing"
                   ? "bg-purple-400 animate-ping"
                   : isListening
-                    ? "bg-jarvis-cyanBright animate-ping"
-                    : "bg-jarvis-cyan shadow-[0_0_8px_#4fd7ff]"
+                    ? "bg-jarvis-accentBright animate-ping"
+                    : "bg-jarvis-accent shadow-[0_0_8px_#ff7a1a]"
               }`}
             />
             <span className="font-mono text-xs font-bold tracking-widest text-white">AURORA</span>
@@ -157,15 +157,15 @@ export function AuroraPage() {
             <button
               type="button"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="flex items-center gap-1.5 rounded-full border border-jarvis-border/80 bg-black/50 px-3 py-1.5 font-mono text-[11px] text-white/80 backdrop-blur-lg hover:border-jarvis-cyan/50 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 rounded-full border border-jarvis-border/80 bg-black/50 px-3 py-1.5 font-mono text-[11px] text-white/80 backdrop-blur-lg hover:border-jarvis-accent/50 hover:text-white transition-colors"
             >
-              <span className="text-jarvis-cyanBright">SUPERFÍCIE:</span>
+              <span className="text-jarvis-accentBright">SUPERFÍCIE:</span>
               <span>{activeProfile?.name || "Modo Parede"}</span>
               <ChevronDown size={12} className="text-white/40" />
             </button>
 
             {showProfileMenu && (
-              <div className="absolute left-0 top-full mt-2 z-50 w-52 rounded-2xl border border-jarvis-cyan/30 bg-black/90 p-2 shadow-2xl backdrop-blur-2xl">
+              <div className="absolute left-0 top-full mt-2 z-50 w-52 rounded-2xl border border-jarvis-accent/30 bg-black/90 p-2 shadow-2xl backdrop-blur-2xl">
                 {Object.values(surfaceProfiles).map((p) => (
                   <button
                     key={p.id}
@@ -176,12 +176,12 @@ export function AuroraPage() {
                     }}
                     className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-mono transition-colors ${
                       p.id === activeProfileId
-                        ? "bg-jarvis-cyan/20 text-jarvis-cyanBright font-bold"
+                        ? "bg-jarvis-accent/20 text-jarvis-accentBright font-bold"
                         : "text-white/70 hover:bg-white/10 hover:text-white"
                     }`}
                   >
                     <span>{p.name}</span>
-                    {p.id === activeProfileId && <span className="h-1.5 w-1.5 rounded-full bg-jarvis-cyanBright" />}
+                    {p.id === activeProfileId && <span className="h-1.5 w-1.5 rounded-full bg-jarvis-accentBright" />}
                   </button>
                 ))}
               </div>
@@ -196,13 +196,13 @@ export function AuroraPage() {
             <button
               type="button"
               onClick={() => setShowWindowMenu(!showWindowMenu)}
-              className="flex items-center gap-1.5 rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/15 px-3.5 py-1.5 text-xs font-semibold text-jarvis-cyanBright backdrop-blur-md hover:bg-jarvis-cyan/25 transition-all shadow-[0_0_15px_rgba(79,215,255,0.15)]"
+              className="flex items-center gap-1.5 rounded-full border border-jarvis-accent/40 bg-jarvis-accent/15 px-3.5 py-1.5 text-xs font-semibold text-jarvis-accentBright backdrop-blur-md hover:bg-jarvis-accent/25 transition-all shadow-[0_0_15px_rgba(255,122,26,0.15)]"
             >
               <Plus size={13} /> Painel
             </button>
 
             {showWindowMenu && (
-              <div className="absolute right-0 top-full mt-2 z-50 w-56 rounded-2xl border border-jarvis-cyan/30 bg-black/90 p-2 shadow-2xl backdrop-blur-2xl">
+              <div className="absolute right-0 top-full mt-2 z-50 w-56 rounded-2xl border border-jarvis-accent/30 bg-black/90 p-2 shadow-2xl backdrop-blur-2xl">
                 <div className="px-2 py-1 text-[10px] font-mono uppercase tracking-wider text-white/40">
                   Painéis Holográficos
                 </div>
@@ -214,7 +214,7 @@ export function AuroraPage() {
                       addSpatialWindow(opt.type, opt.label);
                       setShowWindowMenu(false);
                     }}
-                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs text-white/80 hover:bg-jarvis-cyan/20 hover:text-white transition-colors"
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs text-white/80 hover:bg-jarvis-accent/20 hover:text-white transition-colors"
                   >
                     <span>{opt.icon}</span>
                     <span className="font-medium">{opt.label}</span>
@@ -230,8 +230,8 @@ export function AuroraPage() {
             onClick={() => setExperienceMode(experienceMode === "presentation" ? "normal" : "presentation")}
             className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-md transition-all ${
               experienceMode === "presentation"
-                ? "border-jarvis-cyanBright bg-jarvis-cyanBright/30 text-white shadow-[0_0_15px_rgba(79,215,255,0.4)]"
-                : "border-jarvis-border/80 bg-black/50 text-white/70 hover:border-jarvis-cyan/50 hover:text-white"
+                ? "border-jarvis-accentBright bg-jarvis-accentBright/30 text-white shadow-[0_0_15px_rgba(255,122,26,0.1)]"
+                : "border-jarvis-border/80 bg-black/50 text-white/70 hover:border-jarvis-accent/50 hover:text-white"
             }`}
           >
             <Presentation size={13} /> Apresentação
@@ -254,7 +254,7 @@ export function AuroraPage() {
           <button
             type="button"
             onClick={() => setShowCalibration(true)}
-            className="flex items-center gap-1.5 rounded-full border border-jarvis-border/80 bg-black/50 px-3 py-1.5 text-xs text-white/80 backdrop-blur-md hover:border-jarvis-cyan/50 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 rounded-full border border-jarvis-border/80 bg-black/50 px-3 py-1.5 text-xs text-white/80 backdrop-blur-md hover:border-jarvis-accent/50 hover:text-white transition-colors"
             title="Calibração Geométrica de 4 Pontos"
           >
             Calibrar 4P
@@ -264,7 +264,7 @@ export function AuroraPage() {
           <button
             type="button"
             onClick={() => setShowSurfaceSettings(!showSurfaceSettings)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-jarvis-border/80 bg-black/50 text-white/70 backdrop-blur-md hover:border-jarvis-cyan/50 hover:text-white transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-jarvis-border/80 bg-black/50 text-white/70 backdrop-blur-md hover:border-jarvis-accent/50 hover:text-white transition-colors"
             title="Ajustes de Projeção & Keystone"
           >
             <Sliders size={14} />
@@ -274,7 +274,7 @@ export function AuroraPage() {
           <button
             type="button"
             onClick={() => setShowDeviceManager(true)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-jarvis-border/80 bg-black/50 text-white/70 backdrop-blur-md hover:border-jarvis-cyan/50 hover:text-white transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-jarvis-border/80 bg-black/50 text-white/70 backdrop-blur-md hover:border-jarvis-accent/50 hover:text-white transition-colors"
             title="Gerenciador de Hardware (Câmera, Projetor, Áudio)"
           >
             <Tv size={14} />
@@ -284,7 +284,7 @@ export function AuroraPage() {
           <button
             type="button"
             onClick={openProjectorWindow}
-            className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-jarvis-cyan to-jarvis-cyanBright px-3.5 py-1.5 text-xs font-bold text-black hover:brightness-110 shadow-[0_0_18px_rgba(79,215,255,0.35)] transition-all"
+            className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-jarvis-accent to-jarvis-accentBright px-3.5 py-1.5 text-xs font-bold text-black hover:brightness-110 shadow-[0_0_18px_rgba(255,122,26,0.12)] transition-all"
             title="Abrir tela cheia do projetor em monitor secundário"
           >
             <ExternalLink size={12} /> Projetor
@@ -315,7 +315,7 @@ export function AuroraPage() {
         <div className="pointer-events-none absolute inset-x-0 bottom-36 z-20 flex justify-center px-4">
           {messages.length === 0 && !isAwaitingResponse ? (
             <p
-              className={`text-center font-display text-lg font-medium tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-jarvis-cyanBright via-white to-fuchsia-300 transition-opacity duration-500 sm:text-2xl ${
+              className={`text-center font-display text-lg font-medium tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-jarvis-accentBright via-white to-fuchsia-300 transition-opacity duration-500 sm:text-2xl ${
                 sphereMode === "idle" && !isListening && !brainOpen ? "opacity-100" : "opacity-0"
               }`}
             >
@@ -333,10 +333,10 @@ export function AuroraPage() {
         />
 
         {/* Sci-Fi Corner Brackets */}
-        <div className="pointer-events-none absolute top-2 left-2 h-4 w-4 border-t-2 border-l-2 border-jarvis-cyan/30" />
-        <div className="pointer-events-none absolute top-2 right-2 h-4 w-4 border-t-2 border-r-2 border-jarvis-cyan/30" />
-        <div className="pointer-events-none absolute bottom-2 left-2 h-4 w-4 border-b-2 border-l-2 border-jarvis-cyan/30" />
-        <div className="pointer-events-none absolute bottom-2 right-2 h-4 w-4 border-b-2 border-r-2 border-jarvis-cyan/30" />
+        <div className="pointer-events-none absolute top-2 left-2 h-4 w-4 border-t-2 border-l-2 border-jarvis-accent/30" />
+        <div className="pointer-events-none absolute top-2 right-2 h-4 w-4 border-t-2 border-r-2 border-jarvis-accent/30" />
+        <div className="pointer-events-none absolute bottom-2 left-2 h-4 w-4 border-b-2 border-l-2 border-jarvis-accent/30" />
+        <div className="pointer-events-none absolute bottom-2 right-2 h-4 w-4 border-b-2 border-r-2 border-jarvis-accent/30" />
 
         {/* Surface Settings Drawer */}
         {showSurfaceSettings && (
@@ -350,7 +350,7 @@ export function AuroraPage() {
       <footer className="pointer-events-none absolute bottom-3 left-4 right-4 z-30 flex flex-col items-center gap-2">
         {/* Central Conversational Prompt & Voice Capsule */}
         <div className="pointer-events-auto w-full max-w-2xl">
-          <div className="rounded-2xl border border-jarvis-cyan/35 bg-black/80 p-2 backdrop-blur-2xl shadow-[0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(79,215,255,0.15)]">
+          <div className="rounded-2xl border border-jarvis-accent/35 bg-black/80 p-2 backdrop-blur-2xl shadow-[0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(255,122,26,0.15)]">
             {chatCardOpen && (
             <ConversationCard
               messages={messages}
@@ -375,8 +375,8 @@ export function AuroraPage() {
                 onPointerUp={() => stopPushToTalk()}
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all ${
                   isListening
-                    ? "border-jarvis-cyanBright bg-jarvis-cyanBright text-black shadow-[0_0_20px_rgba(79,215,255,0.6)] animate-pulse"
-                    : "border-jarvis-cyan/40 bg-jarvis-cyan/15 text-jarvis-cyanBright hover:bg-jarvis-cyan/30"
+                    ? "border-jarvis-accentBright bg-jarvis-accentBright text-black shadow-[0_0_20px_rgba(255,122,26,0.1)] animate-pulse"
+                    : "border-jarvis-accent/40 bg-jarvis-accent/15 text-jarvis-accentBright hover:bg-jarvis-accent/30"
                 }`}
                 title="Segure para falar por voz"
               >
@@ -398,7 +398,7 @@ export function AuroraPage() {
               <button
                 type="submit"
                 disabled={!typedMessage.trim()}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-jarvis-cyan to-jarvis-cyanBright text-black transition-all hover:brightness-110 disabled:opacity-30"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-jarvis-accent to-jarvis-accentBright text-black transition-all hover:brightness-110 disabled:opacity-30"
                 title="Enviar mensagem"
               >
                 <Send size={15} />
@@ -425,10 +425,10 @@ export function AuroraPage() {
                     key={i}
                     type="button"
                     onClick={() => handleSendPrompt(p)}
-                    className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[10px] text-white/70 hover:border-jarvis-cyan/50 hover:bg-jarvis-cyan/10 hover:text-white transition-colors"
+                    className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[10px] text-white/70 hover:border-jarvis-accent/50 hover:bg-jarvis-accent/10 hover:text-white transition-colors"
                   >
                     <span>{p}</span>
-                    <ArrowRight size={10} className="text-jarvis-cyan" />
+                    <ArrowRight size={10} className="text-jarvis-accent" />
                   </button>
                 ))}
               </div>

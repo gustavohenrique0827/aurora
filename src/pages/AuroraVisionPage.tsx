@@ -67,11 +67,11 @@ export function AuroraVisionPage() {
       <header className="z-30 flex items-center justify-between border-b border-jarvis-border/70 bg-jarvis-panel/80 px-4 py-2.5 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-jarvis-cyanBright shadow-[0_0_8px_#4fd7ff] animate-pulse" />
+            <span className="h-2.5 w-2.5 rounded-full bg-jarvis-accentBright shadow-[0_0_8px_#ff7a1a] animate-pulse" />
             <span className="font-extrabold tracking-wider text-sm text-white">AURORA VISION</span>
           </div>
           <span className="hidden text-xs text-white/40 sm:inline">|</span>
-          <div className="hidden items-center gap-1.5 rounded-full border border-jarvis-border/80 bg-black/40 px-3 py-1 font-mono text-[11px] text-jarvis-cyanBright sm:flex">
+          <div className="hidden items-center gap-1.5 rounded-full border border-jarvis-border/80 bg-black/40 px-3 py-1 font-mono text-[11px] text-jarvis-accentBright sm:flex">
             <span>PERFIL: {activeProfile?.name || "Modo Parede"}</span>
           </div>
         </div>
@@ -83,7 +83,7 @@ export function AuroraVisionPage() {
             <button
               type="button"
               onClick={() => setShowWindowMenu(!showWindowMenu)}
-              className="flex items-center gap-1.5 rounded-lg border border-jarvis-cyan/40 bg-jarvis-cyan/10 px-3 py-1.5 text-xs font-semibold text-jarvis-cyanBright hover:bg-jarvis-cyan/20"
+              className="flex items-center gap-1.5 rounded-lg border border-jarvis-accent/40 bg-jarvis-accent/10 px-3 py-1.5 text-xs font-semibold text-jarvis-accentBright hover:bg-jarvis-accent/20"
             >
               <Plus size={13} /> Painel Holográfico
             </button>
@@ -97,7 +97,7 @@ export function AuroraVisionPage() {
                       addSpatialWindow(opt.type, opt.label);
                       setShowWindowMenu(false);
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs text-white/80 hover:bg-jarvis-cyan/15 hover:text-white"
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs text-white/80 hover:bg-jarvis-accent/15 hover:text-white"
                   >
                     <span>+</span> {opt.label}
                   </button>
@@ -112,8 +112,8 @@ export function AuroraVisionPage() {
             onClick={() => setExperienceMode(experienceMode === "presentation" ? "normal" : "presentation")}
             className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
               experienceMode === "presentation"
-                ? "border-jarvis-cyanBright bg-jarvis-cyanBright/25 text-white"
-                : "border-jarvis-border text-white/70 hover:border-jarvis-cyan/40 hover:text-white"
+                ? "border-jarvis-accentBright bg-jarvis-accentBright/25 text-white"
+                : "border-jarvis-border text-white/70 hover:border-jarvis-accent/40 hover:text-white"
             }`}
           >
             <Presentation size={13} /> Apresentação
@@ -136,7 +136,7 @@ export function AuroraVisionPage() {
           <button
             type="button"
             onClick={() => setShowSurfaceSettings(!showSurfaceSettings)}
-            className="rounded-lg border border-jarvis-border p-1.5 text-white/70 hover:border-jarvis-cyan/40 hover:text-white"
+            className="rounded-lg border border-jarvis-border p-1.5 text-white/70 hover:border-jarvis-accent/40 hover:text-white"
             title="Configurações de Projeção & Superfície"
           >
             <Sliders size={15} />
@@ -146,7 +146,7 @@ export function AuroraVisionPage() {
           <button
             type="button"
             onClick={() => setShowCalibration(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-jarvis-border bg-black/40 px-3 py-1.5 text-xs text-white/80 hover:border-jarvis-cyan/50 hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-jarvis-border bg-black/40 px-3 py-1.5 text-xs text-white/80 hover:border-jarvis-accent/50 hover:text-white"
           >
             Calibrar 4 Pontos
           </button>
@@ -155,7 +155,7 @@ export function AuroraVisionPage() {
           <button
             type="button"
             onClick={() => setShowDeviceManager(true)}
-            className="rounded-lg border border-jarvis-border p-1.5 text-white/70 hover:border-jarvis-cyan/40 hover:text-white"
+            className="rounded-lg border border-jarvis-border p-1.5 text-white/70 hover:border-jarvis-accent/40 hover:text-white"
             title="Gerenciador de Dispositivos"
           >
             <Tv size={15} />
@@ -165,7 +165,7 @@ export function AuroraVisionPage() {
           <button
             type="button"
             onClick={openProjectorWindow}
-            className="flex items-center gap-1 rounded-lg bg-jarvis-cyan px-3 py-1.5 text-xs font-bold text-jarvis-bg hover:bg-jarvis-cyanBright shadow-[0_0_12px_rgba(79,215,255,0.3)]"
+            className="flex items-center gap-1 rounded-lg bg-jarvis-accent px-3 py-1.5 text-xs font-bold text-jarvis-bg hover:bg-jarvis-accentBright shadow-[0_0_12px_rgba(255,122,26,0.1)]"
           >
             <ExternalLink size={12} /> Projetor
           </button>

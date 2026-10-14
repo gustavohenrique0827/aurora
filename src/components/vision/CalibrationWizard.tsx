@@ -113,11 +113,11 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-jarvis-cyan/30 bg-jarvis-panel/95 shadow-[0_0_50px_rgba(0,0,0,0.9)]">
+      <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-jarvis-accent/30 bg-jarvis-panel/95 shadow-[0_0_50px_rgba(0,0,0,0.9)]">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-jarvis-border/80 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-jarvis-cyan/15 text-jarvis-cyanBright">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-jarvis-accent/15 text-jarvis-accentBright">
               <Crosshair size={18} />
             </div>
             <div>
@@ -155,7 +155,7 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                 onClick={() => setStep(stepNum)}
                 className={`cursor-pointer py-2.5 transition-colors ${
                   isCurrent
-                    ? "border-b-2 border-jarvis-cyan font-semibold text-jarvis-cyanBright bg-jarvis-cyan/5"
+                    ? "border-b-2 border-jarvis-accent font-semibold text-jarvis-accentBright bg-jarvis-accent/5"
                     : isDone
                       ? "text-jarvis-green"
                       : "text-white/30 hover:text-white/60"
@@ -182,7 +182,7 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                   <button
                     type="button"
                     onClick={openProjectorWindow}
-                    className="flex items-center gap-2 rounded-lg bg-jarvis-cyan px-4 py-2 text-xs font-semibold text-jarvis-bg hover:bg-jarvis-cyanBright"
+                    className="flex items-center gap-2 rounded-lg bg-jarvis-accent px-4 py-2 text-xs font-semibold text-jarvis-bg hover:bg-jarvis-accentBright"
                   >
                     <ExternalLink size={14} /> Abrir Janela do Projetor (/projector)
                   </button>
@@ -206,7 +206,7 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                     className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold ${
                       cameraActive
                         ? "bg-jarvis-green/20 text-jarvis-green border border-jarvis-green/40"
-                        : "bg-jarvis-cyan text-jarvis-bg hover:bg-jarvis-cyanBright"
+                        : "bg-jarvis-accent text-jarvis-bg hover:bg-jarvis-accentBright"
                     }`}
                   >
                     <Camera size={14} /> {cameraActive ? "Câmera Ativa ✓" : "Ativar Câmera"}
@@ -244,21 +244,21 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                   type="button"
                   onClick={handleAutoDetect}
                   disabled={!cameraActive || autoDetecting}
-                  className="flex items-center gap-1.5 rounded-lg border border-jarvis-cyan/40 bg-jarvis-cyan/10 px-3 py-1.5 text-xs text-jarvis-cyanBright hover:bg-jarvis-cyan/20 disabled:opacity-40"
+                  className="flex items-center gap-1.5 rounded-lg border border-jarvis-accent/40 bg-jarvis-accent/10 px-3 py-1.5 text-xs text-jarvis-accentBright hover:bg-jarvis-accent/20 disabled:opacity-40"
                 >
                   <Sparkles size={13} /> {autoDetecting ? "Detectando..." : "Auto-Detectar"}
                 </button>
               </div>
 
               {autoDetectMessage && (
-                <div className="rounded-lg border border-jarvis-cyan/30 bg-jarvis-cyan/10 px-3 py-2 text-xs text-jarvis-cyanBright">
+                <div className="rounded-lg border border-jarvis-accent/30 bg-jarvis-accent/10 px-3 py-2 text-xs text-jarvis-accentBright">
                   {autoDetectMessage}
                 </div>
               )}
 
               {/* Interactive 4-Corner Quad Canvas */}
               <div
-                className="relative mx-auto aspect-[4/3] w-full max-w-xl overflow-hidden rounded-xl border border-jarvis-cyan/40 bg-black"
+                className="relative mx-auto aspect-[4/3] w-full max-w-xl overflow-hidden rounded-xl border border-jarvis-accent/40 bg-black"
                 onPointerMove={(e) => {
                   if (activeCorner) {
                     const rect = e.currentTarget.getBoundingClientRect();
@@ -275,7 +275,7 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                     }% ${quad.bottomRight.x * 100}%,${quad.bottomRight.y * 100}% ${quad.bottomLeft.x * 100}%,${
                       quad.bottomLeft.y * 100
                     }%`}
-                    className="fill-jarvis-cyan/15 stroke-jarvis-cyanBright stroke-2 [stroke-dasharray:4_4]"
+                    className="fill-jarvis-accent/15 stroke-jarvis-accentBright stroke-2 [stroke-dasharray:4_4]"
                   />
                 </svg>
 
@@ -294,7 +294,7 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                     style={{ left: `${pt.x * 100}%`, top: `${pt.y * 100}%` }}
                     className="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing"
                   >
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-jarvis-cyan shadow-[0_0_12px_#4fd7ff] hover:scale-125 transition-transform">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-jarvis-accent shadow-[0_0_12px_#ff7a1a] hover:scale-125 transition-transform">
                       <span className="text-[10px] font-bold text-black">{key[0].toUpperCase()}</span>
                     </div>
                     <div className="absolute left-8 top-0 whitespace-nowrap rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-mono text-white/80">
@@ -341,13 +341,13 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                       pinchSuccess
                         ? "border-jarvis-green bg-jarvis-green/20 shadow-[0_0_30px_rgba(54,255,176,0.6)]"
                         : targetHit
-                          ? "border-jarvis-cyanBright bg-jarvis-cyan/20 scale-105"
+                          ? "border-jarvis-accentBright bg-jarvis-accent/20 scale-105"
                           : "border-white/20 bg-white/5"
                     }`}
                   >
                     <CheckCircle2
                       size={28}
-                      className={pinchSuccess ? "text-jarvis-green" : targetHit ? "text-jarvis-cyanBright" : "text-white/40"}
+                      className={pinchSuccess ? "text-jarvis-green" : targetHit ? "text-jarvis-accentBright" : "text-white/40"}
                     />
                     <div className="text-center">
                       <div className="text-xs font-bold text-white">
@@ -381,7 +381,7 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                   <button
                     type="button"
                     onClick={onClose}
-                    className="rounded-lg bg-jarvis-cyan px-6 py-2.5 text-xs font-bold text-jarvis-bg hover:bg-jarvis-cyanBright"
+                    className="rounded-lg bg-jarvis-accent px-6 py-2.5 text-xs font-bold text-jarvis-bg hover:bg-jarvis-accentBright"
                   >
                     Iniciar Experiência Holográfica
                   </button>
@@ -410,7 +410,7 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                 onClose();
               }
             }}
-            className="flex items-center gap-1.5 rounded-lg bg-jarvis-cyan px-5 py-2 text-xs font-semibold text-jarvis-bg hover:bg-jarvis-cyanBright"
+            className="flex items-center gap-1.5 rounded-lg bg-jarvis-accent px-5 py-2 text-xs font-semibold text-jarvis-bg hover:bg-jarvis-accentBright"
           >
             {step === 7 ? "Concluir" : "Avançar"} <ArrowRight size={14} />
           </button>

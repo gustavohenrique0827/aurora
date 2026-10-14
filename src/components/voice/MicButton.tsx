@@ -16,8 +16,8 @@ export function MicButton({ onStart, onStop }: MicButtonProps) {
       whileTap={{ scale: 0.92 }}
       className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${
         isListening
-          ? "border-jarvis-cyanBright bg-jarvis-cyan/20 shadow-glow"
-          : "border-jarvis-border bg-jarvis-panel hover:border-jarvis-cyan/60"
+          ? "border-jarvis-accentBright bg-jarvis-accent/20 shadow-glow"
+          : "border-jarvis-border bg-jarvis-panel hover:border-jarvis-accent/60"
       }`}
       aria-label={isListening ? "Parar de ouvir" : "Falar com a Aurora"}
       title={isListening ? "Parar de ouvir" : "Falar com a Aurora"}

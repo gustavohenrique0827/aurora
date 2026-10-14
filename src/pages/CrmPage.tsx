@@ -30,7 +30,7 @@ export function CrmPage() {
   return (
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-5 font-sans">
       {/* 1. Header with Breadcrumb & Action */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-jarvis-cyan/15 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-jarvis-accent/15 pb-4">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-display text-lg font-bold tracking-wide text-white">CRM &amp; Clientes</h1>
@@ -43,7 +43,7 @@ export function CrmPage() {
 
         <Link
           to="/directors/cco"
-          className="flex items-center gap-1.5 rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/15 px-4 py-1.5 font-mono text-xs font-semibold text-jarvis-cyanBright hover:bg-jarvis-cyan/25 transition-all shadow-[0_0_15px_rgba(79,215,255,0.15)]"
+          className="flex items-center gap-1.5 rounded-full border border-jarvis-accent/40 bg-jarvis-accent/15 px-4 py-1.5 font-mono text-xs font-semibold text-jarvis-accentBright hover:bg-jarvis-accent/25 transition-all shadow-[0_0_15px_rgba(255,122,26,0.15)]"
         >
           <Handshake size={13} />
           <span>Falar com o CCO AI</span>
@@ -64,9 +64,9 @@ export function CrmPage() {
               .map((c) => (
                 <div
                   key={c.table}
-                  className="rounded-2xl border border-jarvis-cyan/20 bg-[#0a0f1d]/75 p-4 backdrop-blur-xl transition-all hover:border-jarvis-cyan/50 hover:shadow-[0_0_20px_rgba(79,215,255,0.15)]"
+                  className="rounded-2xl border border-jarvis-accent/20 bg-[#101114]/75 p-4 backdrop-blur-xl transition-all hover:border-jarvis-accent/50 hover:shadow-[0_0_20px_rgba(255,122,26,0.15)]"
                 >
-                  <div className="font-display text-2xl font-bold text-white group-hover:text-jarvis-cyanBright">
+                  <div className="font-display text-2xl font-bold text-white group-hover:text-jarvis-accentBright">
                     {c.count}
                   </div>
                   <div className="mt-1 font-mono text-[10px] uppercase tracking-wider text-white/40">
@@ -90,7 +90,7 @@ export function CrmPage() {
                       className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/30 p-2.5 transition-colors hover:bg-black/50"
                     >
                       <div className="flex items-center gap-2.5 truncate">
-                        <span className="h-1.5 w-1.5 rounded-full bg-jarvis-cyan" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-jarvis-accent" />
                         <span className="truncate font-medium text-white/85">{row.label}</span>
                       </div>
                       <span className="shrink-0 rounded bg-white/5 px-2 py-0.5 font-mono text-[10px] text-white/40">
@@ -103,7 +103,7 @@ export function CrmPage() {
           </GlassPanel>
 
           {/* 4. Sub-Status Info Note */}
-          <div className="rounded-2xl border border-white/10 bg-[#0a0f1d]/50 px-4 py-3 font-mono text-xs text-white/40">
+          <div className="rounded-2xl border border-white/10 bg-[#101114]/50 px-4 py-3 font-mono text-xs text-white/40">
             💡 <strong>Integração Ativa</strong>: Os dados acima refletem as contagens ao vivo do banco de dados SPY da G-TECH.
           </div>
         </>

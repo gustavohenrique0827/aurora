@@ -31,9 +31,9 @@ export function CameraShareOffer({ onConfirm, onCancel }: CameraShareOfferProps)
   };
 
   return (
-    <div className="mx-4 mb-2 flex flex-col gap-2 rounded-xl border border-jarvis-cyan/30 bg-jarvis-cyan/10 px-4 py-3 text-sm text-white/85">
+    <div className="mx-4 mb-2 flex flex-col gap-2 rounded-xl border border-jarvis-accent/30 bg-jarvis-accent/10 px-4 py-3 text-sm text-white/85">
       <div className="flex items-center gap-2">
-        <Camera size={16} className="shrink-0 text-jarvis-cyanBright" />
+        <Camera size={16} className="shrink-0 text-jarvis-accentBright" />
         <span>Aurora pede permissão pra usar sua câmera — tira uma foto do que quer mostrar.</span>
       </div>
       {status === "error" && <div className="text-xs text-jarvis-amber">{errorMessage}</div>}
@@ -42,7 +42,7 @@ export function CameraShareOffer({ onConfirm, onCancel }: CameraShareOfferProps)
           type="button"
           onClick={handleCapture}
           disabled={status === "capturing"}
-          className="rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/15 px-3.5 py-1.5 text-xs font-medium text-jarvis-cyanBright transition-opacity disabled:opacity-50"
+          className="rounded-full border border-jarvis-accent/40 bg-jarvis-accent/15 px-3.5 py-1.5 text-xs font-medium text-jarvis-accentBright transition-opacity disabled:opacity-50"
         >
           {status === "capturing" ? "Abrindo câmera..." : "Usar câmera"}
         </button>

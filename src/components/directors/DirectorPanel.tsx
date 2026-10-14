@@ -53,16 +53,16 @@ export function DirectorPanel() {
   return (
     <div className="flex h-full flex-col overflow-y-auto font-sans">
       {/* Header with Back Navigation & Director Profile */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-jarvis-cyan/15 bg-[#050813]/60 px-5 py-4 backdrop-blur-xl">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-jarvis-accent/15 bg-[#0a0b0d]/60 px-5 py-4 backdrop-blur-xl">
         <div className="flex items-center gap-3.5">
           <Link
             to="/agentes"
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-black/40 text-white/50 transition-colors hover:border-jarvis-cyan/40 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-black/40 text-white/50 transition-colors hover:border-jarvis-accent/40 hover:text-white"
             title="Voltar para a Diretoria"
           >
             <ArrowLeft size={16} />
           </Link>
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-jarvis-cyan/40 bg-jarvis-cyan/10 text-sm font-bold text-jarvis-cyanBright shadow-[0_0_15px_rgba(79,215,255,0.2)]">
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-jarvis-accent/40 bg-jarvis-accent/10 text-sm font-bold text-jarvis-accentBright shadow-[0_0_15px_rgba(255,122,26,0.1)]">
             {director.name.slice(0, 2)}
             <span className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-black bg-jarvis-green shadow-[0_0_6px_#5cffb0]" />
           </div>
@@ -73,7 +73,7 @@ export function DirectorPanel() {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 rounded-full border border-jarvis-cyan/30 bg-jarvis-cyan/10 px-3 py-1 font-mono text-[11px] font-semibold text-jarvis-cyanBright">
+          <span className="flex items-center gap-1.5 rounded-full border border-jarvis-accent/30 bg-jarvis-accent/10 px-3 py-1 font-mono text-[11px] font-semibold text-jarvis-accentBright">
             <MessageSquare size={12} /> CONVERSA ATIVA
           </span>
         </div>
@@ -82,7 +82,7 @@ export function DirectorPanel() {
       {/* Main Content Area */}
       <div className="space-y-4 p-5">
         {/* Direct In-page Quick Prompt */}
-        <div className="rounded-2xl border border-jarvis-cyan/25 bg-[#0a0f1d]/80 p-3.5 backdrop-blur-xl shadow-xl">
+        <div className="rounded-2xl border border-jarvis-accent/25 bg-[#101114]/80 p-3.5 backdrop-blur-xl shadow-xl">
           <div className="mb-2 flex items-center justify-between text-xs text-white/60">
             <span className="font-medium">Mensagem direta para {director.name}</span>
             <span className="font-mono text-[10px] text-white/30">IA Especializada</span>
@@ -93,12 +93,12 @@ export function DirectorPanel() {
               value={directPrompt}
               onChange={(e) => setDirectPrompt(e.target.value)}
               placeholder={`Pergunte algo sobre ${director.title.toLowerCase()}...`}
-              className="flex-1 rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white placeholder:text-white/30 focus:border-jarvis-cyan/50 focus:outline-none"
+              className="flex-1 rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white placeholder:text-white/30 focus:border-jarvis-accent/50 focus:outline-none"
             />
             <button
               type="submit"
               disabled={!directPrompt.trim()}
-              className="flex h-9 items-center gap-1.5 rounded-xl bg-jarvis-cyan px-3.5 text-xs font-bold text-black transition-all hover:bg-jarvis-cyanBright disabled:opacity-30"
+              className="flex h-9 items-center gap-1.5 rounded-xl bg-jarvis-accent px-3.5 text-xs font-bold text-black transition-all hover:bg-jarvis-accentBright disabled:opacity-30"
             >
               <Send size={13} /> Enviar
             </button>

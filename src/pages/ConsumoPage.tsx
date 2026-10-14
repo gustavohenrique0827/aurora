@@ -58,7 +58,7 @@ export function ConsumoPage() {
 
   return (
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-5 font-sans">
-      <div className="border-b border-jarvis-cyan/15 pb-4">
+      <div className="border-b border-jarvis-accent/15 pb-4">
         <h1 className="font-display text-lg font-bold tracking-wide text-white">Consumo de Tokens</h1>
         <p className="font-mono text-xs text-white/40">
           {snapshot.byAgent.length} agentes com uso registrado · custo estimado a partir do preço público do Gemini
@@ -105,7 +105,7 @@ export function ConsumoPage() {
               return (
                 <li
                   key={`${agent.workflowName}-${agent.model}`}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/30 p-3 transition-all hover:border-jarvis-cyan/40 hover:bg-black/50"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/30 p-3 transition-all hover:border-jarvis-accent/40 hover:bg-black/50"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-mono text-xs font-semibold text-white/85">{agent.workflowName}</p>
@@ -115,7 +115,7 @@ export function ConsumoPage() {
                     </p>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-0.5">
-                    <span className="font-mono text-sm font-bold text-jarvis-cyanBright">
+                    <span className="font-mono text-sm font-bold text-jarvis-accentBright">
                       {USD_FORMAT.format(agent.costUsd)}
                     </span>
                     <span className="font-mono text-[10px] text-white/35">{NUMBER_FORMAT.format(agent.totalTokens)} tokens</span>

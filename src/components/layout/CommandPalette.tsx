@@ -105,7 +105,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                     onClose();
                   }}
                   className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                    i === selected ? "bg-jarvis-cyan/15 text-jarvis-cyanBright" : "text-white/70 hover:bg-white/5"
+                    i === selected ? "bg-jarvis-accent/15 text-jarvis-accentBright" : "text-white/70 hover:bg-white/5"
                   }`}
                 >
                   <span>{entry.label}</span>

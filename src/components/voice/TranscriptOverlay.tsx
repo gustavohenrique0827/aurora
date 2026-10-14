@@ -37,7 +37,7 @@ export function TranscriptOverlay() {
           exit={{ opacity: 0, y: 8 }}
           className="pointer-events-none absolute bottom-20 left-1/2 z-30 w-full max-w-lg -translate-x-1/2 px-4 text-center"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-jarvis-cyan/40 bg-black/80 px-4 py-1.5 backdrop-blur-md shadow-[0_0_20px_rgba(79,215,255,0.2)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-jarvis-accent/40 bg-black/80 px-4 py-1.5 backdrop-blur-md shadow-[0_0_20px_rgba(255,122,26,0.1)]">
             <span
               className={`h-2 w-2 rounded-full ${
                 sphereMode === "analyzing"
@@ -46,7 +46,7 @@ export function TranscriptOverlay() {
                     ? "bg-jarvis-green animate-pulse"
                     : sphereMode === "warning"
                       ? "bg-jarvis-amber animate-bounce"
-                      : "bg-jarvis-cyanBright animate-pulse"
+                      : "bg-jarvis-accentBright animate-pulse"
               }`}
             />
             <span className="font-mono text-xs font-bold tracking-wider text-white">

@@ -47,11 +47,11 @@ export function QuickAccessGrid({ snapshot }: { snapshot: DashboardSnapshot }) {
           <Link
             key={card.to}
             to={card.to}
-            className="group rounded-xl border border-jarvis-border bg-jarvis-surface p-3.5 transition-colors hover:border-jarvis-cyan/40 hover:bg-jarvis-surfaceHover"
+            className="group rounded-xl border border-jarvis-border bg-jarvis-surface p-3.5 transition-colors hover:border-jarvis-accent/40 hover:bg-jarvis-surfaceHover"
           >
             <div className="mb-2 flex items-center justify-between">
-              <card.icon size={16} className="text-jarvis-cyan/70" strokeWidth={1.75} />
-              <ArrowUpRight size={13} className="text-white/20 transition-colors group-hover:text-jarvis-cyanBright" />
+              <card.icon size={16} className="text-jarvis-accent/70" strokeWidth={1.75} />
+              <ArrowUpRight size={13} className="text-white/20 transition-colors group-hover:text-jarvis-accentBright" />
             </div>
             <div className="text-xs font-medium text-white/85">{card.label}</div>
             <div className="mt-0.5 text-[10px] text-white/35">{headline ?? "Abrir painel"}</div>

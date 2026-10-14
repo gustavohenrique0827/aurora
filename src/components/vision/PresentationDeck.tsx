@@ -13,7 +13,7 @@ export function PresentationDeck() {
     {
       title: "AURORA VISION",
       subtitle: "Sistema Operacional de Inteligência Artificial Holográfica",
-      icon: <Sparkles className="h-12 w-12 text-jarvis-cyanBright" />,
+      icon: <Sparkles className="h-12 w-12 text-jarvis-accentBright" />,
       content: (
         <div className="space-y-4 text-center max-w-xl mx-auto">
           <p className="text-sm text-white/80 leading-relaxed">
@@ -21,7 +21,7 @@ export function PresentationDeck() {
           </p>
           <div className="grid grid-cols-3 gap-3 pt-4">
             <div className="rounded-xl border border-jarvis-border/60 bg-black/40 p-3">
-              <div className="text-xs font-bold text-jarvis-cyanBright">Projeção Espacial</div>
+              <div className="text-xs font-bold text-jarvis-accentBright">Projeção Espacial</div>
               <div className="text-[10px] text-white/50">Calibração de Homografia 4-Pontos</div>
             </div>
             <div className="rounded-xl border border-jarvis-border/60 bg-black/40 p-3">
@@ -49,7 +49,7 @@ export function PresentationDeck() {
             {[
               { role: "CEO AI", desc: "Estratégia & Decisão", color: "text-amber-400" },
               { role: "CCO AI", desc: "Vendas & Negociações", color: "text-jarvis-green" },
-              { role: "CFO AI", desc: "Finanças & Auditoria", color: "text-jarvis-cyanBright" },
+              { role: "CFO AI", desc: "Finanças & Auditoria", color: "text-jarvis-accentBright" },
               { role: "CTO AI", desc: "Engenharia & Cloud", color: "text-purple-400" },
             ].map((a) => (
               <div key={a.role} className="rounded-xl border border-jarvis-border/80 bg-black/40 p-3 text-center">
@@ -72,9 +72,9 @@ export function PresentationDeck() {
               <div className="text-[11px] text-white/60">Crescimento de Receita</div>
               <div className="font-mono text-2xl font-bold text-jarvis-green mt-1">+142%</div>
             </div>
-            <div className="rounded-2xl border border-jarvis-cyan/40 bg-jarvis-cyan/10 p-4">
+            <div className="rounded-2xl border border-jarvis-accent/40 bg-jarvis-accent/10 p-4">
               <div className="text-[11px] text-white/60">Leads Convertidos</div>
-              <div className="font-mono text-2xl font-bold text-jarvis-cyanBright mt-1">1.280</div>
+              <div className="font-mono text-2xl font-bold text-jarvis-accentBright mt-1">1.280</div>
             </div>
             <div className="rounded-2xl border border-jarvis-amber/40 bg-jarvis-amber/10 p-4">
               <div className="text-[11px] text-white/60">NPS dos Clientes</div>
@@ -87,7 +87,7 @@ export function PresentationDeck() {
     {
       title: "AUTOMAÇÃO & WORKFLOWS",
       subtitle: "Orquestração Contínua de Processos",
-      icon: <Workflow className="h-12 w-12 text-jarvis-cyan" />,
+      icon: <Workflow className="h-12 w-12 text-jarvis-accent" />,
       content: (
         <div className="space-y-3 max-w-xl mx-auto text-center">
           <p className="text-xs text-white/70">
@@ -102,7 +102,7 @@ export function PresentationDeck() {
     {
       title: "O FUTURO É AGORA",
       subtitle: "A Era da Inteligência Espacial",
-      icon: <Rocket className="h-12 w-12 text-jarvis-cyanBright" />,
+      icon: <Rocket className="h-12 w-12 text-jarvis-accentBright" />,
       content: (
         <div className="space-y-4 text-center max-w-lg mx-auto">
           <p className="text-sm text-white/80 leading-relaxed">
@@ -112,7 +112,7 @@ export function PresentationDeck() {
             <button
               type="button"
               onClick={() => setExperienceMode("normal")}
-              className="rounded-full bg-jarvis-cyan px-6 py-2.5 text-xs font-bold text-jarvis-bg hover:bg-jarvis-cyanBright shadow-[0_0_20px_rgba(79,215,255,0.4)]"
+              className="rounded-full bg-jarvis-accent px-6 py-2.5 text-xs font-bold text-jarvis-bg hover:bg-jarvis-accentBright shadow-[0_0_20px_rgba(255,122,26,0.1)]"
             >
               Concluir Apresentação
             </button>
@@ -128,8 +128,8 @@ export function PresentationDeck() {
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-black/90 p-8 backdrop-blur-2xl">
       {/* Top Bar */}
       <div className="flex w-full max-w-5xl items-center justify-between">
-        <div className="flex items-center gap-2 font-mono text-xs text-jarvis-cyanBright">
-          <span className="h-2 w-2 rounded-full bg-jarvis-cyanBright animate-pulse" />
+        <div className="flex items-center gap-2 font-mono text-xs text-jarvis-accentBright">
+          <span className="h-2 w-2 rounded-full bg-jarvis-accentBright animate-pulse" />
           <span>MODO APRESENTAÇÃO • AURORA VISION</span>
         </div>
         <div className="flex items-center gap-3">
@@ -147,12 +147,12 @@ export function PresentationDeck() {
       </div>
 
       {/* Main Slide Card */}
-      <div className="my-auto flex w-full max-w-4xl flex-col items-center rounded-3xl border border-jarvis-cyan/30 bg-jarvis-panel/90 p-10 shadow-[0_0_80px_rgba(0,0,0,0.9),0_0_30px_rgba(79,215,255,0.15)]">
+      <div className="my-auto flex w-full max-w-4xl flex-col items-center rounded-3xl border border-jarvis-accent/30 bg-jarvis-panel/90 p-10 shadow-[0_0_80px_rgba(0,0,0,0.9),0_0_30px_rgba(255,122,26,0.15)]">
         <div className="mb-4">{current.icon}</div>
         <h1 className="text-2xl font-extrabold tracking-wider text-white sm:text-3xl text-center">
           {current.title}
         </h1>
-        <p className="mt-1 mb-8 text-xs font-semibold tracking-widest text-jarvis-cyanBright uppercase text-center">
+        <p className="mt-1 mb-8 text-xs font-semibold tracking-widest text-jarvis-accentBright uppercase text-center">
           {current.subtitle}
         </p>
 
@@ -165,7 +165,7 @@ export function PresentationDeck() {
           type="button"
           disabled={presentationSlide === 0}
           onClick={prevSlide}
-          className="flex items-center gap-1 rounded-full border border-jarvis-border bg-black/40 px-4 py-2 text-xs text-white/80 hover:border-jarvis-cyan disabled:opacity-30"
+          className="flex items-center gap-1 rounded-full border border-jarvis-border bg-black/40 px-4 py-2 text-xs text-white/80 hover:border-jarvis-accent disabled:opacity-30"
         >
           <ChevronLeft size={14} /> Anterior
         </button>
@@ -176,7 +176,7 @@ export function PresentationDeck() {
             <div
               key={i}
               className={`h-2 rounded-full transition-all ${
-                presentationSlide === i ? "w-6 bg-jarvis-cyanBright" : "w-2 bg-white/20"
+                presentationSlide === i ? "w-6 bg-jarvis-accentBright" : "w-2 bg-white/20"
               }`}
             />
           ))}
@@ -186,7 +186,7 @@ export function PresentationDeck() {
           type="button"
           disabled={presentationSlide === totalSlides - 1}
           onClick={nextSlide}
-          className="flex items-center gap-1 rounded-full border border-jarvis-border bg-black/40 px-4 py-2 text-xs text-white/80 hover:border-jarvis-cyan disabled:opacity-30"
+          className="flex items-center gap-1 rounded-full border border-jarvis-border bg-black/40 px-4 py-2 text-xs text-white/80 hover:border-jarvis-accent disabled:opacity-30"
         >
           Próximo <ChevronRight size={14} />
         </button>

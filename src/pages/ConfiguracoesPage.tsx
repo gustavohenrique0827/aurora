@@ -94,7 +94,7 @@ function CalibrationFlow() {
         type="button"
         disabled={!cameraActive || calibrationStep !== "idle"}
         onClick={() => setCalibrationStep("top-left")}
-        className="rounded-full border border-jarvis-border px-3.5 py-1.5 text-xs text-white/60 transition-colors hover:border-jarvis-cyan/40 hover:text-white/80 disabled:opacity-40"
+        className="rounded-full border border-jarvis-border px-3.5 py-1.5 text-xs text-white/60 transition-colors hover:border-jarvis-accent/40 hover:text-white/80 disabled:opacity-40"
       >
         {calibrationStep === "idle" ? "Calibrar" : "Calibrando..."}
       </button>
@@ -181,14 +181,14 @@ function CustomGestureRecorder() {
           type="button"
           disabled={!cameraActive || phase !== "idle"}
           onClick={startRecording}
-          className="rounded-full border border-jarvis-border px-3.5 py-1.5 text-xs text-white/60 transition-colors hover:border-jarvis-cyan/40 hover:text-white/80 disabled:opacity-40"
+          className="rounded-full border border-jarvis-border px-3.5 py-1.5 text-xs text-white/60 transition-colors hover:border-jarvis-accent/40 hover:text-white/80 disabled:opacity-40"
         >
           Gravar novo gesto
         </button>
       </div>
 
       {phase === "counting" && (
-        <div className="mb-2 text-jarvis-cyanBright">Segure a pose... capturando em {countdown}s</div>
+        <div className="mb-2 text-jarvis-accentBright">Segure a pose... capturando em {countdown}s</div>
       )}
       {error && <div className="mb-2 text-jarvis-amber">{error}</div>}
 
@@ -199,12 +199,12 @@ function CustomGestureRecorder() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nome do gesto (ex: sinal de positivo customizado)"
-            className="w-full rounded border border-jarvis-border bg-transparent px-2 py-1 text-white/80 placeholder:text-white/25 focus:border-jarvis-cyan/50 focus:outline-none"
+            className="w-full rounded border border-jarvis-border bg-transparent px-2 py-1 text-white/80 placeholder:text-white/25 focus:border-jarvis-accent/50 focus:outline-none"
           />
           <select
             value={action}
             onChange={(e) => setAction(e.target.value)}
-            className="w-full rounded border border-jarvis-border bg-jarvis-bg px-2 py-1 text-white/80 focus:border-jarvis-cyan/50 focus:outline-none"
+            className="w-full rounded border border-jarvis-border bg-jarvis-bg px-2 py-1 text-white/80 focus:border-jarvis-accent/50 focus:outline-none"
           >
             {CUSTOM_GESTURE_ACTIONS.map((a) => (
               <option key={a.id} value={a.id}>
@@ -220,7 +220,7 @@ function CustomGestureRecorder() {
               type="button"
               disabled={!name.trim()}
               onClick={save}
-              className="rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/10 px-3 py-1 text-jarvis-cyanBright disabled:opacity-40"
+              className="rounded-full border border-jarvis-accent/40 bg-jarvis-accent/10 px-3 py-1 text-jarvis-accentBright disabled:opacity-40"
             >
               Salvar
             </button>
@@ -289,7 +289,7 @@ export function ConfiguracoesPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-4 overflow-y-auto p-5 font-sans">
       {/* Header */}
-      <div className="border-b border-jarvis-cyan/15 pb-4">
+      <div className="border-b border-jarvis-accent/15 pb-4">
         <h1 className="font-display text-lg font-bold tracking-wide text-white">Configurações do Sistema</h1>
         <p className="font-mono text-xs text-white/40">
           Preferências de Visão Computacional, Gestos, Sessão e Instâncias Conectadas
@@ -320,7 +320,7 @@ export function ConfiguracoesPage() {
               href="https://automacao-target-n8n.vr4mar.easypanel.host"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1 text-jarvis-cyan hover:underline"
+              className="flex items-center gap-1 text-jarvis-accent hover:underline"
             >
               abrir <ExternalLink size={11} />
             </a>
@@ -331,7 +331,7 @@ export function ConfiguracoesPage() {
               href="https://automacao-target-waha.vr4mar.easypanel.host"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1 text-jarvis-cyan hover:underline"
+              className="flex items-center gap-1 text-jarvis-accent hover:underline"
             >
               abrir <ExternalLink size={11} />
             </a>
@@ -355,7 +355,7 @@ export function ConfiguracoesPage() {
               className={`rounded-full border px-3.5 py-1.5 transition-colors disabled:opacity-40 ${
                 cameraActive
                   ? "border-jarvis-green/40 bg-jarvis-green/10 text-jarvis-green"
-                  : "border-jarvis-border text-white/60 hover:border-jarvis-cyan/40 hover:text-white/80"
+                  : "border-jarvis-border text-white/60 hover:border-jarvis-accent/40 hover:text-white/80"
               }`}
             >
               {cameraActive ? "Desativar" : "Ativar"}
@@ -383,7 +383,7 @@ export function ConfiguracoesPage() {
               className={`rounded-full border px-3.5 py-1.5 transition-colors ${
                 privacyMode
                   ? "border-jarvis-amber/50 bg-jarvis-amber/10 text-jarvis-amber"
-                  : "border-jarvis-border text-white/60 hover:border-jarvis-cyan/40 hover:text-white/80"
+                  : "border-jarvis-border text-white/60 hover:border-jarvis-accent/40 hover:text-white/80"
               }`}
             >
               {privacyMode ? "Ligado" : "Desligado"}
@@ -400,8 +400,8 @@ export function ConfiguracoesPage() {
               onClick={() => setDebugMode(!debugMode)}
               className={`rounded-full border px-3.5 py-1.5 transition-colors ${
                 debugMode
-                  ? "border-jarvis-cyan/40 bg-jarvis-cyan/10 text-jarvis-cyanBright"
-                  : "border-jarvis-border text-white/60 hover:border-jarvis-cyan/40 hover:text-white/80"
+                  ? "border-jarvis-accent/40 bg-jarvis-accent/10 text-jarvis-accentBright"
+                  : "border-jarvis-border text-white/60 hover:border-jarvis-accent/40 hover:text-white/80"
               }`}
             >
               {debugMode ? "Ligado" : "Desligado"}
@@ -418,8 +418,8 @@ export function ConfiguracoesPage() {
               onClick={() => setCinematicMode(!cinematicMode)}
               className={`rounded-full border px-3.5 py-1.5 transition-colors ${
                 cinematicMode
-                  ? "border-jarvis-cyan/40 bg-jarvis-cyan/10 text-jarvis-cyanBright"
-                  : "border-jarvis-border text-white/60 hover:border-jarvis-cyan/40 hover:text-white/80"
+                  ? "border-jarvis-accent/40 bg-jarvis-accent/10 text-jarvis-accentBright"
+                  : "border-jarvis-border text-white/60 hover:border-jarvis-accent/40 hover:text-white/80"
               }`}
             >
               {cinematicMode ? "Ligado" : "Desligado"}
@@ -440,8 +440,8 @@ export function ConfiguracoesPage() {
               onClick={() => setBuiltInGestureShortcutsEnabled(!builtInGestureShortcutsEnabled)}
               className={`shrink-0 rounded-full border px-3.5 py-1.5 transition-colors ${
                 builtInGestureShortcutsEnabled
-                  ? "border-jarvis-cyan/40 bg-jarvis-cyan/10 text-jarvis-cyanBright"
-                  : "border-jarvis-border text-white/60 hover:border-jarvis-cyan/40 hover:text-white/80"
+                  ? "border-jarvis-accent/40 bg-jarvis-accent/10 text-jarvis-accentBright"
+                  : "border-jarvis-border text-white/60 hover:border-jarvis-accent/40 hover:text-white/80"
               }`}
             >
               {builtInGestureShortcutsEnabled ? "Ligado" : "Desligado"}
@@ -460,7 +460,7 @@ export function ConfiguracoesPage() {
               step={0.05}
               value={confidenceThreshold}
               onChange={(e) => setConfidenceThreshold(parseFloat(e.target.value))}
-              className="w-full accent-jarvis-cyan"
+              className="w-full accent-jarvis-accent"
             />
             <div className="mt-1 text-white/35">Gestos abaixo desse valor são ignorados</div>
           </div>
@@ -477,7 +477,7 @@ export function ConfiguracoesPage() {
               step={0.05}
               value={pinchSensitivity}
               onChange={(e) => setPinchSensitivity(parseFloat(e.target.value))}
-              className="w-full accent-jarvis-cyan"
+              className="w-full accent-jarvis-accent"
             />
             <div className="mt-1 text-white/35">
               Aumente se juntar polegar e indicador não estiver virando pinch (veja o número no
@@ -495,8 +495,8 @@ export function ConfiguracoesPage() {
                   onClick={() => setDominantHand(hand)}
                   className={`rounded-full border px-3.5 py-1.5 transition-colors ${
                     dominantHand === hand
-                      ? "border-jarvis-cyan/40 bg-jarvis-cyan/10 text-jarvis-cyanBright"
-                      : "border-jarvis-border text-white/60 hover:border-jarvis-cyan/40 hover:text-white/80"
+                      ? "border-jarvis-accent/40 bg-jarvis-accent/10 text-jarvis-accentBright"
+                      : "border-jarvis-border text-white/60 hover:border-jarvis-accent/40 hover:text-white/80"
                   }`}
                 >
                   {hand === "right" ? "Direita" : "Esquerda"}
@@ -517,8 +517,8 @@ export function ConfiguracoesPage() {
               onClick={() => setPointerModeEnabled(!pointerModeEnabled)}
               className={`rounded-full border px-3.5 py-1.5 transition-colors ${
                 pointerModeEnabled
-                  ? "border-jarvis-cyan/40 bg-jarvis-cyan/10 text-jarvis-cyanBright"
-                  : "border-jarvis-border text-white/60 hover:border-jarvis-cyan/40 hover:text-white/80"
+                  ? "border-jarvis-accent/40 bg-jarvis-accent/10 text-jarvis-accentBright"
+                  : "border-jarvis-border text-white/60 hover:border-jarvis-accent/40 hover:text-white/80"
               }`}
             >
               {pointerModeEnabled ? "Ligado" : "Desligado"}

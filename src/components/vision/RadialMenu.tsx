@@ -172,7 +172,7 @@ export function RadialMenu() {
   return (
     <div className="pointer-events-none fixed inset-0 z-[110]">
       <div
-        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-jarvis-cyan/30 bg-jarvis-bg/40 backdrop-blur-sm"
+        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-jarvis-accent/30 bg-jarvis-bg/40 backdrop-blur-sm"
         style={{
           left: radialMenuCenter.x,
           top: radialMenuCenter.y,
@@ -191,7 +191,7 @@ export function RadialMenu() {
               key={item.label}
               className={`absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-100 ${
                 active
-                  ? "scale-110 border-jarvis-cyanBright bg-jarvis-cyanBright/20 text-jarvis-cyanBright"
+                  ? "scale-110 border-jarvis-accentBright bg-jarvis-accentBright/20 text-jarvis-accentBright"
                   : item.sensitive
                     ? "border-jarvis-red/40 bg-jarvis-bg/85 text-jarvis-red/80"
                     : "border-jarvis-border bg-jarvis-bg/85 text-white/60"

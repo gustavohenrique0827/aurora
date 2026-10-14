@@ -19,11 +19,11 @@ export function AnalyticsPage() {
   return (
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-5 font-sans">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-jarvis-cyan/15 pb-4">
+      <div className="flex items-center justify-between border-b border-jarvis-accent/15 pb-4">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-display text-lg font-bold tracking-wide text-white">Analytics &amp; Telemetria</h1>
-            <span className="rounded-full bg-jarvis-cyan/15 px-2.5 py-0.5 font-mono text-[10px] font-bold text-jarvis-cyanBright">
+            <span className="rounded-full bg-jarvis-accent/15 px-2.5 py-0.5 font-mono text-[10px] font-bold text-jarvis-accentBright">
               Live Feeds
             </span>
           </div>

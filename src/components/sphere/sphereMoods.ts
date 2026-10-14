@@ -1,9 +1,9 @@
 import type { SphereMode, SphereMood } from "../../state/slices/sphereSlice";
 
 export const MOOD_COLOR: Record<SphereMood, [number, number, number]> = {
-  neutral: [0.31, 0.84, 1.0],
-  positive: [0.36, 1.0, 0.69],
-  alert: [1.0, 0.36, 0.48],
+  neutral: [1.0, 0.48, 0.1],
+  positive: [0.29, 0.87, 0.5],
+  alert: [1.0, 0.36, 0.36],
 };
 
 export const MODE_PULSE_SPEED: Record<SphereMode, number> = {
@@ -19,9 +19,9 @@ export const MODE_PULSE_SPEED: Record<SphereMode, number> = {
 };
 
 export const MODE_COLOR_OVERRIDE: Partial<Record<SphereMode, [number, number, number]>> = {
-  analyzing: [0.72, 0.35, 1.0], // Violet / Holographic Magenta
-  executing: [0.2, 0.95, 0.65],  // Emerald Tech Neon
-  warning: [1.0, 0.72, 0.18],    // Amber warning
-  success: [0.15, 1.0, 0.85],    // Bright Cyan-Green Success
-  error: [1.0, 0.28, 0.38],      // Vivid Crimson
+  analyzing: [1.0, 0.78, 0.5],   // Warm white-amber
+  executing: [0.29, 0.87, 0.5],  // Green
+  warning: [0.96, 0.76, 0.26],   // Amber warning
+  success: [0.29, 0.87, 0.5],    // Green success
+  error: [1.0, 0.3, 0.3],        // Red
 };

@@ -67,7 +67,7 @@ export function DeviceManagerModal({ onClose, onOpenCalibration }: DeviceManager
         );
       case "calibrating":
         return (
-          <span className="flex items-center gap-1.5 rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/10 px-2.5 py-0.5 text-[10px] font-semibold text-jarvis-cyanBright">
+          <span className="flex items-center gap-1.5 rounded-full border border-jarvis-accent/40 bg-jarvis-accent/10 px-2.5 py-0.5 text-[10px] font-semibold text-jarvis-accentBright">
             <RefreshCw size={11} className="animate-spin" /> {label || "CALIBRANDO"}
           </span>
         );
@@ -89,11 +89,11 @@ export function DeviceManagerModal({ onClose, onOpenCalibration }: DeviceManager
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="relative flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-jarvis-cyan/30 bg-jarvis-panel/95 shadow-[0_0_50px_rgba(0,0,0,0.9)]">
+      <div className="relative flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-jarvis-accent/30 bg-jarvis-panel/95 shadow-[0_0_50px_rgba(0,0,0,0.9)]">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-jarvis-border/80 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-jarvis-cyan/15 text-jarvis-cyanBright">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-jarvis-accent/15 text-jarvis-accentBright">
               <Tv size={18} />
             </div>
             <div>
@@ -126,7 +126,7 @@ export function DeviceManagerModal({ onClose, onOpenCalibration }: DeviceManager
           <div className="rounded-xl border border-jarvis-border/60 bg-black/30 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-jarvis-cyan/10 text-jarvis-cyanBright">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-jarvis-accent/10 text-jarvis-accentBright">
                   <Camera size={20} />
                 </div>
                 <div>
@@ -150,7 +150,7 @@ export function DeviceManagerModal({ onClose, onOpenCalibration }: DeviceManager
                 <select
                   value={deviceState.selectedCameraId || ""}
                   onChange={(e) => setDeviceState({ selectedCameraId: e.target.value })}
-                  className="w-full rounded-lg border border-jarvis-border/80 bg-jarvis-bg px-3 py-2 text-xs text-white/90 focus:border-jarvis-cyan focus:outline-none"
+                  className="w-full rounded-lg border border-jarvis-border/80 bg-jarvis-bg px-3 py-2 text-xs text-white/90 focus:border-jarvis-accent focus:outline-none"
                 >
                   {deviceState.cameras.map((c) => (
                     <option key={c.deviceId} value={c.deviceId}>
@@ -166,7 +166,7 @@ export function DeviceManagerModal({ onClose, onOpenCalibration }: DeviceManager
           <div className="rounded-xl border border-jarvis-border/60 bg-black/30 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-jarvis-cyan/10 text-jarvis-cyanBright">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-jarvis-accent/10 text-jarvis-accentBright">
                   <Tv size={20} />
                 </div>
                 <div>
@@ -193,7 +193,7 @@ export function DeviceManagerModal({ onClose, onOpenCalibration }: DeviceManager
                     "width=1280,height=720,menubar=no,toolbar=no,location=no,status=no"
                   )
                 }
-                className="flex items-center gap-1.5 rounded-lg bg-jarvis-cyan/15 border border-jarvis-cyan/30 px-3 py-1.5 text-xs text-jarvis-cyanBright hover:bg-jarvis-cyan/25"
+                className="flex items-center gap-1.5 rounded-lg bg-jarvis-accent/15 border border-jarvis-accent/30 px-3 py-1.5 text-xs text-jarvis-accentBright hover:bg-jarvis-accent/25"
               >
                 <ExternalLink size={12} /> Abrir Janela do Projetor
               </button>
@@ -213,7 +213,7 @@ export function DeviceManagerModal({ onClose, onOpenCalibration }: DeviceManager
           <div className="rounded-xl border border-jarvis-border/60 bg-black/30 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-jarvis-cyan/10 text-jarvis-cyanBright">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-jarvis-accent/10 text-jarvis-accentBright">
                   <Mic size={20} />
                 </div>
                 <div>
@@ -233,7 +233,7 @@ export function DeviceManagerModal({ onClose, onOpenCalibration }: DeviceManager
           <div className="rounded-xl border border-jarvis-border/60 bg-black/30 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-jarvis-cyan/10 text-jarvis-cyanBright">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-jarvis-accent/10 text-jarvis-accentBright">
                   <Volume2 size={20} />
                 </div>
                 <div>

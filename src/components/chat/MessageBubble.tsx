@@ -21,14 +21,14 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       <div
         className={`relative max-w-[80%] rounded-2xl border px-4 py-3 text-sm leading-relaxed backdrop-blur-md ${
           isUser
-            ? "border-jarvis-cyan/30 bg-jarvis-cyan/10 text-white"
+            ? "border-jarvis-accent/30 bg-jarvis-accent/10 text-white"
             : message.error
               ? "border-jarvis-red/40 bg-jarvis-red/10 text-white/90"
               : "border-jarvis-border bg-jarvis-panel text-white/90"
         }`}
       >
         {message.directorId && !isUser && (
-          <div className="mb-1 text-[10px] uppercase tracking-wider text-jarvis-cyan/70">{message.directorId}</div>
+          <div className="mb-1 text-[10px] uppercase tracking-wider text-jarvis-accent/70">{message.directorId}</div>
         )}
         {message.imageBase64 && (
           <img

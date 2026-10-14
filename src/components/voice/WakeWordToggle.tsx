@@ -24,13 +24,13 @@ export function WakeWordToggle({ compact = false }: { compact?: boolean }) {
         }
         className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all disabled:opacity-30 ${
           wakeWordEnabled && wakeWordSupported
-            ? "border-jarvis-cyanBright/70 bg-jarvis-cyan/15 text-jarvis-cyanBright"
+            ? "border-jarvis-accentBright/70 bg-jarvis-accent/15 text-jarvis-accentBright"
             : "border-white/15 bg-white/5 text-white/45 hover:text-white/80"
         }`}
       >
         {wakeWordEnabled && wakeWordSupported ? <Ear size={17} /> : <EarOff size={17} />}
         {wakeWordEnabled && wakeWordSupported && (
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-jarvis-cyanBright animate-pulseGlow" />
+          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-jarvis-accentBright animate-pulseGlow" />
         )}
       </button>
     );
@@ -50,7 +50,7 @@ export function WakeWordToggle({ compact = false }: { compact?: boolean }) {
       onClick={() => setWakeWordEnabled(!wakeWordEnabled)}
       className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
         wakeWordEnabled
-          ? "border-jarvis-cyanBright bg-jarvis-cyan/15 text-jarvis-cyanBright"
+          ? "border-jarvis-accentBright bg-jarvis-accent/15 text-jarvis-accentBright"
           : "border-jarvis-border text-white/50 hover:text-white/80"
       }`}
       title={
@@ -59,7 +59,7 @@ export function WakeWordToggle({ compact = false }: { compact?: boolean }) {
           : 'Ativar escuta por "Aurora" (experimental)'
       }
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${wakeWordEnabled ? "bg-jarvis-cyanBright animate-pulseGlow" : "bg-white/30"}`} />
+      <span className={`h-1.5 w-1.5 rounded-full ${wakeWordEnabled ? "bg-jarvis-accentBright animate-pulseGlow" : "bg-white/30"}`} />
       {wakeWordEnabled ? "Ouvindo por “Aurora”" : "Wake-word desligado"}
     </button>
   );

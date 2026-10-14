@@ -58,7 +58,7 @@ export function HolographicCursor({ projectorMode = false }: HolographicCursorPr
       {clickPulses.map((p) => (
         <div
           key={p.id}
-          className="absolute -translate-x-1/2 -translate-y-1/2 animate-ping rounded-full border-2 border-jarvis-cyanBright bg-jarvis-cyan/30"
+          className="absolute -translate-x-1/2 -translate-y-1/2 animate-ping rounded-full border-2 border-jarvis-accentBright bg-jarvis-accent/30"
           style={{ left: p.x, top: p.y, width: 48, height: 48 }}
         />
       ))}
@@ -72,32 +72,32 @@ export function HolographicCursor({ projectorMode = false }: HolographicCursorPr
         <div
           className={`relative flex items-center justify-center rounded-full border transition-all duration-150 ${
             pinchActive
-              ? "h-12 w-12 scale-75 border-jarvis-cyanBright bg-jarvis-cyanBright/25 shadow-[0_0_20px_rgba(79,215,255,0.6)]"
+              ? "h-12 w-12 scale-75 border-jarvis-accentBright bg-jarvis-accentBright/25 shadow-[0_0_20px_rgba(255,122,26,0.1)]"
               : isPointing
-                ? "h-10 w-10 scale-100 border-jarvis-cyan/90 bg-jarvis-cyan/10 shadow-[0_0_12px_rgba(79,215,255,0.35)]"
+                ? "h-10 w-10 scale-100 border-jarvis-accent/90 bg-jarvis-accent/10 shadow-[0_0_12px_rgba(255,122,26,0.12)]"
                 : "h-8 w-8 scale-90 border-white/40 bg-white/5"
           }`}
         >
           {/* Cyber crosshairs */}
-          <div className="absolute -top-1 h-2 w-[1px] bg-jarvis-cyanBright" />
-          <div className="absolute -bottom-1 h-2 w-[1px] bg-jarvis-cyanBright" />
-          <div className="absolute -left-1 h-[1px] w-2 bg-jarvis-cyanBright" />
-          <div className="absolute -right-1 h-[1px] w-2 bg-jarvis-cyanBright" />
+          <div className="absolute -top-1 h-2 w-[1px] bg-jarvis-accentBright" />
+          <div className="absolute -bottom-1 h-2 w-[1px] bg-jarvis-accentBright" />
+          <div className="absolute -left-1 h-[1px] w-2 bg-jarvis-accentBright" />
+          <div className="absolute -right-1 h-[1px] w-2 bg-jarvis-accentBright" />
 
           {/* Center pinpoint core */}
           <div
             className={`h-2 w-2 rounded-full transition-all duration-100 ${
               pinchActive
                 ? "scale-125 bg-white shadow-[0_0_8px_#ffffff]"
-                : "scale-100 bg-jarvis-cyanBright shadow-[0_0_5px_#4fd7ff]"
+                : "scale-100 bg-jarvis-accentBright shadow-[0_0_5px_#ff7a1a]"
             }`}
           />
         </div>
 
         {/* Sci-Fi HUD Coordinates Tag */}
-        <div className="absolute left-8 top-2 flex flex-col gap-0.5 whitespace-nowrap font-mono text-[9px] text-jarvis-cyanBright/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+        <div className="absolute left-8 top-2 flex flex-col gap-0.5 whitespace-nowrap font-mono text-[9px] text-jarvis-accentBright/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
           <div className="flex items-center gap-1.5">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-jarvis-cyanBright animate-pulse" />
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-jarvis-accentBright animate-pulse" />
             <span>
               X: {Math.round(posX)} Y: {Math.round(posY)}
             </span>

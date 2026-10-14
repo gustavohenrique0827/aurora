@@ -25,7 +25,7 @@ export function SideNav() {
           className={({ isActive }) =>
             `group relative flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium transition-all md:justify-center lg:justify-start ${
               isActive
-                ? "bg-jarvis-cyan/15 text-white font-semibold shadow-[0_0_15px_rgba(79,215,255,0.15)] border border-jarvis-cyan/30"
+                ? "bg-jarvis-accent/15 text-white font-semibold shadow-[0_0_15px_rgba(255,122,26,0.15)] border border-jarvis-accent/30"
                 : "text-white/50 hover:bg-white/5 hover:text-white/90 border border-transparent"
             }`
           }
@@ -33,19 +33,19 @@ export function SideNav() {
           {({ isActive }) => (
             <>
               {isActive && (
-                <span className="absolute left-0 top-1/2 h-4 w-1 -translate-y-1/2 rounded-r-full bg-jarvis-cyanBright shadow-[0_0_8px_#4fd7ff]" />
+                <span className="absolute left-0 top-1/2 h-4 w-1 -translate-y-1/2 rounded-r-full bg-jarvis-accentBright shadow-[0_0_8px_#ff7a1a]" />
               )}
               <item.icon
                 size={16}
                 strokeWidth={isActive ? 2.2 : 1.75}
                 className={`shrink-0 transition-colors ${
-                  isActive ? "text-jarvis-cyanBright" : "text-white/40 group-hover:text-jarvis-cyan"
+                  isActive ? "text-jarvis-accentBright" : "text-white/40 group-hover:text-jarvis-accent"
                 }`}
               />
               <span className="truncate md:hidden lg:inline">{item.label}</span>
 
               {/* Floating Tooltip for Icon-only Rail (md to lg) */}
-              <div className="pointer-events-none absolute left-full ml-2 hidden z-50 rounded-lg border border-jarvis-cyan/30 bg-black/90 px-2.5 py-1 text-xs font-medium text-white shadow-xl backdrop-blur-xl group-hover:md:flex group-hover:lg:hidden">
+              <div className="pointer-events-none absolute left-full ml-2 hidden z-50 rounded-lg border border-jarvis-accent/30 bg-black/90 px-2.5 py-1 text-xs font-medium text-white shadow-xl backdrop-blur-xl group-hover:md:flex group-hover:lg:hidden">
                 <span className="whitespace-nowrap">{item.label}</span>
               </div>
             </>
@@ -65,7 +65,7 @@ export function SideNav() {
         />
       )}
       <nav
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col gap-1.5 overflow-y-auto border-r border-jarvis-cyan/15 bg-[#050813]/95 px-3 py-3 backdrop-blur-2xl transition-transform duration-200 md:static md:z-auto md:w-16 md:translate-x-0 md:bg-transparent md:px-2 lg:w-56 lg:px-3 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col gap-1.5 overflow-y-auto border-r border-jarvis-accent/15 bg-[#0a0b0d]/95 px-3 py-3 backdrop-blur-2xl transition-transform duration-200 md:static md:z-auto md:w-16 md:translate-x-0 md:bg-transparent md:px-2 lg:w-56 lg:px-3 ${
           mobileNavOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

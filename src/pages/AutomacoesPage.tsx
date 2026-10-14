@@ -52,9 +52,9 @@ function ExecutionStatusDot({ w }: { w: N8nWorkflowSummary }) {
 
 function WorkflowCard({ w }: { w: N8nWorkflowSummary }) {
   return (
-    <li className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-black/30 p-3 transition-all hover:border-jarvis-cyan/40 hover:bg-black/50">
+    <li className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-black/30 p-3 transition-all hover:border-jarvis-accent/40 hover:bg-black/50">
       <div className="flex min-w-0 items-start gap-2">
-        <Workflow size={13} className={`mt-0.5 shrink-0 ${w.active ? "text-jarvis-cyanBright" : "text-white/30"}`} />
+        <Workflow size={13} className={`mt-0.5 shrink-0 ${w.active ? "text-jarvis-accentBright" : "text-white/30"}`} />
         <span className="break-words font-mono text-xs leading-snug text-white/85">{bareName(w.name)}</span>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5">
@@ -124,7 +124,7 @@ export function AutomacoesPage() {
   return (
     <div className="flex h-full flex-col gap-4 overflow-y-auto p-5 font-sans">
       {/* 1. Top Section Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-jarvis-cyan/15 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-jarvis-accent/15 pb-4">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-display text-lg font-bold tracking-wide text-white">Automações &amp; Agentes</h1>
@@ -164,7 +164,7 @@ export function AutomacoesPage() {
 
           <Link
             to="/directors/cto"
-            className="flex items-center gap-1.5 rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/15 px-3.5 py-1 font-mono text-xs font-semibold text-jarvis-cyanBright hover:bg-jarvis-cyan/25 transition-all shadow-[0_0_15px_rgba(79,215,255,0.15)]"
+            className="flex items-center gap-1.5 rounded-full border border-jarvis-accent/40 bg-jarvis-accent/15 px-3.5 py-1 font-mono text-xs font-semibold text-jarvis-accentBright hover:bg-jarvis-accent/25 transition-all shadow-[0_0_15px_rgba(255,122,26,0.15)]"
           >
             <Cpu size={13} />
             <span>Falar com CTO AI</span>

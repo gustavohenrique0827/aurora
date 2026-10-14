@@ -15,9 +15,9 @@ export function StreamingIndicator({ buffer, isAwaiting }: StreamingIndicatorPro
           <Markdown content={buffer} />
         ) : (
           <div className="flex items-center gap-1.5 py-1">
-            <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-jarvis-cyan" />
-            <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-jarvis-cyan [animation-delay:0.2s]" />
-            <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-jarvis-cyan [animation-delay:0.4s]" />
+            <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-jarvis-accent" />
+            <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-jarvis-accent [animation-delay:0.2s]" />
+            <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-jarvis-accent [animation-delay:0.4s]" />
           </div>
         )}
       </div>

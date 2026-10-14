@@ -52,15 +52,15 @@ export function HomePage() {
       {/* 1. Top Section Header: Situational Context */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="font-display text-lg font-bold tracking-wide text-white">Central de Comando</h1>
-          <p className="font-mono text-xs text-white/40">Visão Geral dos Principais Indicadores e Inteligência</p>
+          <h1 className="font-display text-xl font-semibold tracking-tight text-white">Central de Comando</h1>
+          <p className="text-xs text-white/50">Indicadores e inteligência em tempo real</p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             to="/aurora"
-            className="flex items-center gap-1.5 rounded-full border border-jarvis-cyan/40 bg-jarvis-cyan/15 px-3.5 py-1.5 font-mono text-xs font-semibold text-jarvis-cyanBright hover:bg-jarvis-cyan/25 transition-all shadow-[0_0_15px_rgba(79,215,255,0.15)]"
+            className="flex items-center gap-1.5 rounded-full border border-jarvis-accent/40 bg-jarvis-accent/15 px-3.5 py-1.5 font-mono text-xs font-semibold text-jarvis-accentBright hover:bg-jarvis-accent/25 transition-all "
           >
-            <Sparkles size={13} /> Modo Imersivo Aurora
+            <Sparkles size={13} /> Modo imersivo
           </Link>
         </div>
       </div>
@@ -114,11 +114,11 @@ export function HomePage() {
       {/* 3. Center 3D Stage & Right Status Panels */}
       <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-[1fr_340px]">
         {/* 3D Orb Stage with Integrated Command Bar */}
-        <div className="relative flex min-h-[380px] flex-col justify-between overflow-hidden rounded-2xl border border-jarvis-cyan/20 bg-[#060a16]/75 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+        <div className="relative flex min-h-[380px] flex-col justify-between overflow-hidden rounded-2xl border border-jarvis-accent/20 bg-[#0c0d10]/75 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl">
           {/* Header pill */}
-          <div className="pointer-events-none absolute top-3 left-3 z-10 flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1 font-mono text-[11px] backdrop-blur-md">
-            <span className="h-2 w-2 rounded-full bg-jarvis-cyanBright animate-pulse" />
-            <span className="font-bold text-white">NÚCLEO 3D DA AURORA</span>
+          <div className="pointer-events-none absolute top-3 left-3 z-10 flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1 text-[11px] backdrop-blur-md">
+            <span className="h-2 w-2 rounded-full bg-jarvis-accentBright animate-pulse" />
+            <span className="font-bold text-white">Aurora</span>
           </div>
 
           {/* 3D Canvas */}
@@ -129,7 +129,7 @@ export function HomePage() {
 
           {/* Bottom Quick Command Bar */}
           <div className="relative z-20 mt-auto p-4">
-            <div className="rounded-2xl border border-jarvis-cyan/30 bg-black/75 p-2 backdrop-blur-2xl shadow-2xl">
+            <div className="rounded-2xl border border-jarvis-accent/30 bg-black/75 p-2 backdrop-blur-2xl shadow-2xl">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -147,7 +147,7 @@ export function HomePage() {
                 <button
                   type="submit"
                   disabled={!prompt.trim()}
-                  className="flex h-8 w-8 items-center justify-center rounded-xl bg-jarvis-cyan text-black transition-all hover:bg-jarvis-cyanBright disabled:opacity-30"
+                  className="flex h-8 w-8 items-center justify-center rounded-xl bg-jarvis-accent text-black transition-all hover:bg-jarvis-accentBright disabled:opacity-30"
                   title="Enviar comando"
                 >
                   <Send size={13} />
@@ -162,21 +162,16 @@ export function HomePage() {
                     key={i}
                     type="button"
                     onClick={() => handleQuickAsk(s)}
-                    className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-white/60 hover:border-jarvis-cyan/40 hover:text-white transition-colors"
+                    className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-white/60 hover:border-jarvis-accent/40 hover:text-white transition-colors"
                   >
                     <span>{s}</span>
-                    <ArrowRight size={10} className="text-jarvis-cyan" />
+                    <ArrowRight size={10} className="text-jarvis-accent" />
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Sci-Fi Corner Brackets */}
-          <div className="pointer-events-none absolute top-2 left-2 h-3 w-3 border-t-2 border-l-2 border-jarvis-cyan/40" />
-          <div className="pointer-events-none absolute top-2 right-2 h-3 w-3 border-t-2 border-r-2 border-jarvis-cyan/40" />
-          <div className="pointer-events-none absolute bottom-2 left-2 h-3 w-3 border-b-2 border-l-2 border-jarvis-cyan/40" />
-          <div className="pointer-events-none absolute bottom-2 right-2 h-3 w-3 border-b-2 border-r-2 border-jarvis-cyan/40" />
         </div>
 
         {/* Right Status & Roster Panels */}

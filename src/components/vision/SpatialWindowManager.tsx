@@ -92,21 +92,21 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
       case "vendas":
         return <TrendingUp size={14} className="text-jarvis-green" />;
       case "crm":
-        return <Users size={14} className="text-jarvis-cyanBright" />;
+        return <Users size={14} className="text-jarvis-accentBright" />;
       case "financeiro":
         return <Wallet size={14} className="text-jarvis-amber" />;
       case "projetos":
-        return <CheckSquare size={14} className="text-jarvis-cyan" />;
+        return <CheckSquare size={14} className="text-jarvis-accent" />;
       case "automacoes":
         return <Workflow size={14} className="text-purple-400" />;
       case "waha":
         return <MessageCircle size={14} className="text-green-400" />;
       case "apresentacao":
-        return <Presentation size={14} className="text-jarvis-cyanBright" />;
+        return <Presentation size={14} className="text-jarvis-accentBright" />;
       case "demo":
         return <Sparkles size={14} className="text-yellow-300" />;
       default:
-        return <Bot size={14} className="text-jarvis-cyan" />;
+        return <Bot size={14} className="text-jarvis-accent" />;
     }
   };
 
@@ -114,7 +114,7 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
     if (!snapshot) {
       return (
         <div className="flex h-32 items-center justify-center p-4 text-xs text-white/50">
-          <Activity size={14} className="mr-2 animate-spin text-jarvis-cyan" /> Conectando aos dados reais...
+          <Activity size={14} className="mr-2 animate-spin text-jarvis-accent" /> Conectando aos dados reais...
         </div>
       );
     }
@@ -146,7 +146,7 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
               </div>
               <div className="rounded-lg border border-jarvis-border/60 bg-black/30 p-2.5">
                 <div className="text-[10px] text-white/40">Propostas</div>
-                <div className="font-mono text-lg font-bold text-jarvis-cyanBright">
+                <div className="font-mono text-lg font-bold text-jarvis-accentBright">
                   {proposalsCount !== null ? proposalsCount : "--"}
                 </div>
               </div>
@@ -192,7 +192,7 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
             <div className="grid grid-cols-2 gap-2">
               <div className="rounded-lg border border-jarvis-border/60 bg-black/30 p-2.5">
                 <div className="text-[10px] text-white/40">Total Leads</div>
-                <div className="font-mono text-lg font-bold text-jarvis-cyanBright">
+                <div className="font-mono text-lg font-bold text-jarvis-accentBright">
                   {leadsCount !== null ? leadsCount : "--"}
                 </div>
               </div>
@@ -214,7 +214,7 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
                     .map((row) => (
                       <li key={`${row.table}-${row.id}`} className="flex justify-between rounded bg-black/30 p-1.5 border border-jarvis-border/30">
                         <span className="truncate">{row.label}</span>
-                        <span className="shrink-0 text-jarvis-cyanBright">{TABLE_LABEL[row.table] ?? row.table}</span>
+                        <span className="shrink-0 text-jarvis-accentBright">{TABLE_LABEL[row.table] ?? row.table}</span>
                       </li>
                     ))}
                 </ul>
@@ -278,7 +278,7 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
               </div>
               <div className="rounded-lg border border-jarvis-border/60 bg-black/30 p-2.5">
                 <div className="text-[10px] text-white/40">Projetos</div>
-                <div className="font-mono text-lg font-bold text-jarvis-cyan">
+                <div className="font-mono text-lg font-bold text-jarvis-accent">
                   {projectsCount !== null ? projectsCount : "--"}
                 </div>
               </div>
@@ -383,7 +383,7 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
             data-gesture-label={win.title}
             onPointerDown={() => focusSpatialWindow(win.id)}
             style={style}
-            className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-2xl border border-jarvis-cyan/40 bg-jarvis-panel/90 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.8),0_0_15px_rgba(79,215,255,0.15)] transition-all duration-75"
+            className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-2xl border border-jarvis-accent/40 bg-jarvis-panel/90 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.8),0_0_15px_rgba(255,122,26,0.15)] transition-all duration-75"
           >
             {/* Holographic Window Header */}
             <div
@@ -445,8 +445,8 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
             <div className="flex-1 overflow-y-auto">{renderWindowContent(win)}</div>
 
             {/* Futuristic Corner Tech Accents */}
-            <div className="pointer-events-none absolute bottom-0 left-0 h-2 w-2 border-b border-l border-jarvis-cyanBright" />
-            <div className="pointer-events-none absolute bottom-0 right-0 h-2 w-2 border-b border-r border-jarvis-cyanBright" />
+            <div className="pointer-events-none absolute bottom-0 left-0 h-2 w-2 border-b border-l border-jarvis-accentBright" />
+            <div className="pointer-events-none absolute bottom-0 right-0 h-2 w-2 border-b border-r border-jarvis-accentBright" />
           </div>
         );
       })}
