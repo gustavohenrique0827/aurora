@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { TopBar } from "./TopBar";
-import { SideNav } from "./SideNav";
-import { HudOverlay } from "./HudOverlay";
+import { AuroraRail } from "../aurora/AuroraRail";
+import { AuroraBackdrop } from "../aurora/AuroraBackdrop";
+import { usePersistedToggle } from "../../hooks/usePersistedToggle";
 import { useGlobalVoiceAgent } from "../../hooks/useGlobalVoiceAgent";
 import { VoiceAgentContext } from "../../hooks/voiceAgentContext";
 import { useGlobalVisionAgent } from "../../hooks/useGlobalVisionAgent";
@@ -38,17 +39,43 @@ export function AppShell({ children }: { children: ReactNode }) {
   useSpatialWindows();
   // /aurora is the immersive view: it draws its own chrome (brand, rail, chat) instead of the app bar + side nav.
   const immersive = useLocation().pathname.startsWith("/aurora");
+  const [railOpen, toggleRail] = usePersistedToggle("aurora.rail.open", false);
+  const mobileNavOpen = useJarvisStore((s) => s.mobileNavOpen);
+  const setMobileNavOpen = useJarvisStore((s) => s.setMobileNavOpen);
   const debugMode = useJarvisStore((s) => s.debugMode);
   const cameraActive = useJarvisStore((s) => s.cameraActive);
 
   return (
     <VoiceAgentContext.Provider value={voice}>
-    <div className="relative flex h-screen flex-col">
-      {!immersive && <HudOverlay />}
+    <div className="relative flex h-screen flex-col bg-[#050403]">
+      {/* Every page shares the Aurora look: ember backdrop, floating rail, glass content frame. */}
+      <AuroraBackdrop calm />
       {!immersive && <TopBar />}
-      <div className="flex flex-1 overflow-hidden">
-        {!immersive && <SideNav />}
-        <main className="min-w-0 flex-1 overflow-hidden">{children}</main>
+      <div className="relative z-10 flex min-h-0 flex-1">
+        {!immersive && (
+          <>
+            {mobileNavOpen && (
+              <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setMobileNavOpen(false)} aria-hidden="true" />
+            )}
+            <AuroraRail
+              open={railOpen}
+              onToggle={toggleRail}
+              onNavigate={() => setMobileNavOpen(false)}
+              className={`${
+                mobileNavOpen ? "fixed bottom-5 left-5 top-5 z-40 flex" : "relative mb-5 ml-5 hidden md:flex"
+              }`}
+            />
+          </>
+        )}
+        <main
+          className={
+            immersive
+              ? "min-w-0 flex-1 overflow-hidden"
+              : "mx-3 mb-5 min-w-0 flex-1 overflow-hidden rounded-3xl border border-white/10 bg-black/35 backdrop-blur-sm md:mx-5"
+          }
+        >
+          {children}
+        </main>
       </div>
       {debugMode && cameraActive && <GestureDebugPanel />}
       <GestureCursor />

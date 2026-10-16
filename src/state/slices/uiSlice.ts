@@ -10,7 +10,7 @@ import type { DirectorId } from "@jarvis/shared";
 export interface UiSlice {
   activeDirectorId: DirectorId | null;
   commsDockOpen: boolean;
-  /** Drawer state for SideNav below the `md` breakpoint — irrelevant at `md`+, where the
+  /** Drawer state for the navigation rail below the `md` breakpoint — irrelevant at `md`+, where the
    * nav is always visible (full or icon-rail) and never overlays content. */
   mobileNavOpen: boolean;
   setActiveDirectorId: (id: DirectorId | null) => void;

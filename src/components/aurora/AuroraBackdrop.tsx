@@ -31,9 +31,9 @@ function makeStreams(seed: number, side: "left" | "right", count: number): Strea
 /**
  * Decorative holographic set for the immersive Aurora view: ember glow, data streams with nodes,
  * abstract panels (line blocks, not text), halo rings above the head and a perspective grid floor.
- * Pure CSS/SVG, no data, pointer-events-none.
+ * Pure CSS/SVG, no data, pointer-events-none. `calm` keeps only the ember glow and the floor, for ordinary pages.
  */
-export function AuroraBackdrop() {
+export function AuroraBackdrop({ calm = false }: { calm?: boolean }) {
   const left = useMemo(() => makeStreams(7, "left", 22), []);
   const right = useMemo(() => makeStreams(19, "right", 14), []);
   const panels = useMemo(() => {
@@ -61,7 +61,9 @@ export function AuroraBackdrop() {
         }}
       />
 
-      {/* Data streams */}
+      {/* Data streams, panels and halo rings: only on the immersive Aurora stage */}
+      {!calm && (
+      <>
       <svg className="absolute inset-y-0 left-0 h-full w-[46%]" viewBox="0 0 1000 1000" preserveAspectRatio="none">
         {left.map((s, i) => (
           <g key={i} className="animate-pulseGlow" style={{ animationDelay: `${s.delay}s` }}>
@@ -98,6 +100,9 @@ export function AuroraBackdrop() {
         <div className="absolute inset-[18%] rounded-[50%] border border-jarvis-accent/60" />
         <div className="absolute inset-[34%] rounded-[50%] border border-jarvis-accentBright/50" />
       </div>
+
+      </>
+      )}
 
       {/* Perspective grid floor */}
       <div

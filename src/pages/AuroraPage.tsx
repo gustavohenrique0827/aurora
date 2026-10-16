@@ -31,29 +31,9 @@ import { AuroraBackdrop } from "../components/aurora/AuroraBackdrop";
 import { useJarvisStore } from "../state/store";
 import { useVoiceAgent } from "../hooks/voiceAgentContext";
 import { useJarvisChat } from "../hooks/useJarvisChat";
+import { usePersistedToggle } from "../hooks/usePersistedToggle";
 import { api } from "../lib/api";
 import type { SpatialWindowType, SurfaceMode } from "@jarvis/shared";
-
-/** Open/closed state of a floating panel, remembered per viewer (convenience only). */
-function usePersistedToggle(key: string, initial: boolean): [boolean, () => void, (v: boolean) => void] {
-  const [value, setValue] = useState(() => {
-    try {
-      const stored = localStorage.getItem(key);
-      return stored === null ? initial : stored === "1";
-    } catch {
-      return initial;
-    }
-  });
-  const set = (v: boolean) => {
-    setValue(v);
-    try {
-      localStorage.setItem(key, v ? "1" : "0");
-    } catch {
-      /* per-viewer convenience only */
-    }
-  };
-  return [value, () => set(!value), set];
-}
 
 // Chat panel (400px) + its 20px margin + a 20px gutter: the stage shrinks by this much while the chat is open.
 const CHAT_INSET_PX = 440;

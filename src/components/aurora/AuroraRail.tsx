@@ -5,10 +5,13 @@ import { NAV_ITEMS } from "../layout/navItems";
 interface AuroraRailProps {
   open: boolean;
   onToggle: () => void;
+  /** Positioning classes; the default floats over the immersive Aurora stage. */
+  className?: string;
+  onNavigate?: () => void;
 }
 
 /** Floating navigation rail of the immersive Aurora view: icons only when closed, icons + labels when open. */
-export function AuroraRail({ open, onToggle }: AuroraRailProps) {
+export function AuroraRail({ open, onToggle, className = "absolute bottom-5 left-5 top-24 z-30", onNavigate }: AuroraRailProps) {
   const settings = NAV_ITEMS.find((i) => i.to === "/configuracoes");
   const items = NAV_ITEMS.filter((i) => i.to !== "/configuracoes");
 
@@ -18,6 +21,7 @@ export function AuroraRail({ open, onToggle }: AuroraRailProps) {
       to={item.to}
       end={item.to === "/"}
       title={item.label}
+      onClick={onNavigate}
       className={({ isActive }) =>
         `group relative flex items-center rounded-xl border transition-colors ${
           open ? "gap-3 px-3 py-2" : "flex-col justify-center gap-0.5 px-1 py-2"
@@ -44,7 +48,7 @@ export function AuroraRail({ open, onToggle }: AuroraRailProps) {
   return (
     <nav
       aria-label="Navegação principal"
-      className={`absolute bottom-5 left-5 top-24 z-30 flex flex-col rounded-3xl border border-white/10 bg-black/45 p-2 backdrop-blur-xl transition-[width] duration-200 ${
+      className={`${className} flex flex-col rounded-3xl border border-white/10 bg-black/45 p-2 backdrop-blur-xl transition-[width] duration-200 ${
         open ? "w-56" : "w-[76px]"
       }`}
     >
