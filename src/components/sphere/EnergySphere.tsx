@@ -123,8 +123,8 @@ export function EnergySphere({ cameraZ = 5.6 }: { cameraZ?: number } = {}) {
           {!lowPower && (
             <EffectComposer multisampling={0} depthBuffer={false}>
               <Bloom
-                intensity={0.6}
-                luminanceThreshold={0.65}
+                intensity={0.85}
+                luminanceThreshold={0.6}
                 luminanceSmoothing={0.35}
                 mipmapBlur
                 radius={0.45}

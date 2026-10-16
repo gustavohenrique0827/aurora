@@ -250,10 +250,10 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
   // --- Full 3D head shell: scalp, temples, back of the head down to the nape --------------
   // Rings of a head-shaped ellipsoid, skipping the front where the real face mesh already is.
   const [, chinY] = vtx(CHIN);
-  const ringN = hi ? 34 : 22;
+  const ringN = hi ? 42 : 22;
   const rings: (number | null)[][] = [];
   const ringYs: number[] = [];
-  for (let y = HEAD_C[1] + HEAD_R[1] * 0.985; y >= -0.52; y -= hi ? 0.07 : 0.1) ringYs.push(y);
+  for (let y = HEAD_C[1] + HEAD_R[1] * 0.985; y >= -0.52; y -= hi ? 0.058 : 0.1) ringYs.push(y);
   for (const y of ringYs) {
     const ny = (y - HEAD_C[1]) / HEAD_R[1];
     const r = Math.sqrt(Math.max(0, 1 - ny * ny));
@@ -409,8 +409,8 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
     const l = Math.hypot(v[0], v[1], v[2]) || 1;
     return [v[0] / l, v[1] / l, v[2] / l];
   };
-  const strandCount = hi ? 140 : 80;
-  const strandLen = hi ? 20 : 13;
+  const strandCount = hi ? 210 : 80;
+  const strandLen = hi ? 24 : 13;
   let made = 0;
   let tries = 0;
   while (made < strandCount && tries < strandCount * 40) {

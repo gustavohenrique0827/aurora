@@ -40,13 +40,13 @@ const REGION_BRIGHTNESS: Record<FaceRegion, number> = {
   grid: 1.05,
   outline: 1.3,
   eye: 1.9,
-  iris: 2.1,
-  pupil: 2.8,
+  iris: 2.7,
+  pupil: 3.2,
   brow: 1.55,
   nose: 1.3,
   lipUpper: 1.75,
   lipLower: 1.75,
-  hair: 0.5,
+  hair: 0.62,
 };
 
 const REGION_INTRO_DELAY: Record<FaceRegion, [number, number]> = {
@@ -136,10 +136,10 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
       else byKey.feature.push(i);
     });
     return [
-      { key: "grid", idx: byKey.grid, size: 0.03 },
+      { key: "grid", idx: byKey.grid, size: 0.036 },
       { key: "shell", idx: byKey.shell, size: 0.028 },
       { key: "halo", idx: byKey.halo, size: 0.06 },
-      { key: "hair", idx: byKey.hair, size: 0.016 },
+      { key: "hair", idx: byKey.hair, size: 0.02 },
       { key: "feature", idx: byKey.feature, size: 0.055 },
     ].map((g) => ({ ...g, pos: new Float32Array(g.idx.length * 3), col: new Float32Array(g.idx.length * 3) }));
   }, [head]);
@@ -656,7 +656,7 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
       head.links.forEach(([ia, ib], li) => {
         const o = li * 6;
         const kind = head.linkKinds[li];
-        const alpha = lineAlpha * (kind === "feature" ? 0.9 : kind === "grid" ? 0.5 : kind === "hair" ? 0.2 : 0.3);
+        const alpha = lineAlpha * (kind === "feature" ? 0.9 : kind === "grid" ? 0.34 : kind === "hair" ? 0.15 : 0.26);
         buffers.headLinePos[o] = hp[ia * 3];
         buffers.headLinePos[o + 1] = hp[ia * 3 + 1];
         buffers.headLinePos[o + 2] = hp[ia * 3 + 2];
