@@ -85,11 +85,11 @@ export function AuroraChatPanel({
     <aside
       aria-label="Conversa com a Aurora"
       aria-hidden={!open}
-      className={`absolute bottom-5 right-5 top-24 z-30 flex max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0b0c10]/80 shadow-2xl backdrop-blur-2xl transition-all duration-300 ${
-        wide ? "w-[560px]" : "w-[400px]"
-      } ${open ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-[110%] opacity-0"}`}
+      className={`absolute inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-50 flex h-[66dvh] flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0b0c10]/90 shadow-2xl backdrop-blur-2xl transition-all duration-300 md:inset-x-auto md:bottom-5 md:right-5 md:top-24 md:z-30 md:h-auto md:max-w-[calc(100vw-7rem)] ${
+        wide ? "md:w-[560px]" : "md:w-[400px]"
+      } ${open ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[110%] opacity-0 md:translate-x-[110%] md:translate-y-0"}`}
     >
-      <header className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
+      <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3 md:px-5 md:py-4">
         <div className="flex h-10 w-10 items-center justify-center rounded-full border border-jarvis-accent/50 bg-jarvis-accent/10">
           <span className="h-3.5 w-3.5 rounded-full bg-jarvis-accent shadow-[0_0_10px_#ff7a1a]" />
         </div>
@@ -102,7 +102,7 @@ export function AuroraChatPanel({
           onClick={() => setWide((w) => !w)}
           title={wide ? "Painel estreito" : "Painel largo"}
           aria-label={wide ? "Painel estreito" : "Painel largo"}
-          className="rounded-lg p-2 text-white/55 transition-colors hover:bg-white/10 hover:text-white"
+          className="hidden rounded-lg p-2 text-white/55 transition-colors hover:bg-white/10 hover:text-white md:block"
         >
           {wide ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
         </button>
@@ -111,9 +111,9 @@ export function AuroraChatPanel({
           onClick={onClose}
           title="Fechar conversa"
           aria-label="Fechar conversa"
-          className="rounded-lg p-2 text-white/55 transition-colors hover:bg-white/10 hover:text-white"
+          className="rounded-lg p-3 text-white/70 transition-colors hover:bg-white/10 hover:text-white md:p-2"
         >
-          <X size={18} />
+          <X size={20} />
         </button>
       </header>
 

@@ -22,7 +22,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   if (!authChecked) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-dvh items-center justify-center px-4">
         <LoadingPulse label="Verificando sessão..." />
       </div>
     );

@@ -47,7 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <VoiceAgentContext.Provider value={voice}>
-    <div className="relative flex h-screen flex-col bg-[#050403]">
+    <div className="relative flex h-dvh flex-col bg-[#050403]">
       {/* Every page shares the Aurora look: ember backdrop, floating rail, glass content frame. */}
       <AuroraBackdrop calm />
       {!immersive && <TopBar />}
@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setMobileNavOpen(false)} aria-hidden="true" />
             )}
             <AuroraRail
-              open={railOpen}
+              open={railOpen || mobileNavOpen}
               onToggle={toggleRail}
               onNavigate={() => setMobileNavOpen(false)}
               className={`${
@@ -71,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           className={
             immersive
               ? "min-w-0 flex-1 overflow-hidden"
-              : "mx-3 mb-5 min-w-0 flex-1 overflow-hidden rounded-3xl border border-white/10 bg-black/35 backdrop-blur-sm md:mx-5"
+              : "mx-3 mb-[max(0.75rem,env(safe-area-inset-bottom))] min-w-0 flex-1 md:mb-5 overflow-hidden rounded-3xl border border-white/10 bg-black/35 backdrop-blur-sm md:mx-5"
           }
         >
           {children}

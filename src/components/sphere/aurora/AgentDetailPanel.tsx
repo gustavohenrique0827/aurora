@@ -83,7 +83,7 @@ export function AgentDetailPanel({ onAsk }: AgentDetailPanelProps) {
     <>
       <nav
         aria-label="Agentes da Aurora"
-        className="pointer-events-auto absolute bottom-3 left-1/2 z-30 hidden max-w-[92%] -translate-x-1/2 flex-row flex-wrap items-center justify-center gap-1 md:flex"
+        className="pointer-events-auto absolute bottom-3 left-1/2 z-30 hidden max-w-[92%] -translate-x-1/2 flex-row flex-wrap items-center justify-center gap-1 lg:flex"
       >
         <button
           type="button"

@@ -26,7 +26,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex h-dvh items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-2xl border border-jarvis-border bg-jarvis-panel/80 p-8 text-center shadow-2xl shadow-black/50 backdrop-blur-md"

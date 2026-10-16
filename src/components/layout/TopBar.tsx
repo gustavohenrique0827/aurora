@@ -68,7 +68,7 @@ export function TopBar() {
   const systemColor = !apiConnected ? "bg-jarvis-red shadow-[0_0_8px_#ff5c7a]" : n8n?.status === "error" ? "bg-jarvis-amber shadow-[0_0_8px_#ffb454]" : "bg-jarvis-green shadow-[0_0_8px_#5cffb0]";
 
   return (
-    <header className="relative z-50 flex items-center justify-between px-5 py-4">
+    <header className="relative z-50 flex items-center justify-between px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 sm:pb-4 sm:pt-[max(1rem,env(safe-area-inset-top))]">
       {/* Left: Brand & Route Breadcrumb */}
       <div className="flex items-center gap-3.5">
         <button

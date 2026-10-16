@@ -13,6 +13,8 @@ import {
   ChevronRight,
   LogOut,
   SlidersHorizontal,
+  Menu,
+  MessageCircle,
 } from "lucide-react";
 import { EnergySphere } from "../components/sphere/EnergySphere";
 import { SpatialWindowManager } from "../components/vision/SpatialWindowManager";
@@ -34,9 +36,6 @@ import { useJarvisChat } from "../hooks/useJarvisChat";
 import { usePersistedToggle } from "../hooks/usePersistedToggle";
 import { api } from "../lib/api";
 import type { SpatialWindowType, SurfaceMode } from "@jarvis/shared";
-
-// Chat panel (400px) + its 20px margin + a 20px gutter: the stage shrinks by this much while the chat is open.
-const CHAT_INSET_PX = 440;
 
 export function AuroraPage() {
   const setActiveDirectorId = useJarvisStore((s) => s.setActiveDirectorId);
@@ -63,7 +62,13 @@ export function AuroraPage() {
   const [showSurfaceSettings, setShowSurfaceSettings] = useState(false);
   const [showTools, setShowTools] = useState(false);
   const [railOpen, toggleRail] = usePersistedToggle("aurora.rail.open", false);
-  const [chatOpen, toggleChat, setChatOpen] = usePersistedToggle("aurora.chat.open", true);
+  const [chatOpen, toggleChat, setChatOpen] = usePersistedToggle(
+    "aurora.chat.open",
+    typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches
+  );
+  const mobileNavOpen = useJarvisStore((s) => s.mobileNavOpen);
+  const toggleMobileNav = useJarvisStore((s) => s.toggleMobileNav);
+  const setMobileNavOpen = useJarvisStore((s) => s.setMobileNavOpen);
   const [prefill, setPrefill] = useState<{ text: string; nonce: number } | null>(null);
   const setOpenedAgentKey = useJarvisStore((s) => s.setOpenedAgentKey);
   const brainOpen = useJarvisStore((s) => s.brainOpen);
@@ -117,7 +122,9 @@ export function AuroraPage() {
     <div className="relative h-full select-none overflow-hidden bg-[#050403] font-sans">
       <AuroraBackdrop />
       {/* Stage: Aurora + holographic base. Shrinks to make room while the chat panel is open. */}
-      <div className="absolute inset-0 transition-[right] duration-300" style={{ right: chatOpen ? CHAT_INSET_PX : 0 }}>
+      <div
+        className={`absolute inset-0 md:left-24 lg:left-0 lg:transition-[right] lg:duration-300 ${chatOpen ? "lg:right-[440px]" : ""}`}
+      >
         {/* Holographic base rings under her shoulders */}
         <div aria-hidden="true" className="pointer-events-none absolute bottom-[10%] left-1/2 w-[min(78%,900px)] -translate-x-1/2">
           <div className="relative aspect-[7/1]">
@@ -167,9 +174,17 @@ export function AuroraPage() {
       </div>
 
       {/* Top chrome: brand (left) and tools + user (right) */}
-      <header className="pointer-events-none absolute inset-x-5 top-5 z-40 flex items-center justify-between">
-        <div className="pointer-events-auto flex items-center gap-3">
-          <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-jarvis-accent/60 bg-black/40">
+      <header className="pointer-events-none absolute inset-x-3 top-[max(0.75rem,env(safe-area-inset-top))] z-40 flex items-center justify-between sm:inset-x-5 sm:top-[max(1.25rem,env(safe-area-inset-top))]">
+        <div className="pointer-events-auto flex items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            onClick={toggleMobileNav}
+            aria-label="Abrir menu"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/45 text-white/80 backdrop-blur-xl md:hidden"
+          >
+            <Menu size={19} />
+          </button>
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-full border border-jarvis-accent/60 bg-black/40 sm:h-12 sm:w-12">
             <span
               className={`h-4 w-4 rounded-full ${
                 sphereMode === "analyzing"
@@ -180,28 +195,31 @@ export function AuroraPage() {
               }`}
             />
           </div>
-          <div className="leading-tight">
+          <div className="hidden leading-tight sm:block">
             <div className="font-display text-xl font-semibold tracking-[0.18em] text-white">AURORA</div>
             <div className="text-[11px] font-semibold tracking-[0.2em] text-jarvis-accent">AI OS</div>
           </div>
         </div>
 
         <div className="pointer-events-auto flex items-center gap-2">
-          <CameraPermissionGate />
+          <div className="hidden sm:block">
+            <CameraPermissionGate />
+          </div>
 
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowTools(!showTools)}
               aria-expanded={showTools}
-              className="flex items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3.5 py-2 text-xs font-medium text-white/80 backdrop-blur-xl transition-colors hover:border-jarvis-accent/50 hover:text-white"
+              className="flex h-11 items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3.5 text-xs font-medium text-white/80 backdrop-blur-xl transition-colors hover:border-jarvis-accent/50 hover:text-white"
+              aria-label="Ferramentas"
             >
-              <SlidersHorizontal size={14} /> Ferramentas
-              <ChevronDown size={12} className="text-white/40" />
+              <SlidersHorizontal size={16} /> <span className="hidden sm:inline">Ferramentas</span>
+              <ChevronDown size={12} className="hidden text-white/40 sm:block" />
             </button>
 
             {showTools && (
-              <div className="absolute right-0 top-full z-50 mt-2 max-h-[75vh] w-72 overflow-y-auto rounded-2xl border border-white/10 bg-[#0b0c10]/95 p-2 shadow-2xl backdrop-blur-2xl">
+              <div className="absolute right-0 top-full z-50 mt-2 max-h-[75dvh] w-[min(18rem,calc(100vw-1.5rem))] overflow-y-auto rounded-2xl border border-white/10 bg-[#0b0c10]/95 p-2 shadow-2xl backdrop-blur-2xl">
                 <div className={toolLabel}>Superfície · {activeProfile?.name || "Modo Parede"}</div>
                 {Object.values(surfaceProfiles).map((p) => (
                   <button
@@ -303,7 +321,7 @@ export function AuroraPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/45 py-1 pl-1 pr-3 backdrop-blur-xl">
+          <div className="flex h-11 items-center gap-2 rounded-full border border-white/10 bg-black/45 pl-1.5 pr-3 backdrop-blur-xl">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-jarvis-accent to-jarvis-accentBright text-[11px] font-bold text-black">
               GH
             </div>
@@ -321,7 +339,19 @@ export function AuroraPage() {
         </div>
       </header>
 
-      <AuroraRail open={railOpen} onToggle={toggleRail} />
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setMobileNavOpen(false)} aria-hidden="true" />
+      )}
+      <AuroraRail
+        open={railOpen || mobileNavOpen}
+        onToggle={toggleRail}
+        onNavigate={() => setMobileNavOpen(false)}
+        className={
+          mobileNavOpen
+            ? "fixed bottom-5 left-5 top-5 z-50 flex"
+            : "absolute bottom-5 left-5 top-24 z-30 hidden md:flex"
+        }
+      />
 
       {/* Chat open/close handle, riding the edge of the stage */}
       <button
@@ -330,11 +360,21 @@ export function AuroraPage() {
         aria-expanded={chatOpen}
         aria-label={chatOpen ? "Fechar conversa" : "Abrir conversa"}
         title={chatOpen ? "Fechar conversa" : "Abrir conversa"}
-        className="absolute top-1/2 z-40 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-xl transition-[right] duration-300 hover:border-jarvis-accent/60"
-        style={{ right: chatOpen ? CHAT_INSET_PX + 4 : 20 }}
+        className={`absolute top-1/2 z-40 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-xl transition-[right] duration-300 hover:border-jarvis-accent/60 lg:flex ${
+          chatOpen ? "right-[444px]" : "right-5"
+        }`}
       >
         {chatOpen ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
       </button>
+      {!chatOpen && (
+        <button
+          type="button"
+          onClick={toggleChat}
+          className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-40 flex h-12 -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-jarvis-accent/50 bg-black/70 px-5 text-sm font-medium text-white backdrop-blur-xl lg:hidden"
+        >
+          <MessageCircle size={18} className="text-jarvis-accent" /> Conversar com a Aurora
+        </button>
+      )}
 
       <AuroraChatPanel
         open={chatOpen}

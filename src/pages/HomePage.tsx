@@ -114,9 +114,9 @@ export function HomePage() {
 
       {/* 3. Hero (Aurora + command bar) with the live side panels */}
       <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-[1fr_340px]">
-        <section className="relative flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-jarvis-border bg-[#0c0d10]/90 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+        <section className="relative flex min-h-[600px] flex-col md:min-h-[520px] overflow-hidden rounded-2xl border border-jarvis-border bg-[#0c0d10]/90 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           {/* Aurora 3D — offset to the right on wide screens so the copy has room on the left */}
-          <div className="absolute inset-0 lg:left-[36%]">
+          <div className="absolute inset-x-0 bottom-0 top-[46%] md:inset-0 md:left-[42%] lg:left-[36%]">
             <EnergySphere />
             <TranscriptOverlay />
           </div>
