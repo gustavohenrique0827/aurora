@@ -47,6 +47,8 @@ export interface FaceModel {
   linkKinds: LinkKind[];
   eyes: Record<-1 | 1, EyeInfo>;
   mouth: { y: number; halfWidth: number };
+  /** Triangles (vertex index triplets) of the cranium + neck shell, so the skin can cover the whole head, not just the face. */
+  skinTris: number[];
 }
 
 // MediaPipe landmark indices (stable across all MediaPipe face-mesh versions).
@@ -59,6 +61,9 @@ const LIP_LOWER = [146, 91, 181, 84, 17, 314, 405, 321, 375, 95, 88, 178, 87, 14
 const NOSE = [168, 6, 197, 195, 5, 4, 1, 19, 94, 2, 98, 327, 64, 294, 48, 278, 115, 344];
 const MOUTH_CORNERS = [61, 291];
 const CHIN = 152;
+
+/** The current look is a bald holographic head (no hair strands). Flip to bring the hair back. */
+const HAIR_ENABLED = false;
 
 export const EYE_Y = 0.1;
 export const EYE_X = 0.23;
@@ -173,6 +178,11 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
   const chain = (ids: number[], kind: LinkKind) => {
     for (let i = 0; i < ids.length - 1; i++) link(ids[i], ids[i + 1], kind);
   };
+  const skinTris: number[] = [];
+  const quadToSkin = (a: number | null, b: number | null, c: number | null, d: number | null) => {
+    if (a === null || b === null || c === null || d === null) return;
+    skinTris.push(a, b, c, b, d, c);
+  };
   const sideOf = (x: number): -1 | 0 | 1 => (x < -0.01 ? -1 : x > 0.01 ? 1 : 0);
 
   // --- Real face: all 468 landmarks keep their index (point i == landmark i) ---------------
@@ -282,13 +292,19 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
         const d = rings[r + 1][(k + 1) % ringN];
         if (a !== null && c !== null) link(a, c, "grid");
         if (a !== null && d !== null && k % 2 === r % 2) link(a, d, "grid");
+        quadToSkin(a, b, c, d);
       }
     }
   }
   const crown = add(0, HEAD_C[1] + HEAD_R[1], HEAD_C[2], "outline", 0, 0);
-  rings[0].forEach((id) => id !== null && link(crown, id, "grid"));
+  rings[0].forEach((id, k) => {
+    if (id !== null) link(crown, id, "grid");
+    const next = rings[0][(k + 1) % ringN];
+    if (id !== null && next !== null) skinTris.push(crown, id, next);
+  });
   // Stitch the face's outer edge to the head shell so it reads as one continuous head.
   const shellIds = rings.flat().filter((id): id is number => id !== null);
+  const ovalBest = new Map<number, number>();
   for (const i of FACE_FEATURE_EDGES.oval) {
     const p = points[i];
     let best = -1;
@@ -301,7 +317,20 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
         best = j;
       }
     }
-    if (best >= 0) link(i, best, "grid");
+    if (best >= 0) {
+      link(i, best, "grid");
+      ovalBest.set(i, best);
+    }
+  }
+  // Close the seam between the face mesh and the cranium with skin triangles along the oval.
+  for (let e = 0; e + 1 < FACE_FEATURE_EDGES.oval.length; e += 2) {
+    const a = FACE_FEATURE_EDGES.oval[e];
+    const b = FACE_FEATURE_EDGES.oval[e + 1];
+    const sa = ovalBest.get(a);
+    const sb = ovalBest.get(b);
+    if (sa === undefined || sb === undefined) continue;
+    skinTris.push(a, b, sa);
+    if (sa !== sb) skinTris.push(b, sb, sa);
   }
 
   // --- Ears (3D: a C-shaped rim in the side plane) ----------------------------------------
@@ -354,6 +383,7 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
       if (r + 1 < neckRings.length) {
         const c = neckRings[r + 1][k];
         if (a !== null && c !== null) link(a, c, "grid");
+        quadToSkin(a, b, c, neckRings[r + 1][(k + 1) % neckN]);
       }
     }
   }
@@ -409,7 +439,7 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
     const l = Math.hypot(v[0], v[1], v[2]) || 1;
     return [v[0] / l, v[1] / l, v[2] / l];
   };
-  const strandCount = hi ? 210 : 80;
+  const strandCount = HAIR_ENABLED ? (hi ? 210 : 80) : 0;
   const strandLen = hi ? 24 : 13;
   let made = 0;
   let tries = 0;
@@ -460,7 +490,7 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
 
   // Combed cap: dense lines from the middle part down over the whole scalp (behind the ears
   // and the nape), so no patch of skull ever shows between the long strands.
-  const capLines = hi ? 40 : 24;
+  const capLines = HAIR_ENABLED ? (hi ? 40 : 24) : 0;
   const capLen = hi ? 16 : 10;
   for (const side of [-1, 1] as const) {
     for (let c = 0; c < capLines; c++) {
@@ -516,5 +546,5 @@ export function buildFaceModel(quality: "high" | "low"): FaceModel {
       });
   }
 
-  return { points, links, linkKinds, eyes, mouth: { y: MOUTH_Y, halfWidth: mouthHalf } };
+  return { points, links, linkKinds, eyes, mouth: { y: MOUTH_Y, halfWidth: mouthHalf }, skinTris };
 }

@@ -16,16 +16,24 @@ function buildTriangleIndex(): Uint16Array {
   return Uint16Array.from(tris);
 }
 
-export function createSkinGeometry(): THREE.BufferGeometry {
+/** Skin over the real face mesh plus the cranium/neck shell triangles (`shellTris`). */
+export function createSkinGeometry(vertexCount: number, shellTris: number[]): THREE.BufferGeometry {
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(FACE_LANDMARKS * 3), 3));
-  g.setIndex(new THREE.BufferAttribute(buildTriangleIndex(), 1));
+  g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(vertexCount * 3), 3));
+  const face = buildTriangleIndex();
+  const index = new Uint16Array(face.length + shellTris.length);
+  index.set(face);
+  index.set(shellTris, face.length);
+  g.setIndex(new THREE.BufferAttribute(index, 1));
+  // Vertices past the 468 real-face landmarks belong to the cranium/neck shell, which is shaded softer.
+  const shell = new Float32Array(vertexCount);
+  shell.fill(1, FACE_LANDMARKS);
+  g.setAttribute("aShell", new THREE.BufferAttribute(shell, 1));
   return g;
 }
 
 /**
- * Holographic skin: a lit, dotted surface over the real face mesh. Warm on her left, cool on her
- * right, with a rim light on the silhouette so the face reads as a volume instead of a wireframe.
+ * Holographic skin: a lit, dotted surface over the real face mesh. Warm orange with a slightly lighter amber on her right, with a rim light on the silhouette so the face reads as a volume instead of a wireframe.
  * Additive, so it only ever adds light on top of the synapse points and lines.
  */
 export function createSkinMaterial(): THREE.ShaderMaterial {
@@ -36,16 +44,19 @@ export function createSkinMaterial(): THREE.ShaderMaterial {
     blending: THREE.AdditiveBlending,
     toneMapped: false,
     uniforms: {
-      uWarm: { value: new THREE.Color("#ff8a2e") },
-      uCool: { value: new THREE.Color("#5b7cff") },
+      uWarm: { value: new THREE.Color("#ff7a1a") },
+      uCool: { value: new THREE.Color("#ffae4a") },
       uAlpha: { value: 0 },
       uTime: { value: 0 },
     },
     vertexShader: /* glsl */ `
+      attribute float aShell;
       varying vec3 vN;
       varying vec3 vView;
       varying vec3 vPos;
+      varying float vShell;
       void main() {
+        vShell = aShell;
         vPos = position;
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
         vN = normalize(normalMatrix * normal);
@@ -61,6 +72,7 @@ export function createSkinMaterial(): THREE.ShaderMaterial {
       varying vec3 vN;
       varying vec3 vView;
       varying vec3 vPos;
+      varying float vShell;
       void main() {
         vec3 n = normalize(vN);
         vec3 v = normalize(vView);
@@ -75,17 +87,19 @@ export function createSkinMaterial(): THREE.ShaderMaterial {
         float keyL = clamp(dot(n, normalize(vec3(-0.55, 0.45, 0.7))), 0.0, 1.0);
         float keyR = clamp(dot(n, normalize(vec3(0.6, 0.2, 0.7))), 0.0, 1.0);
         float key = mix(keyL, keyR, duo);
-        float form = 0.11 + 0.8 * pow(key, 1.4) + 0.1 * ndv;
+        float form = (0.11 + 0.8 * pow(key, 1.4) + 0.1 * ndv) * mix(1.0, 0.3, vShell);
 
         float rim = pow(1.0 - ndv, 2.2);
 
-        // Fine dotted skin grain + a slow scan shimmer.
-        vec2 g = fract(vPos.xy * 78.0) - 0.5;
-        float grain = 0.3 + 1.1 * smoothstep(0.46, 0.12, length(g));
-        float shimmer = 0.9 + 0.1 * sin(vPos.y * 160.0 - uTime * 1.4);
+        // Fine dotted skin grain over a hairline grid, with a slow scan shimmer.
+        vec2 g = fract(vPos.xy * 110.0) - 0.5;
+        float dotm = smoothstep(0.42, 0.1, length(g));
+        float gridl = smoothstep(0.46, 0.5, max(abs(g.x), abs(g.y)));
+        float grain = 0.25 + 1.0 * dotm + 0.45 * gridl;
+        float shimmer = 0.88 + 0.12 * sin(vPos.y * 170.0 - uTime * 1.6);
 
-        vec3 col = tint * (form * grain * shimmer * 0.78 + rim * 1.2);
-        col += vec3(1.0, 0.92, 0.85) * pow(key, 7.0) * 0.10; // soft specular on the lit planes
+        vec3 col = tint * (form * grain * shimmer * 0.95 + rim * mix(1.5, 1.1, vShell));
+        col += vec3(1.0, 0.85, 0.6) * pow(key, 6.0) * 0.16 * (1.0 - vShell); // soft specular on the lit planes
         gl_FragColor = vec4(col * uAlpha, 1.0);
       }
     `,

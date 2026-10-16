@@ -27,6 +27,7 @@ import { CameraPermissionGate } from "../components/vision/CameraPermissionGate"
 import { AgentDetailPanel } from "../components/sphere/aurora/AgentDetailPanel";
 import { AuroraRail } from "../components/aurora/AuroraRail";
 import { AuroraChatPanel } from "../components/aurora/AuroraChatPanel";
+import { AuroraBackdrop } from "../components/aurora/AuroraBackdrop";
 import { useJarvisStore } from "../state/store";
 import { useVoiceAgent } from "../hooks/voiceAgentContext";
 import { useJarvisChat } from "../hooks/useJarvisChat";
@@ -56,12 +57,6 @@ function usePersistedToggle(key: string, initial: boolean): [boolean, () => void
 
 // Chat panel (400px) + its 20px margin + a 20px gutter: the stage shrinks by this much while the chat is open.
 const CHAT_INSET_PX = 440;
-
-const STAGE_BACKDROP =
-  "radial-gradient(ellipse 55% 65% at 22% 78%, rgba(255,122,26,0.20), transparent 70%)," +
-  "radial-gradient(ellipse 50% 60% at 74% 28%, rgba(88,112,255,0.20), transparent 70%)," +
-  "radial-gradient(ellipse 80% 40% at 50% 100%, rgba(255,122,26,0.10), transparent 70%)," +
-  "#05060b";
 
 export function AuroraPage() {
   const setActiveDirectorId = useJarvisStore((s) => s.setActiveDirectorId);
@@ -139,23 +134,24 @@ export function AuroraPage() {
   const toolLabel = "px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-wider text-white/35";
 
   return (
-    <div className="relative h-full select-none overflow-hidden font-sans" style={{ background: STAGE_BACKDROP }}>
+    <div className="relative h-full select-none overflow-hidden bg-[#050403] font-sans">
+      <AuroraBackdrop />
       {/* Stage: Aurora + holographic base. Shrinks to make room while the chat panel is open. */}
       <div className="absolute inset-0 transition-[right] duration-300" style={{ right: chatOpen ? CHAT_INSET_PX : 0 }}>
         {/* Holographic base rings under her shoulders */}
         <div aria-hidden="true" className="pointer-events-none absolute bottom-[10%] left-1/2 w-[min(78%,900px)] -translate-x-1/2">
           <div className="relative aspect-[7/1]">
-            <div className="absolute inset-0 rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(255,150,60,0.35),rgba(90,110,255,0.18)_55%,transparent_72%)] blur-xl" />
+            <div className="absolute inset-0 rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(255,150,60,0.4),rgba(255,122,26,0.14)_55%,transparent_72%)] blur-xl" />
             <div className="absolute inset-0 rounded-[50%] border-[3px] border-jarvis-accentBright/90 shadow-[0_0_28px_rgba(255,122,26,0.7),inset_0_0_24px_rgba(255,122,26,0.35)]" />
-            <div className="absolute inset-[14%] rounded-[50%] border-2 border-[#6f86ff]/90 shadow-[0_0_24px_rgba(88,112,255,0.7),inset_0_0_18px_rgba(88,112,255,0.35)]" />
-            <div className="absolute -inset-x-[8%] -inset-y-[30%] rounded-[50%] border border-[#6f86ff]/35" />
+            <div className="absolute inset-[14%] rounded-[50%] border-2 border-jarvis-accent/80 shadow-[0_0_24px_rgba(255,122,26,0.6),inset_0_0_18px_rgba(255,122,26,0.3)]" />
+            <div className="absolute -inset-x-[8%] -inset-y-[30%] rounded-[50%] border border-jarvis-accentBright/35" />
             <div className="absolute -inset-x-[16%] -inset-y-[55%] rounded-[50%] border border-jarvis-accent/20" />
           </div>
         </div>
 
         {/* Central 3D Aurora */}
         <div className="absolute inset-0 z-10">
-          <EnergySphere cameraZ={4.8} />
+          <EnergySphere cameraZ={4.5} />
         </div>
 
         <SpatialWindowManager />
@@ -168,10 +164,10 @@ export function AuroraPage() {
           style={{ left: railWidth + 64 }}
         >
           <div className="mb-5 h-px w-14 bg-jarvis-accent/70" />
-          <h1 className="font-display text-5xl font-semibold tracking-tight text-white">
+          <h1 className="font-display text-4xl font-semibold tracking-tight text-white">
             Olá, <span className="text-jarvis-accent">Gustavo</span>.
           </h1>
-          <p className="mt-3 text-xl text-white/80">Como posso te ajudar hoje?</p>
+          <p className="mt-2 text-lg text-white/80">Como posso te ajudar hoje?</p>
           <div className="mt-5 h-px w-14 bg-jarvis-accent/70" />
         </div>
 

@@ -7,7 +7,7 @@ import type { SphereMode } from "../../../state/slices/sphereSlice";
 import { AGENT_ROSTER, resolveAgentLive, type AgentLiveStatus } from "./agentRoster";
 import { buildFaceModel, MOUTH_Y, type FaceRegion } from "./faceModel";
 import { buildBrainModel } from "./brainModel";
-import { FACE_LANDMARKS, createSkinGeometry, createSkinMaterial } from "./faceSkin";
+import { createSkinGeometry, createSkinMaterial } from "./faceSkin";
 
 interface SynapseFaceProps {
   baseColor: [number, number, number];
@@ -24,9 +24,10 @@ const HEAD_SCALE = 1.3;
 const HEAD_OFFSET_Y = 0.3;
 const WHITE = new THREE.Color(1, 1, 1);
 const HAIR_A = new THREE.Color("#c9611c");
-const BLUE = new THREE.Color("#5f7dff");
-const WARM = new THREE.Color("#ff9a3c");
-const HAIR_BLUE = new THREE.Color("#7f8cff");
+const BLUE = new THREE.Color("#ffb04a"); // right-side tint (amber) — name kept from the old duotone
+const WARM = new THREE.Color("#ff7a1a");
+const HOLO_ORANGE = new THREE.Color("#ff9a3c");
+const HAIR_BLUE = new THREE.Color("#ffb878");
 const HAIR_B = new THREE.Color("#f2b685");
 
 /** Brain inside the cranium (head space) and where it goes when opened: out in front of her face. */
@@ -127,7 +128,7 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
   useEffect(() => () => dotTexture.dispose(), [dotTexture]);
 
   // Solid holographic skin over the real face mesh (positions follow the animated head points).
-  const skinGeom = useMemo(() => createSkinGeometry(), []);
+  const skinGeom = useMemo(() => createSkinGeometry(head.points.length, head.skinTris), [head]);
   const skinMaterial = useMemo(() => createSkinMaterial(), []);
   useEffect(
     () => () => {
@@ -198,7 +199,9 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
     [brain]
   );
   const coreLocal = useMemo(() => new THREE.Vector3(...brain.core), [brain]);
-  const agentColors = useMemo(() => AGENT_ROSTER.map((a) => new THREE.Color(a.color)), []);
+  // Neurons on the head keep Aurora's single-color hologram look; each agent's own color shows in the
+// legend dock and in its brain lobe when the brain is opened.
+const agentColors = useMemo(() => AGENT_ROSTER.map((a) => new THREE.Color(a.color).lerp(HOLO_ORANGE, 0.72)), []);
 
   // Each brain point glows with the color of the agent whose lobe it belongs to.
   const brainTint = useMemo(
@@ -658,7 +661,7 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
         hc[i * 3 + 2] = col.b * k + fc.b * f;
       }
       const skinPos = skinGeom.attributes.position as THREE.BufferAttribute;
-      (skinPos.array as Float32Array).set(hp.subarray(0, FACE_LANDMARKS * 3));
+      (skinPos.array as Float32Array).set(hp.subarray(0, n * 3));
       skinPos.needsUpdate = true;
       skinGeom.computeVertexNormals();
       headGroups.forEach((g) => {
@@ -955,11 +958,11 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
             <group key={agent.key} ref={(el) => (agentGroupRefs.current[ai] = el)} position={agentAnchors[ai]}>
               <mesh ref={(el) => (agentCoreRefs.current[ai] = el)}>
                 <sphereGeometry args={[0.03, 32, 32]} />
-                <meshStandardMaterial color={agent.color} emissive={agent.color} emissiveIntensity={0.8} roughness={0.22} metalness={0.2} transparent toneMapped={false} />
+                <meshStandardMaterial color={agentColors[ai]} emissive={agentColors[ai]} emissiveIntensity={0.8} roughness={0.22} metalness={0.2} transparent toneMapped={false} />
               </mesh>
               <mesh ref={(el) => (agentHaloRefs.current[ai] = el)}>
                 <sphereGeometry args={[0.05, 20, 20]} />
-                <meshBasicMaterial color={agent.color} transparent opacity={0.18} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+                <meshBasicMaterial color={agentColors[ai]} transparent opacity={0.18} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
               </mesh>
               <mesh ref={(el) => (agentRingRefs.current[ai] = el)} visible={false}>
                 <torusGeometry args={[0.07, 0.005, 8, 48]} />
