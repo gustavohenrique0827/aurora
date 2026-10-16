@@ -36,7 +36,7 @@ const BASE_FOV = 42;
 /** Keeps the orb (and Aurora's face inside it) fully in frame on portrait screens: a fixed
  * vertical FOV made the orb overflow a phone's width. Widens the vertical FOV just enough to
  * keep ~1.6 world units of half-width visible; landscape keeps the original 42°. */
-function ResponsiveFov() {
+function ResponsiveFov({ cameraZ }: { cameraZ: number }) {
   const camera = useThree((s) => s.camera);
   const width = useThree((s) => s.size.width);
   const height = useThree((s) => s.size.height);
@@ -44,10 +44,10 @@ function ResponsiveFov() {
     if (!(camera instanceof PerspectiveCamera) || height === 0) return;
     const aspect = width / height;
     const baseTan = Math.tan(((BASE_FOV / 2) * Math.PI) / 180);
-    const neededTan = 1.6 / 5.6 / aspect;
+    const neededTan = 1.6 / cameraZ / aspect;
     camera.fov = neededTan > baseTan ? (2 * Math.atan(neededTan) * 180) / Math.PI : BASE_FOV;
     camera.updateProjectionMatrix();
-  }, [camera, width, height]);
+  }, [camera, width, height, cameraZ]);
   return null;
 }
 
@@ -60,7 +60,8 @@ function CssPulseFallback() {
 }
 
 /** The visual "heart" of Aurora with balanced holographic bloom and orbital framing. */
-export function EnergySphere() {
+/** `cameraZ` is the camera distance: smaller = Aurora fills more of the frame (the immersive view uses a closer shot). */
+export function EnergySphere({ cameraZ = 5.6 }: { cameraZ?: number } = {}) {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [perfLowPower, setPerfLowPower] = useState(false);
   const lowPower = reducedMotion || perfLowPower;
@@ -85,7 +86,7 @@ export function EnergySphere() {
   return (
     <div className="h-full w-full">
       <Canvas
-        camera={{ position: [0, 0, 5.6], fov: BASE_FOV }}
+        camera={{ position: [0, 0, cameraZ], fov: BASE_FOV }}
         // Cap the pixel ratio (retina/4K screens otherwise render 4-9x the pixels) and drop MSAA:
         // the scene is points/lines + bloom, where MSAA adds cost without visible benefit.
         dpr={lowPower ? 1 : [1, 1.5]}
@@ -101,7 +102,7 @@ export function EnergySphere() {
           );
         }}
       >
-        <ResponsiveFov />
+        <ResponsiveFov cameraZ={cameraZ} />
         <Suspense fallback={null}>
           <SphereScene lowPower={lowPower} interacting={interacting} />
           <FpsWatcher perfLowPower={perfLowPower} onPerfLowPowerChange={setPerfLowPower} />

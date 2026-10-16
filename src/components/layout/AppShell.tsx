@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import { TopBar } from "./TopBar";
 import { SideNav } from "./SideNav";
 import { HudOverlay } from "./HudOverlay";
@@ -35,16 +36,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   useBuiltInGestureActions(voice.interrupt);
   // Direct pinch-drag repositioning for any [data-gesture-window] element (Seção 52/53).
   useSpatialWindows();
+  // /aurora is the immersive view: it draws its own chrome (brand, rail, chat) instead of the app bar + side nav.
+  const immersive = useLocation().pathname.startsWith("/aurora");
   const debugMode = useJarvisStore((s) => s.debugMode);
   const cameraActive = useJarvisStore((s) => s.cameraActive);
 
   return (
     <VoiceAgentContext.Provider value={voice}>
     <div className="relative flex h-screen flex-col">
-      <HudOverlay />
-      <TopBar />
+      {!immersive && <HudOverlay />}
+      {!immersive && <TopBar />}
       <div className="flex flex-1 overflow-hidden">
-        <SideNav />
+        {!immersive && <SideNav />}
         <main className="min-w-0 flex-1 overflow-hidden">{children}</main>
       </div>
       {debugMode && cameraActive && <GestureDebugPanel />}

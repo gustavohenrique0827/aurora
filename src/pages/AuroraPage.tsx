@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Sliders,
   Tv,
@@ -8,12 +8,11 @@ import {
   Plus,
   ExternalLink,
   Shield,
-  Mic,
-  Send,
   ChevronDown,
-  ChevronUp,
-  ArrowRight,
-  Maximize2,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  SlidersHorizontal,
 } from "lucide-react";
 import { EnergySphere } from "../components/sphere/EnergySphere";
 import { SpatialWindowManager } from "../components/vision/SpatialWindowManager";
@@ -24,13 +23,45 @@ import { DemoExperience } from "../components/vision/DemoExperience";
 import { CalibrationWizard } from "../components/vision/CalibrationWizard";
 import { DeviceManagerModal } from "../components/vision/DeviceManagerModal";
 import { SurfaceSettingsPanel } from "../components/vision/SurfaceSettingsPanel";
+import { CameraPermissionGate } from "../components/vision/CameraPermissionGate";
 import { AgentDetailPanel } from "../components/sphere/aurora/AgentDetailPanel";
+import { AuroraRail } from "../components/aurora/AuroraRail";
+import { AuroraChatPanel } from "../components/aurora/AuroraChatPanel";
 import { useJarvisStore } from "../state/store";
 import { useVoiceAgent } from "../hooks/voiceAgentContext";
-import { WakeWordToggle } from "../components/voice/WakeWordToggle";
-import { ConversationCard } from "../components/aurora/ConversationCard";
 import { useJarvisChat } from "../hooks/useJarvisChat";
+import { api } from "../lib/api";
 import type { SpatialWindowType, SurfaceMode } from "@jarvis/shared";
+
+/** Open/closed state of a floating panel, remembered per viewer (convenience only). */
+function usePersistedToggle(key: string, initial: boolean): [boolean, () => void, (v: boolean) => void] {
+  const [value, setValue] = useState(() => {
+    try {
+      const stored = localStorage.getItem(key);
+      return stored === null ? initial : stored === "1";
+    } catch {
+      return initial;
+    }
+  });
+  const set = (v: boolean) => {
+    setValue(v);
+    try {
+      localStorage.setItem(key, v ? "1" : "0");
+    } catch {
+      /* per-viewer convenience only */
+    }
+  };
+  return [value, () => set(!value), set];
+}
+
+// Chat panel (400px) + its 20px margin + a 20px gutter: the stage shrinks by this much while the chat is open.
+const CHAT_INSET_PX = 440;
+
+const STAGE_BACKDROP =
+  "radial-gradient(ellipse 55% 65% at 22% 78%, rgba(255,122,26,0.20), transparent 70%)," +
+  "radial-gradient(ellipse 50% 60% at 74% 28%, rgba(88,112,255,0.20), transparent 70%)," +
+  "radial-gradient(ellipse 80% 40% at 50% 100%, rgba(255,122,26,0.10), transparent 70%)," +
+  "#05060b";
 
 export function AuroraPage() {
   const setActiveDirectorId = useJarvisStore((s) => s.setActiveDirectorId);
@@ -50,32 +81,15 @@ export function AuroraPage() {
   const isListening = useJarvisStore((s) => s.isListening);
 
   const activeProfile = surfaceProfiles[activeProfileId];
+  const setAuthenticated = useJarvisStore((s) => s.setAuthenticated);
 
   const [showCalibration, setShowCalibration] = useState(false);
   const [showDeviceManager, setShowDeviceManager] = useState(false);
   const [showSurfaceSettings, setShowSurfaceSettings] = useState(false);
-  const [showWindowMenu, setShowWindowMenu] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [typedMessage, setTypedMessage] = useState("");
-  // Whole chat card open/closed (conversation + suggestions + camera row); closed leaves only
-  // the input row. Remembered per viewer.
-  const [chatCardOpen, setChatCardOpen] = useState(() => {
-    try {
-      return localStorage.getItem("aurora.chatCard.open") !== "0";
-    } catch {
-      return true;
-    }
-  });
-  const toggleChatCard = () =>
-    setChatCardOpen((o) => {
-      try {
-        localStorage.setItem("aurora.chatCard.open", o ? "0" : "1");
-      } catch {
-        /* per-viewer convenience only */
-      }
-      return !o;
-    });
-  const promptInputRef = useRef<HTMLInputElement>(null);
+  const [showTools, setShowTools] = useState(false);
+  const [railOpen, toggleRail] = usePersistedToggle("aurora.rail.open", false);
+  const [chatOpen, toggleChat, setChatOpen] = usePersistedToggle("aurora.chat.open", true);
+  const [prefill, setPrefill] = useState<{ text: string; nonce: number } | null>(null);
   const setOpenedAgentKey = useJarvisStore((s) => s.setOpenedAgentKey);
   const brainOpen = useJarvisStore((s) => s.brainOpen);
   const setBrainOpen = useJarvisStore((s) => s.setBrainOpen);
@@ -105,11 +119,9 @@ export function AuroraPage() {
     );
   };
 
-  const handleSendPrompt = (textToSend?: string) => {
-    const query = (textToSend || typedMessage).trim();
-    if (!query) return;
-    handleComposerSend(query);
-    setTypedMessage("");
+  const handleLogout = async () => {
+    await api.logout().catch(() => undefined);
+    setAuthenticated(false);
   };
 
   const windowOptions: Array<{ type: SpatialWindowType; label: string; icon: string }> = [
@@ -121,354 +133,247 @@ export function AuroraPage() {
     { type: "waha", label: "WhatsApp (WAHA)", icon: "💬" },
   ];
 
-  const quickPrompts = [
-    "Abra o painel de vendas",
-    "Qual o status do funil de leads?",
-    "Iniciar apresentação",
-    "Status dos workflows",
-  ];
+  const railWidth = railOpen ? 224 : 76;
+  const toolBtn =
+    "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs text-white/80 transition-colors hover:bg-white/10 hover:text-white";
+  const toolLabel = "px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-wider text-white/35";
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden bg-[#08090b] select-none font-sans">
-      {/* Subtle Holographic Grid Accent */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-jarvis-accent/5 via-transparent to-transparent" />
+    <div className="relative h-full select-none overflow-hidden font-sans" style={{ background: STAGE_BACKDROP }}>
+      {/* Stage: Aurora + holographic base. Shrinks to make room while the chat panel is open. */}
+      <div className="absolute inset-0 transition-[right] duration-300" style={{ right: chatOpen ? CHAT_INSET_PX : 0 }}>
+        {/* Holographic base rings under her shoulders */}
+        <div aria-hidden="true" className="pointer-events-none absolute bottom-[10%] left-1/2 w-[min(78%,900px)] -translate-x-1/2">
+          <div className="relative aspect-[7/1]">
+            <div className="absolute inset-0 rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(255,150,60,0.35),rgba(90,110,255,0.18)_55%,transparent_72%)] blur-xl" />
+            <div className="absolute inset-0 rounded-[50%] border-[3px] border-jarvis-accentBright/90 shadow-[0_0_28px_rgba(255,122,26,0.7),inset_0_0_24px_rgba(255,122,26,0.35)]" />
+            <div className="absolute inset-[14%] rounded-[50%] border-2 border-[#6f86ff]/90 shadow-[0_0_24px_rgba(88,112,255,0.7),inset_0_0_18px_rgba(88,112,255,0.35)]" />
+            <div className="absolute -inset-x-[8%] -inset-y-[30%] rounded-[50%] border border-[#6f86ff]/35" />
+            <div className="absolute -inset-x-[16%] -inset-y-[55%] rounded-[50%] border border-jarvis-accent/20" />
+          </div>
+        </div>
 
-      {/* 1. Floating Holographic Top HUD */}
-      <header className="pointer-events-none absolute top-3 left-4 right-4 z-30 flex items-center justify-between">
-        {/* Left: Telemetry & Surface Mode Selector */}
-        <div className="pointer-events-auto flex items-center gap-2">
-          <div className="flex items-center gap-2.5 rounded-full border border-jarvis-accent/30 bg-black/60 px-3.5 py-1.5 backdrop-blur-xl shadow-[0_0_20px_rgba(255,122,26,0.12)]">
+        {/* Central 3D Aurora */}
+        <div className="absolute inset-0 z-10">
+          <EnergySphere cameraZ={4.8} />
+        </div>
+
+        <SpatialWindowManager />
+        <MultimodalHighlight />
+        <HolographicCursor />
+
+        {/* Greeting */}
+        <div
+          className="pointer-events-none absolute top-[36%] z-20 hidden transition-[left] duration-200 lg:block"
+          style={{ left: railWidth + 64 }}
+        >
+          <div className="mb-5 h-px w-14 bg-jarvis-accent/70" />
+          <h1 className="font-display text-5xl font-semibold tracking-tight text-white">
+            Olá, <span className="text-jarvis-accent">Gustavo</span>.
+          </h1>
+          <p className="mt-3 text-xl text-white/80">Como posso te ajudar hoje?</p>
+          <div className="mt-5 h-px w-14 bg-jarvis-accent/70" />
+        </div>
+
+        {/* Agent dock + detail card for the neuron tapped inside Aurora's head */}
+        <AgentDetailPanel
+          onAsk={(text) => {
+            setChatOpen(true);
+            setPrefill({ text, nonce: Date.now() });
+          }}
+        />
+
+        {showSurfaceSettings && (
+          <div className="absolute right-6 top-24 z-50 w-80 max-w-sm">
+            <SurfaceSettingsPanel onOpenCalibration={() => setShowCalibration(true)} />
+          </div>
+        )}
+      </div>
+
+      {/* Top chrome: brand (left) and tools + user (right) */}
+      <header className="pointer-events-none absolute inset-x-5 top-5 z-40 flex items-center justify-between">
+        <div className="pointer-events-auto flex items-center gap-3">
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-jarvis-accent/60 bg-black/40">
             <span
-              className={`h-2 w-2 rounded-full ${
+              className={`h-4 w-4 rounded-full ${
                 sphereMode === "analyzing"
-                  ? "bg-purple-400 animate-ping"
+                  ? "animate-ping bg-purple-400"
                   : isListening
-                    ? "bg-jarvis-accentBright animate-ping"
-                    : "bg-jarvis-accent shadow-[0_0_8px_#ff7a1a]"
+                    ? "animate-ping bg-jarvis-accentBright"
+                    : "bg-jarvis-accent shadow-[0_0_12px_#ff7a1a]"
               }`}
             />
-            <span className="font-mono text-xs font-bold tracking-widest text-white">AURORA</span>
-            <span className="h-3 w-[1px] bg-white/20" />
-            <span className="font-mono text-[10px] uppercase text-white/50">{sphereMode}</span>
           </div>
+          <div className="leading-tight">
+            <div className="font-display text-xl font-semibold tracking-[0.18em] text-white">AURORA</div>
+            <div className="text-[11px] font-semibold tracking-[0.2em] text-jarvis-accent">AI OS</div>
+          </div>
+        </div>
 
-          {/* Surface Profile Dropdown */}
+        <div className="pointer-events-auto flex items-center gap-2">
+          <CameraPermissionGate />
+
           <div className="relative">
             <button
               type="button"
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="flex items-center gap-1.5 rounded-full border border-jarvis-border/80 bg-black/50 px-3 py-1.5 font-mono text-[11px] text-white/80 backdrop-blur-lg hover:border-jarvis-accent/50 hover:text-white transition-colors"
+              onClick={() => setShowTools(!showTools)}
+              aria-expanded={showTools}
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3.5 py-2 text-xs font-medium text-white/80 backdrop-blur-xl transition-colors hover:border-jarvis-accent/50 hover:text-white"
             >
-              <span className="text-jarvis-accentBright">SUPERFÍCIE:</span>
-              <span>{activeProfile?.name || "Modo Parede"}</span>
+              <SlidersHorizontal size={14} /> Ferramentas
               <ChevronDown size={12} className="text-white/40" />
             </button>
 
-            {showProfileMenu && (
-              <div className="absolute left-0 top-full mt-2 z-50 w-52 rounded-2xl border border-jarvis-accent/30 bg-black/90 p-2 shadow-2xl backdrop-blur-2xl">
+            {showTools && (
+              <div className="absolute right-0 top-full z-50 mt-2 max-h-[75vh] w-72 overflow-y-auto rounded-2xl border border-white/10 bg-[#0b0c10]/95 p-2 shadow-2xl backdrop-blur-2xl">
+                <div className={toolLabel}>Superfície · {activeProfile?.name || "Modo Parede"}</div>
                 {Object.values(surfaceProfiles).map((p) => (
                   <button
                     key={p.id}
                     type="button"
-                    onClick={() => {
-                      setActiveProfile(p.id as SurfaceMode);
-                      setShowProfileMenu(false);
-                    }}
-                    className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-mono transition-colors ${
-                      p.id === activeProfileId
-                        ? "bg-jarvis-accent/20 text-jarvis-accentBright font-bold"
-                        : "text-white/70 hover:bg-white/10 hover:text-white"
-                    }`}
+                    onClick={() => setActiveProfile(p.id as SurfaceMode)}
+                    className={`${toolBtn} ${p.id === activeProfileId ? "bg-jarvis-accent/15 font-semibold text-jarvis-accentBright" : ""}`}
                   >
-                    <span>{p.name}</span>
+                    <span className="flex-1">{p.name}</span>
                     {p.id === activeProfileId && <span className="h-1.5 w-1.5 rounded-full bg-jarvis-accentBright" />}
                   </button>
                 ))}
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* Right: Floating Holographic Actions */}
-        <div className="pointer-events-auto flex items-center gap-1.5">
-          {/* Add Spatial Window Capsule */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowWindowMenu(!showWindowMenu)}
-              className="flex items-center gap-1.5 rounded-full border border-jarvis-accent/40 bg-jarvis-accent/15 px-3.5 py-1.5 text-xs font-semibold text-jarvis-accentBright backdrop-blur-md hover:bg-jarvis-accent/25 transition-all shadow-[0_0_15px_rgba(255,122,26,0.15)]"
-            >
-              <Plus size={13} /> Painel
-            </button>
-
-            {showWindowMenu && (
-              <div className="absolute right-0 top-full mt-2 z-50 w-56 rounded-2xl border border-jarvis-accent/30 bg-black/90 p-2 shadow-2xl backdrop-blur-2xl">
-                <div className="px-2 py-1 text-[10px] font-mono uppercase tracking-wider text-white/40">
-                  Painéis Holográficos
-                </div>
+                <div className={toolLabel}>Adicionar painel</div>
                 {windowOptions.map((opt) => (
                   <button
                     key={opt.type}
                     type="button"
                     onClick={() => {
                       addSpatialWindow(opt.type, opt.label);
-                      setShowWindowMenu(false);
+                      setShowTools(false);
                     }}
-                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs text-white/80 hover:bg-jarvis-accent/20 hover:text-white transition-colors"
+                    className={toolBtn}
                   >
-                    <span>{opt.icon}</span>
-                    <span className="font-medium">{opt.label}</span>
+                    <span>{opt.icon}</span> {opt.label}
                   </button>
                 ))}
-              </div>
-            )}
-          </div>
 
-          {/* Presentation Mode Button */}
-          <button
-            type="button"
-            onClick={() => setExperienceMode(experienceMode === "presentation" ? "normal" : "presentation")}
-            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-md transition-all ${
-              experienceMode === "presentation"
-                ? "border-jarvis-accentBright bg-jarvis-accentBright/30 text-white shadow-[0_0_15px_rgba(255,122,26,0.1)]"
-                : "border-jarvis-border/80 bg-black/50 text-white/70 hover:border-jarvis-accent/50 hover:text-white"
-            }`}
-          >
-            <Presentation size={13} /> Apresentação
-          </button>
-
-          {/* Demo Experience Button */}
-          <button
-            type="button"
-            onClick={() => setExperienceMode(experienceMode === "demo" ? "normal" : "demo")}
-            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-md transition-all ${
-              experienceMode === "demo"
-                ? "border-yellow-400 bg-yellow-400/25 text-yellow-300 shadow-[0_0_15px_rgba(250,204,21,0.4)]"
-                : "border-jarvis-border/80 bg-black/50 text-white/70 hover:border-yellow-400/50 hover:text-white"
-            }`}
-          >
-            <Sparkles size={13} /> Demo
-          </button>
-
-          {/* Calibration Wizard Button */}
-          <button
-            type="button"
-            onClick={() => setShowCalibration(true)}
-            className="flex items-center gap-1.5 rounded-full border border-jarvis-border/80 bg-black/50 px-3 py-1.5 text-xs text-white/80 backdrop-blur-md hover:border-jarvis-accent/50 hover:text-white transition-colors"
-            title="Calibração Geométrica de 4 Pontos"
-          >
-            Calibrar 4P
-          </button>
-
-          {/* Surface Settings Drawer */}
-          <button
-            type="button"
-            onClick={() => setShowSurfaceSettings(!showSurfaceSettings)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-jarvis-border/80 bg-black/50 text-white/70 backdrop-blur-md hover:border-jarvis-accent/50 hover:text-white transition-colors"
-            title="Ajustes de Projeção & Keystone"
-          >
-            <Sliders size={14} />
-          </button>
-
-          {/* Device Manager Modal */}
-          <button
-            type="button"
-            onClick={() => setShowDeviceManager(true)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-jarvis-border/80 bg-black/50 text-white/70 backdrop-blur-md hover:border-jarvis-accent/50 hover:text-white transition-colors"
-            title="Gerenciador de Hardware (Câmera, Projetor, Áudio)"
-          >
-            <Tv size={14} />
-          </button>
-
-          {/* External Projector Window Launcher */}
-          <button
-            type="button"
-            onClick={openProjectorWindow}
-            className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-jarvis-accent to-jarvis-accentBright px-3.5 py-1.5 text-xs font-bold text-black hover:brightness-110 shadow-[0_0_18px_rgba(255,122,26,0.12)] transition-all"
-            title="Abrir tela cheia do projetor em monitor secundário"
-          >
-            <ExternalLink size={12} /> Projetor
-          </button>
-        </div>
-      </header>
-
-      {/* 2. Main 3D Stage & Holographic Core */}
-      <div className="relative flex-1 overflow-hidden">
-        {/* Central 3D Aurora Energy Sphere */}
-        <div className="absolute inset-0 z-0">
-          <EnergySphere />
-        </div>
-
-        {/* Spatial Windows Floating in 3D Space (Clean, opened on demand) */}
-        <SpatialWindowManager />
-
-        {/* Multimodal Target Highlight Reticle */}
-        <MultimodalHighlight />
-
-        {/* Holographic Cursor with Ring Telemetry */}
-        <HolographicCursor />
-
-        {/* Floating Voice Transcript & State Overlay */}
-
-        {/* Greeting under her before the first exchange; the conversation itself lives in the
-            ConversationCard above the chat bar. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-36 z-20 flex justify-center px-4">
-          {messages.length === 0 && !isAwaitingResponse ? (
-            <p
-              className={`text-center font-display text-lg font-medium tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-jarvis-accentBright via-white to-fuchsia-300 transition-opacity duration-500 sm:text-2xl ${
-                sphereMode === "idle" && !isListening && !brainOpen ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              Bem-vindo, como posso ajudar hoje?
-            </p>
-          ) : null}
-        </div>
-
-        {/* Agent legend + detail card for the neuron tapped inside Aurora's head */}
-        <AgentDetailPanel
-          onAsk={(text) => {
-            setTypedMessage(text);
-            requestAnimationFrame(() => promptInputRef.current?.focus());
-          }}
-        />
-
-
-        {/* Surface Settings Drawer */}
-        {showSurfaceSettings && (
-          <div className="absolute left-6 top-16 z-50 w-80 max-w-sm">
-            <SurfaceSettingsPanel onOpenCalibration={() => setShowCalibration(true)} />
-          </div>
-        )}
-      </div>
-
-      {/* 3. Floating Bottom Conversational Neural Terminal & Action Dock */}
-      <footer className="pointer-events-none absolute bottom-3 left-4 right-4 z-30 flex flex-col items-center gap-2">
-        {/* Central Conversational Prompt & Voice Capsule */}
-        <div className="pointer-events-auto w-full max-w-2xl">
-          <div className="rounded-2xl border border-jarvis-accent/35 bg-black/80 p-2 backdrop-blur-2xl shadow-[0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(255,122,26,0.15)]">
-            {chatCardOpen && (
-            <ConversationCard
-              messages={messages}
-              isAwaitingResponse={isAwaitingResponse}
-              onEdit={(text) => {
-                setTypedMessage(text);
-                requestAnimationFrame(() => promptInputRef.current?.focus());
-              }}
-            />
-            )}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendPrompt();
-              }}
-              className="flex items-center gap-2"
-            >
-              {/* Push to Talk Voice Button */}
-              <button
-                type="button"
-                onPointerDown={() => startPushToTalk()}
-                onPointerUp={() => stopPushToTalk()}
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all ${
-                  isListening
-                    ? "border-jarvis-accentBright bg-jarvis-accentBright text-black shadow-[0_0_20px_rgba(255,122,26,0.1)] animate-pulse"
-                    : "border-jarvis-accent/40 bg-jarvis-accent/15 text-jarvis-accentBright hover:bg-jarvis-accent/30"
-                }`}
-                title="Segure para falar por voz"
-              >
-                <Mic size={18} />
-              </button>
-
-              <input
-                ref={promptInputRef}
-                type="text"
-                value={typedMessage}
-                onChange={(e) => setTypedMessage(e.target.value)}
-                placeholder="Fale ou digite um comando para a Aurora..."
-                className="flex-1 bg-transparent px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none"
-              />
-
-              {/* Wake-word state lives in the bar, so a self-disabled listener never fails silently. */}
-              <WakeWordToggle compact />
-
-              <button
-                type="submit"
-                disabled={!typedMessage.trim()}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-jarvis-accent to-jarvis-accentBright text-black transition-all hover:brightness-110 disabled:opacity-30"
-                title="Enviar mensagem"
-              >
-                <Send size={15} />
-              </button>
-
-              <button
-                type="button"
-                onClick={toggleChatCard}
-                aria-expanded={chatCardOpen}
-                className="flex h-10 w-7 shrink-0 items-center justify-center rounded-lg text-white/45 transition-colors hover:bg-white/5 hover:text-white"
-                title={chatCardOpen ? "Fechar card (conversa e sugestões)" : "Abrir card (conversa e sugestões)"}
-                aria-label={chatCardOpen ? "Fechar card da conversa" : "Abrir card da conversa"}
-              >
-                {chatCardOpen ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-              </button>
-            </form>
-
-            {/* Quick Action Suggestion Chips */}
-            {chatCardOpen && (
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-1.5 border-t border-white/10 pt-2 px-1">
-              <div className="flex flex-wrap items-center gap-1.5">
-                {quickPrompts.map((p, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleSendPrompt(p)}
-                    className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[10px] text-white/70 hover:border-jarvis-accent/50 hover:bg-jarvis-accent/10 hover:text-white transition-colors"
-                  >
-                    <span>{p}</span>
-                    <ArrowRight size={10} className="text-jarvis-accent" />
-                  </button>
-                ))}
-              </div>
-
-              {/* Vision Camera Status Mini Pill */}
-              <div className="flex items-center gap-2">
+                <div className={toolLabel}>Experiência</div>
                 <button
                   type="button"
-                  onClick={() => setCameraRequested(!cameraActive)}
-                  className={`flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[9px] font-semibold transition-colors ${
-                    cameraActive
-                      ? "bg-jarvis-green/20 text-jarvis-green border border-jarvis-green/40"
-                      : "bg-white/10 text-white/50"
-                  }`}
+                  onClick={() => {
+                    setExperienceMode(experienceMode === "presentation" ? "normal" : "presentation");
+                    setShowTools(false);
+                  }}
+                  className={`${toolBtn} ${experienceMode === "presentation" ? "bg-jarvis-accent/15 text-jarvis-accentBright" : ""}`}
                 >
-                  <Camera size={10} /> {cameraActive ? `${trackingFps.toFixed(0)} FPS` : "CÂMERA OFF"}
+                  <Presentation size={14} /> Apresentação
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExperienceMode(experienceMode === "demo" ? "normal" : "demo");
+                    setShowTools(false);
+                  }}
+                  className={`${toolBtn} ${experienceMode === "demo" ? "bg-jarvis-accent/15 text-jarvis-accentBright" : ""}`}
+                >
+                  <Sparkles size={14} /> Demo
                 </button>
 
+                <div className={toolLabel}>Visão</div>
+                <button type="button" onClick={() => setCameraRequested(!cameraActive)} className={toolBtn}>
+                  <Camera size={14} /> {cameraActive ? `Câmera ativa · ${trackingFps.toFixed(0)} FPS` : "Câmera desligada"}
+                </button>
                 <button
                   type="button"
                   onClick={() => setPrivacyMode(!privacyMode)}
-                  className={`p-1 rounded-full transition-colors ${
-                    privacyMode ? "text-jarvis-amber bg-jarvis-amber/20" : "text-white/40 hover:text-white"
-                  }`}
-                  title="Modo Privacidade"
+                  className={`${toolBtn} ${privacyMode ? "text-jarvis-amber" : ""}`}
                 >
-                  <Shield size={12} />
+                  <Shield size={14} /> Modo privacidade {privacyMode ? "(ligado)" : ""}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCalibration(true);
+                    setShowTools(false);
+                  }}
+                  className={toolBtn}
+                >
+                  Calibrar 4 pontos
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSurfaceSettings(!showSurfaceSettings);
+                    setShowTools(false);
+                  }}
+                  className={toolBtn}
+                >
+                  <Sliders size={14} /> Ajustes de projeção
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeviceManager(true);
+                    setShowTools(false);
+                  }}
+                  className={toolBtn}
+                >
+                  <Tv size={14} /> Dispositivos (câmera, projetor, áudio)
+                </button>
+                <button type="button" onClick={openProjectorWindow} className={toolBtn}>
+                  <ExternalLink size={14} /> Abrir projetor em outra tela
+                </button>
+                <div className="mt-1 border-t border-white/10 px-3 pt-2 text-[10px] text-white/35">
+                  {detectionLatencyMs > 0 ? `Latência de detecção ${detectionLatencyMs.toFixed(0)} ms` : "Visão sem telemetria"}
+                </div>
               </div>
-            </div>
             )}
           </div>
+
+          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/45 py-1 pl-1 pr-3 backdrop-blur-xl">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-jarvis-accent to-jarvis-accentBright text-[11px] font-bold text-black">
+              GH
+            </div>
+            <span className="hidden text-xs font-semibold text-white sm:inline">Gustavo H.</span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Sair do sistema"
+              aria-label="Sair do sistema"
+              className="text-white/40 transition-colors hover:text-jarvis-red"
+            >
+              <LogOut size={14} />
+            </button>
+          </div>
         </div>
-      </footer>
+      </header>
 
-      {/* Presentation Deck Overlay */}
+      <AuroraRail open={railOpen} onToggle={toggleRail} />
+
+      {/* Chat open/close handle, riding the edge of the stage */}
+      <button
+        type="button"
+        onClick={toggleChat}
+        aria-expanded={chatOpen}
+        aria-label={chatOpen ? "Fechar conversa" : "Abrir conversa"}
+        title={chatOpen ? "Fechar conversa" : "Abrir conversa"}
+        className="absolute top-1/2 z-40 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-xl transition-[right] duration-300 hover:border-jarvis-accent/60"
+        style={{ right: chatOpen ? CHAT_INSET_PX + 4 : 20 }}
+      >
+        {chatOpen ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+      </button>
+
+      <AuroraChatPanel
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        messages={messages}
+        isAwaitingResponse={isAwaitingResponse}
+        onSend={handleComposerSend}
+        startPushToTalk={startPushToTalk}
+        stopPushToTalk={stopPushToTalk}
+        prefill={prefill}
+      />
+
       {experienceMode === "presentation" && <PresentationDeck />}
-
-      {/* Demo Experience Overlay */}
       {experienceMode === "demo" && <DemoExperience />}
-
-      {/* Calibration Wizard Modal */}
       {showCalibration && <CalibrationWizard onClose={() => setShowCalibration(false)} />}
-
-      {/* Device Manager Modal */}
       {showDeviceManager && (
         <DeviceManagerModal
           onClose={() => setShowDeviceManager(false)}

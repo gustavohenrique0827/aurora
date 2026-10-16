@@ -23,6 +23,9 @@ const HEAD_SCALE = 1.3;
 const HEAD_OFFSET_Y = 0.3;
 const WHITE = new THREE.Color(1, 1, 1);
 const HAIR_A = new THREE.Color("#c9611c");
+const BLUE = new THREE.Color("#5f7dff");
+const WARM = new THREE.Color("#ff9a3c");
+const HAIR_BLUE = new THREE.Color("#7f8cff");
 const HAIR_B = new THREE.Color("#f2b685");
 
 /** Brain inside the cranium (head space) and where it goes when opened: out in front of her face. */
@@ -623,6 +626,14 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
             break;
           default:
             col.copy(base).lerp(WHITE, 0.35);
+        }
+        // Duotone: warm on her left, cool on her right (viewer's right), blended across the midline.
+        const duo = smoothstep(-0.08, 0.32, x);
+        if (pt.region === "hair") col.lerp(HAIR_BLUE, duo * 0.9);
+        else {
+          const eyeLike = pt.region === "eye" || pt.region === "iris" || pt.region === "pupil";
+          col.lerp(WARM, (1 - duo) * (eyeLike ? 0.1 : 0.45));
+          col.lerp(BLUE, duo * (eyeLike ? 0.25 : 0.9));
         }
         if (openedColor) col.lerp(openedColor, openAmountMax * 0.35);
         const f = headFlash.current[i];

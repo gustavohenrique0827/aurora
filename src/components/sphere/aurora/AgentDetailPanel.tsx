@@ -83,13 +83,13 @@ export function AgentDetailPanel({ onAsk }: AgentDetailPanelProps) {
     <>
       <nav
         aria-label="Agentes da Aurora"
-        className="pointer-events-auto absolute left-4 top-1/2 z-30 hidden -translate-y-1/2 flex-col gap-1 md:flex"
+        className="pointer-events-auto absolute bottom-3 left-1/2 z-30 hidden max-w-[92%] -translate-x-1/2 flex-row flex-wrap items-center justify-center gap-1 md:flex"
       >
         <button
           type="button"
           aria-pressed={brainOpen}
           onClick={() => setBrainOpen(!brainOpen)}
-          className={`mb-2 flex items-center gap-2 rounded-full border px-2.5 py-1.5 font-mono text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-accentBright ${
+          className={`mr-2 flex items-center gap-2 rounded-full border px-2.5 py-1.5 font-mono text-[10px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-jarvis-accentBright ${
             brainOpen ? "border-white/40 bg-white/10 text-white" : "border-white/10 bg-black/40 text-white/70 hover:border-white/25 hover:text-white"
           }`}
         >
@@ -134,7 +134,7 @@ export function AgentDetailPanel({ onAsk }: AgentDetailPanelProps) {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 24, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 320, damping: 30 }}
-            className="pointer-events-auto absolute right-4 top-20 z-40 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-2 border-dashed bg-[#101114]/90 backdrop-blur-2xl"
+            className="pointer-events-auto absolute right-4 top-24 z-40 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-2 border-dashed bg-[#101114]/90 backdrop-blur-2xl"
             style={{ borderColor: `${agent.color}80`, boxShadow: `0 0 40px ${agent.color}26` }}
           >
             <div className="p-4">
