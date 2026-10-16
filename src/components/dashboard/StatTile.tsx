@@ -12,7 +12,7 @@ interface StatTileProps {
 }
 
 const STATUS_GLOW: Record<DataStatus, string> = {
-  live: "border-jarvis-accent/25 hover:border-jarvis-accent/60 hover:shadow-[0_0_20px_rgba(255,122,26,0.1)]",
+  live: "border-jarvis-border hover:border-jarvis-accent/50 hover:shadow-[0_0_20px_rgba(255,122,26,0.1)]",
   stale: "border-jarvis-amber/30 hover:border-jarvis-amber/60 hover:shadow-[0_0_20px_rgba(255,180,84,0.2)]",
   error: "border-jarvis-red/30 hover:border-jarvis-red/60 hover:shadow-[0_0_20px_rgba(255,92,122,0.2)]",
   unavailable: "border-white/10 hover:border-white/20",
@@ -24,7 +24,7 @@ export function StatTile({ label, icon: Icon, value, status, hint, href }: StatT
 
   const content = (
     <div
-      className={`group relative flex h-[116px] flex-col justify-between overflow-hidden rounded-2xl border bg-[#101114]/80 p-3.5 backdrop-blur-xl transition-all duration-200 ${STATUS_GLOW[status]}`}
+      className={`group relative flex h-[124px] flex-col justify-between overflow-hidden rounded-2xl border bg-[#101114]/80 p-3.5 backdrop-blur-xl transition-all duration-200 ${STATUS_GLOW[status]}`}
     >
       {/* Top Header Row: Icon & Status Indicator */}
       <div className="flex items-center justify-between">
@@ -40,7 +40,7 @@ export function StatTile({ label, icon: Icon, value, status, hint, href }: StatT
           )}
           {status === "live" && (
             <span
-              className="h-2 w-2 rounded-full bg-jarvis-green shadow-[0_0_8px_#5cffb0]"
+              className="h-2 w-2 rounded-full bg-jarvis-green shadow-[0_0_6px_#4ade80]"
               title="Conectado ao vivo"
             />
           )}
@@ -66,11 +66,11 @@ export function StatTile({ label, icon: Icon, value, status, hint, href }: StatT
       <div className="flex items-baseline">
         {hasValue ? (
           isStringValue ? (
-            <span className="font-mono text-base font-bold tracking-wide text-jarvis-green group-hover:brightness-125 transition-all">
+            <span className="font-display text-xl font-semibold tracking-tight text-jarvis-green group-hover:brightness-125 transition-all">
               {value}
             </span>
           ) : (
-            <span className="font-display text-2xl font-bold tracking-tight text-white group-hover:text-jarvis-accentBright transition-colors">
+            <span className="font-display text-3xl font-semibold tracking-tight text-white group-hover:text-jarvis-accentBright transition-colors">
               {value}
             </span>
           )
@@ -86,8 +86,6 @@ export function StatTile({ label, icon: Icon, value, status, hint, href }: StatT
         {label}
       </div>
 
-      {/* Micro Cyber Corner Notch */}
-      <div className="pointer-events-none absolute bottom-0 right-0 h-2 w-2 border-b border-r border-jarvis-accent/30 opacity-0 group-hover:opacity-100 transition-opacity" />
     </div>
   );
 

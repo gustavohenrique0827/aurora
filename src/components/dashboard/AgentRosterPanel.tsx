@@ -17,7 +17,7 @@ export function AgentRosterPanel({ state, compact = false }: { state: DataState<
   const matchWorkflow = (directorName: string) =>
     state.data?.workflows.find((w) => w.name.toLowerCase().includes(directorName.split(" ")[0].toLowerCase()));
 
-  const directors = compact ? DIRECTORS.slice(0, 6) : DIRECTORS;
+  const directors = compact ? DIRECTORS.slice(0, 5) : DIRECTORS;
 
   return (
     <GlassPanel title="Diretoria Executiva" action={<DataStateBadge status={state.status} lastUpdated={state.lastUpdated} />}>
