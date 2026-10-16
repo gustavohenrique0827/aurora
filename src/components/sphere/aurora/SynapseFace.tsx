@@ -7,6 +7,7 @@ import type { SphereMode } from "../../../state/slices/sphereSlice";
 import { AGENT_ROSTER, resolveAgentLive, type AgentLiveStatus } from "./agentRoster";
 import { buildFaceModel, MOUTH_Y, type FaceRegion } from "./faceModel";
 import { buildBrainModel } from "./brainModel";
+import { FACE_LANDMARKS, createSkinGeometry, createSkinMaterial } from "./faceSkin";
 
 interface SynapseFaceProps {
   baseColor: [number, number, number];
@@ -124,6 +125,17 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
 
   const dotTexture = useMemo(() => makeDotTexture(), []);
   useEffect(() => () => dotTexture.dispose(), [dotTexture]);
+
+  // Solid holographic skin over the real face mesh (positions follow the animated head points).
+  const skinGeom = useMemo(() => createSkinGeometry(), []);
+  const skinMaterial = useMemo(() => createSkinMaterial(), []);
+  useEffect(
+    () => () => {
+      skinGeom.dispose();
+      skinMaterial.dispose();
+    },
+    [skinGeom, skinMaterial]
+  );
 
   // --- Head render groups (node sizes read as a connectome: hubs + small synapses) ------------
   const headGroups = useMemo(() => {
@@ -385,6 +397,8 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
       brainMatrix.copy(g.matrix);
     }
     const headFade = 1 - 0.8 * bo;
+    skinMaterial.uniforms.uAlpha.value = smoothstep(1.7, 2.8, introT) * headFade * (lowPower ? 0.8 : 1);
+    skinMaterial.uniforms.uTime.value = t;
     const brainGlow = 0.5 + 0.75 * bo;
 
     // --- Blink ----------------------------------------------------------------------------
@@ -643,6 +657,10 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
         hc[i * 3 + 1] = col.g * k + fc.g * f;
         hc[i * 3 + 2] = col.b * k + fc.b * f;
       }
+      const skinPos = skinGeom.attributes.position as THREE.BufferAttribute;
+      (skinPos.array as Float32Array).set(hp.subarray(0, FACE_LANDMARKS * 3));
+      skinPos.needsUpdate = true;
+      skinGeom.computeVertexNormals();
       headGroups.forEach((g) => {
         g.idx.forEach((i, k) => {
           g.pos[k * 3] = hp[i * 3];
@@ -656,7 +674,7 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
       head.links.forEach(([ia, ib], li) => {
         const o = li * 6;
         const kind = head.linkKinds[li];
-        const alpha = lineAlpha * (kind === "feature" ? 0.9 : kind === "grid" ? 0.34 : kind === "hair" ? 0.15 : 0.26);
+        const alpha = lineAlpha * (kind === "feature" ? 0.9 : kind === "grid" ? 0.2 : kind === "hair" ? 0.15 : 0.26);
         buffers.headLinePos[o] = hp[ia * 3];
         buffers.headLinePos[o + 1] = hp[ia * 3 + 1];
         buffers.headLinePos[o + 2] = hp[ia * 3 + 2];
@@ -848,6 +866,7 @@ export function SynapseFace({ baseColor, mode, lowPower }: SynapseFaceProps) {
   return (
     <group ref={headGroupRef} scale={HEAD_SCALE} position={[0, HEAD_OFFSET_Y, 0]}>
       {/* The head: real face, skull to the nape, ears, neck, halo */}
+      <mesh geometry={skinGeom} material={skinMaterial} frustumCulled={false} renderOrder={-1} />
       <lineSegments frustumCulled={false}>
         <bufferGeometry ref={headLineGeomRef}>
           {attr(buffers.headLinePos, "position", buffers.headLinePos.length / 3)}
