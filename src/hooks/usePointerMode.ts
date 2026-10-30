@@ -117,14 +117,18 @@ export function usePointerMode() {
           break;
         }
         case "BACK":
-          if (state.experienceMode === "presentation") {
+          if (state.holoDocument?.opened) {
+            window.dispatchEvent(new CustomEvent("aurora:document-turn-page", { detail: { direction: -1 } }));
+          } else if (state.experienceMode === "presentation") {
             state.prevPresentationSlide();
           } else {
             window.history.back();
           }
           break;
         case "FORWARD":
-          if (state.experienceMode === "presentation") {
+          if (state.holoDocument?.opened) {
+            window.dispatchEvent(new CustomEvent("aurora:document-turn-page", { detail: { direction: 1 } }));
+          } else if (state.experienceMode === "presentation") {
             state.nextPresentationSlide();
           } else {
             window.history.forward();

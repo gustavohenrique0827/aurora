@@ -7,6 +7,7 @@ import { SynapseNetwork } from "./SynapseNetwork";
 import type { SynapseFocus } from "./AgentConstellation";
 import { fibonacciSpherePoints } from "./sphereMath";
 import { SynapseFace } from "./aurora/SynapseFace";
+import { HoloBook } from "./HoloBook";
 import { useJarvisStore } from "../../state/store";
 import type { HandFrame, HandSide } from "../../lib/handTracking/types";
 
@@ -429,6 +430,10 @@ export function SphereScene({ lowPower, interacting }: SphereSceneProps) {
         />
       </group>
       </group>
+
+      {/* Holographic book — a separate 3D object, deliberately outside interactionRef so the
+          orb's own rotation/scale/momentum never affects it. */}
+      <HoloBook />
     </group>
   );
 }

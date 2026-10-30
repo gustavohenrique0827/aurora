@@ -6,6 +6,7 @@ import { createChatSlice, type ChatSlice } from "./slices/chatSlice";
 import { createDashboardSlice, type DashboardSlice } from "./slices/dashboardSlice";
 import { createUiSlice, type UiSlice } from "./slices/uiSlice";
 import { createVisionSlice, type VisionSlice } from "./slices/visionSlice";
+import { createDocumentSlice, type DocumentSlice } from "./slices/documentSlice";
 
 export type RootState = AuthSlice &
   SphereSlice &
@@ -13,7 +14,8 @@ export type RootState = AuthSlice &
   ChatSlice &
   DashboardSlice &
   UiSlice &
-  VisionSlice;
+  VisionSlice &
+  DocumentSlice;
 
 export const useJarvisStore = create<RootState>()((...a) => ({
   ...createAuthSlice(...a),
@@ -23,4 +25,5 @@ export const useJarvisStore = create<RootState>()((...a) => ({
   ...createDashboardSlice(...a),
   ...createUiSlice(...a),
   ...createVisionSlice(...a),
+  ...createDocumentSlice(...a),
 }));

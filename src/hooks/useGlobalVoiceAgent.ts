@@ -8,6 +8,8 @@ import { matchScreenVisionIntent } from "../lib/screenVisionIntent";
 import { matchCameraVisionIntent } from "../lib/cameraVisionIntent";
 import { matchDemonstrativeIntent } from "../lib/demonstrativeIntent";
 import { resolvePointedTarget } from "../lib/handTracking/pointedTarget";
+import { matchDocumentSummonIntent, matchDocumentCloseIntent } from "../lib/documentSummonIntent";
+import { PLACEHOLDER_DOCUMENT_PAGES, buildPlaceholderDocumentTitle } from "../lib/documentPlaceholderContent";
 
 function checkVoiceActionShortcuts(text: string, navigate: (path: string) => void): boolean {
   const norm = text.toLowerCase().trim();
@@ -38,6 +40,16 @@ function checkVoiceActionShortcuts(text: string, navigate: (path: string) => voi
     state.addSpatialWindow("financeiro", "Painel Financeiro");
     return false;
   }
+  const summon = matchDocumentSummonIntent(text);
+  if (summon) {
+    state.summonDocument(buildPlaceholderDocumentTitle(summon.subject), PLACEHOLDER_DOCUMENT_PAGES);
+    return true;
+  }
+  if (matchDocumentCloseIntent(text)) {
+    state.closeDocument();
+    return true;
+  }
+
   if (norm === "voltar" || norm === "aurora, volte") {
     if (state.experienceMode === "presentation") {
       state.prevPresentationSlide();
