@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
 import * as THREE from "three";
@@ -193,9 +193,11 @@ export function HoloBook() {
           </mesh>
         )}
         {!doc.opened && (
-          <Text position={[W / 2, 0, 0.01]} fontSize={0.045} color="#ffd9b0" maxWidth={W - 0.08} textAlign="center" anchorX="center" anchorY="middle" outlineWidth={0.003} outlineColor="#000000">
-            {frontText}
-          </Text>
+          <Suspense fallback={null}>
+            <Text position={[W / 2, 0, 0.01]} fontSize={0.045} color="#ffd9b0" maxWidth={W - 0.08} textAlign="center" anchorX="center" anchorY="middle" outlineWidth={0.003} outlineColor="#000000">
+              {frontText}
+            </Text>
+          </Suspense>
         )}
 
         {doc.opened && (
@@ -204,9 +206,15 @@ export function HoloBook() {
               <planeGeometry args={[W, H]} />
               <meshStandardMaterial color={PAGE_COLOR} roughness={0.6} />
             </mesh>
-            <Text position={[W / 2, 0, 0.006]} fontSize={0.034} color="#ffe9d6" maxWidth={W - 0.1} textAlign="left" anchorX="center" anchorY="middle">
-              {frontText}
-            </Text>
+            {/* Own Suspense boundary per <Text> (same reasoning as SynapseFace.tsx): drei's
+                Text suspends while its font loads, and the ancestor Suspense is the whole
+                scene (EnergySphere.tsx) — without this, summoning the book would blank out
+                Aurora's entire face/orb for that moment instead of just this one page. */}
+            <Suspense fallback={null}>
+              <Text position={[W / 2, 0, 0.006]} fontSize={0.034} color="#ffe9d6" maxWidth={W - 0.1} textAlign="left" anchorX="center" anchorY="middle">
+                {frontText}
+              </Text>
+            </Suspense>
 
             {turning && (
               <>
@@ -214,9 +222,11 @@ export function HoloBook() {
                   <planeGeometry args={[W, H]} />
                   <meshStandardMaterial color={PAGE_COLOR} roughness={0.6} />
                 </mesh>
-                <Text position={[W / 2, 0, -0.006]} rotation={[0, Math.PI, 0]} fontSize={0.034} color="#ffe9d6" maxWidth={W - 0.1} textAlign="left" anchorX="center" anchorY="middle">
-                  {backText}
-                </Text>
+                <Suspense fallback={null}>
+                  <Text position={[W / 2, 0, -0.006]} rotation={[0, Math.PI, 0]} fontSize={0.034} color="#ffe9d6" maxWidth={W - 0.1} textAlign="left" anchorX="center" anchorY="middle">
+                    {backText}
+                  </Text>
+                </Suspense>
               </>
             )}
           </group>
@@ -228,9 +238,11 @@ export function HoloBook() {
               <circleGeometry args={[0.04, 20]} />
               <meshBasicMaterial color="#d4453b" toneMapped={false} />
             </mesh>
-            <Text position={[W - 0.07, H / 2 - 0.07, 0.025]} fontSize={0.045} color="#ffffff" anchorX="center" anchorY="middle">
-              ×
-            </Text>
+            <Suspense fallback={null}>
+              <Text position={[W - 0.07, H / 2 - 0.07, 0.025]} fontSize={0.045} color="#ffffff" anchorX="center" anchorY="middle">
+                ×
+              </Text>
+            </Suspense>
           </>
         )}
       </group>
