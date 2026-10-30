@@ -19,6 +19,7 @@ import {
 import { useJarvisStore } from "../../state/store";
 import { useDashboardData } from "../../hooks/useDashboardData";
 import { DataStateBadge } from "../dashboard/DataStateBadge";
+import { clampWindowPosition } from "../../lib/spatialWindowBounds";
 import type { SpatialWindow, SpatialWindowType } from "@jarvis/shared";
 
 interface SpatialWindowManagerProps {
@@ -71,9 +72,14 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
 
   const handlePointerMoveHeader = (id: string, e: React.PointerEvent) => {
     if (draggingId !== id) return;
-    const newX = Math.max(10, e.clientX - dragOffsetRef.current.x);
-    const newY = Math.max(50, e.clientY - dragOffsetRef.current.y);
-    updateSpatialWindow(id, { x: newX, y: newY });
+    const win = spatialWindows.find((w) => w.id === id);
+    if (!win) return;
+    const { x, y } = clampWindowPosition(
+      e.clientX - dragOffsetRef.current.x,
+      e.clientY - dragOffsetRef.current.y,
+      win.width
+    );
+    updateSpatialWindow(id, { x, y });
   };
 
   const handlePointerUpHeader = (id: string, e: React.PointerEvent) => {
@@ -380,10 +386,13 @@ export function SpatialWindowManager({ projectorView = false }: SpatialWindowMan
           <div
             key={win.id}
             data-gesture-window="true"
+            data-spatial-window-id={win.id}
             data-gesture-label={win.title}
             onPointerDown={() => focusSpatialWindow(win.id)}
             style={style}
-            className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-2xl border border-jarvis-accent/40 bg-jarvis-panel/90 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.8),0_0_15px_rgba(255,122,26,0.15)] transition-all duration-75"
+            className={`pointer-events-auto absolute flex flex-col overflow-hidden rounded-2xl border border-jarvis-accent/40 bg-jarvis-panel/90 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.8),0_0_15px_rgba(255,122,26,0.15)] ${
+              draggingId === win.id ? "" : "transition-all duration-75"
+            }`}
           >
             {/* Holographic Window Header */}
             <div

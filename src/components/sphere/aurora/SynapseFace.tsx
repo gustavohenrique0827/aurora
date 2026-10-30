@@ -31,8 +31,11 @@ const HAIR_BLUE = new THREE.Color("#ffb878");
 const HAIR_B = new THREE.Color("#f2b685");
 
 /** Brain inside the cranium (head space) and where it goes when opened: out in front of her face. */
-/** Interval between heavy geometry rebuilds (see useFrame). */
-const HEAVY_INTERVAL_S = 1 / 30 - 0.002;
+/** Interval between heavy geometry rebuilds (see useFrame). Slower under lowPower — the point/
+ * link counts already shrink via buildFaceModel/buildBrainModel(quality), but a device that's
+ * already struggling benefits from sampling less often too, not just moving fewer points. */
+const HEAVY_INTERVAL_HIGH_S = 1 / 30 - 0.002;
+const HEAVY_INTERVAL_LOW_S = 1 / 18 - 0.002;
 const BRAIN_CLOSED = { pos: new THREE.Vector3(0, 0.4, -0.3), scale: 1 };
 const BRAIN_OPEN = { pos: new THREE.Vector3(0, 0.12, 1.0), scale: 1.35 };
 
@@ -529,7 +532,8 @@ const agentColors = useMemo(() => AGENT_ROSTER.map((a) => new THREE.Color(a.colo
     // swirl it runs every frame so the opening animation stays smooth.
     const hp = buffers.headPos;
     a.heavyAcc += delta;
-    const runHeavy = introRunning || a.heavyAcc >= HEAVY_INTERVAL_S;
+    const heavyIntervalS = lowPower ? HEAVY_INTERVAL_LOW_S : HEAVY_INTERVAL_HIGH_S;
+    const runHeavy = introRunning || a.heavyAcc >= heavyIntervalS;
     const heavyDelta = a.heavyAcc;
     if (runHeavy) {
     a.heavyAcc = 0;
@@ -738,28 +742,36 @@ const agentColors = useMemo(() => AGENT_ROSTER.map((a) => new THREE.Color(a.colo
       const pick = openedIndex >= 0 ? openedIndex : Math.floor(Math.random() * AGENT_ROSTER.length);
       if (arcPhase.current[pick] < 0) arcPhase.current[pick] = 0;
     }
-    const arcAlpha = smoothstep(1.7, 2.6, introT) * (0.45 + 0.55 * bo);
     AGENT_ROSTER.forEach((_, ai) => {
       const phase = arcPhase.current[ai];
       if (phase >= 0) {
         arcPhase.current[ai] = phase + delta * 1.4;
         if (arcPhase.current[ai] > 1.25) arcPhase.current[ai] = -1;
       }
-      const c = agentColors[ai];
-      const dim = openedIndex >= 0 && ai !== openedIndex ? 0.3 : 1;
-      const baseA = arcAlpha * 0.25 * dim + (ai === openedIndex ? agentOpen.current[ai] * 0.4 : 0);
-      for (let s = 0; s < ARC_SEGMENTS; s++) {
-        const o = (ai * ARC_SEGMENTS + s) * 6;
-        for (const [end, u] of [[0, s / ARC_SEGMENTS], [3, (s + 1) / ARC_SEGMENTS]] as const) {
-          const headPos = arcPhase.current[ai];
-          const glow = headPos >= 0 ? Math.exp(-(((u - headPos) / 0.09) ** 2)) * 1.6 * arcAlpha : 0;
-          const w = 0.55 * (1 - u);
-          buffers.arcCol[o + end] = (c.r * (1 - w) + w) * (baseA + glow);
-          buffers.arcCol[o + end + 1] = (c.g * (1 - w) + w) * (baseA + glow);
-          buffers.arcCol[o + end + 2] = (c.b * (1 - w) + w) * (baseA + glow);
-        }
-      }
     });
+    // Buffer rebuild (the per-segment glow fill: AGENT_ROSTER.length × ARC_SEGMENTS × Math.exp)
+    // is sampled at the same cadence as the head/brain point rebuild above, not every frame —
+    // the phase advance just above still runs every frame so the traveling pulse's timing stays
+    // accurate; only how often it's redrawn is throttled, same trade-off as runHeavy elsewhere.
+    if (runHeavy) {
+      const arcAlpha = smoothstep(1.7, 2.6, introT) * (0.45 + 0.55 * bo);
+      AGENT_ROSTER.forEach((_, ai) => {
+        const c = agentColors[ai];
+        const dim = openedIndex >= 0 && ai !== openedIndex ? 0.3 : 1;
+        const baseA = arcAlpha * 0.25 * dim + (ai === openedIndex ? agentOpen.current[ai] * 0.4 : 0);
+        for (let s = 0; s < ARC_SEGMENTS; s++) {
+          const o = (ai * ARC_SEGMENTS + s) * 6;
+          for (const [end, u] of [[0, s / ARC_SEGMENTS], [3, (s + 1) / ARC_SEGMENTS]] as const) {
+            const headPos = arcPhase.current[ai];
+            const glow = headPos >= 0 ? Math.exp(-(((u - headPos) / 0.09) ** 2)) * 1.6 * arcAlpha : 0;
+            const w = 0.55 * (1 - u);
+            buffers.arcCol[o + end] = (c.r * (1 - w) + w) * (baseA + glow);
+            buffers.arcCol[o + end + 1] = (c.g * (1 - w) + w) * (baseA + glow);
+            buffers.arcCol[o + end + 2] = (c.b * (1 - w) + w) * (baseA + glow);
+          }
+        }
+      });
+    }
 
     // --- Pulses: out of the brain across her face (closed), or inside the brain (open) --------
     const modeRate = thinking ? 3 : mode === "speaking" ? 1.6 : mode === "listening" ? 1.2 : 1;
@@ -825,8 +837,15 @@ const agentColors = useMemo(() => AGENT_ROSTER.map((a) => new THREE.Color(a.colo
       buffers.pulseCol[o + 2] = c.b * fade;
     });
 
-    const dirty = [arcGeomRef.current, pulseGeomRef.current];
-    if (runHeavy) dirty.push(...headGeomRefs.current, ...brainGeomRefs.current, headLineGeomRef.current, brainLineGeomRef.current);
+    const dirty = [pulseGeomRef.current];
+    if (runHeavy)
+      dirty.push(
+        arcGeomRef.current,
+        ...headGeomRefs.current,
+        ...brainGeomRefs.current,
+        headLineGeomRef.current,
+        brainLineGeomRef.current
+      );
     for (const geom of dirty) {
       if (!geom) continue;
       (geom.attributes.position as THREE.BufferAttribute).needsUpdate = true;

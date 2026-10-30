@@ -67,18 +67,59 @@ export function detectProjectedSurface(
     return null;
   }
 
-  // Refine 4 corner points with margin
-  const normMinX = Math.max(0.05, minX / sampleWidth);
-  const normMaxX = Math.min(0.95, maxX / sampleWidth);
-  const normMinY = Math.max(0.05, minY / sampleHeight);
-  const normMaxY = Math.min(0.95, maxY / sampleHeight);
+  // The bounding box above is only the right answer when the projection surface is viewed
+  // head-on. Viewed at an angle — the exact case keystone/homography correction exists for —
+  // the bright region is a skewed quad, and clipping it to its bounding box would cut off or
+  // distort a real corner. Each true corner is instead the bright pixel closest to the
+  // corresponding corner of the sampled frame: for a convex bright blob, that's its actual
+  // nearest vertex (the same "closest point to each image corner" technique document-scanner
+  // apps use for perspective correction). This degrades to the old bounding box exactly when
+  // the quad already is axis-aligned, and gets the skewed case right too.
+  type CornerKey = "topLeft" | "topRight" | "bottomRight" | "bottomLeft";
+  const anchors: Record<CornerKey, Point2D> = {
+    topLeft: { x: 0, y: 0 },
+    topRight: { x: sampleWidth, y: 0 },
+    bottomRight: { x: sampleWidth, y: sampleHeight },
+    bottomLeft: { x: 0, y: sampleHeight },
+  };
+  const bestDistSq: Record<CornerKey, number> = {
+    topLeft: Infinity,
+    topRight: Infinity,
+    bottomRight: Infinity,
+    bottomLeft: Infinity,
+  };
+  const corners: Record<CornerKey, Point2D> = {
+    topLeft: { x: minX, y: minY },
+    topRight: { x: maxX, y: minY },
+    bottomRight: { x: maxX, y: maxY },
+    bottomLeft: { x: minX, y: maxY },
+  };
+  const cornerKeys = Object.keys(anchors) as CornerKey[];
+  for (let y = minY; y <= maxY; y += 2) {
+    for (let x = minX; x <= maxX; x += 2) {
+      if (gray[y * sampleWidth + x] <= threshold) continue;
+      for (const key of cornerKeys) {
+        const anchor = anchors[key];
+        const distSq = (x - anchor.x) ** 2 + (y - anchor.y) ** 2;
+        if (distSq < bestDistSq[key]) {
+          bestDistSq[key] = distSq;
+          corners[key] = { x, y };
+        }
+      }
+    }
+  }
 
-  // Return detected quad in normalized [0,1] space
+  // Normalize to [0,1] space with the same safety margin the old bounding-box path used.
+  const normalize = (p: Point2D): Point2D => ({
+    x: Math.max(0.05, Math.min(0.95, p.x / sampleWidth)),
+    y: Math.max(0.05, Math.min(0.95, p.y / sampleHeight)),
+  });
+
   return {
-    topLeft: { x: normMinX, y: normMinY },
-    topRight: { x: normMaxX, y: normMinY },
-    bottomRight: { x: normMaxX, y: normMaxY },
-    bottomLeft: { x: normMinX, y: normMaxY },
+    topLeft: normalize(corners.topLeft),
+    topRight: normalize(corners.topRight),
+    bottomRight: normalize(corners.bottomRight),
+    bottomLeft: normalize(corners.bottomLeft),
   };
 }
 

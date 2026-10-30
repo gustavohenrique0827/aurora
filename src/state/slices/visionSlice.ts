@@ -103,6 +103,13 @@ export interface VisionSlice {
   cinematicMode: boolean;
   builtInGestureShortcutsEnabled: boolean;
 
+  /** Accessor for the single hidden `<video>` element useHandTrackingEngine owns (set once by
+   * useGlobalVisionAgent in AppShell) — lets distant components like CalibrationWizard get a
+   * live camera preview / feed the real frame into surface auto-detection, without spinning up
+   * a second getUserMedia stream or prop-drilling the engine down from AppShell. Call it, don't
+   * cache its result: the element itself is only created once the camera actually starts. */
+  visionGetVideoElement: (() => HTMLVideoElement | null) | null;
+
   // Actions
   setCameraRequested: (requested: boolean) => void;
   setCameraActive: (active: boolean) => void;
@@ -162,6 +169,7 @@ export interface VisionSlice {
   setTrackingStats: (fps: number, latencyMs: number) => void;
   setCinematicMode: (on: boolean) => void;
   setBuiltInGestureShortcutsEnabled: (on: boolean) => void;
+  setVisionGetVideoElement: (fn: (() => HTMLVideoElement | null) | null) => void;
 }
 
 const initialProfiles = typeof window === "undefined" ? { ...DEFAULT_PROFILES } : loadProfiles();
@@ -224,6 +232,7 @@ export const createVisionSlice: StateCreator<VisionSlice> = (set, get) => ({
   detectionLatencyMs: 0,
   cinematicMode: false,
   builtInGestureShortcutsEnabled: true,
+  visionGetVideoElement: null,
 
   setCameraRequested: (requested) => set({ cameraRequested: requested }),
   setCameraActive: (active) => set({ cameraActive: active }),
@@ -427,4 +436,5 @@ export const createVisionSlice: StateCreator<VisionSlice> = (set, get) => ({
   setTrackingStats: (fps, latencyMs) => set({ trackingFps: fps, detectionLatencyMs: latencyMs }),
   setCinematicMode: (on) => set({ cinematicMode: on }),
   setBuiltInGestureShortcutsEnabled: (on) => set({ builtInGestureShortcutsEnabled: on }),
+  setVisionGetVideoElement: (fn) => set({ visionGetVideoElement: fn }),
 });

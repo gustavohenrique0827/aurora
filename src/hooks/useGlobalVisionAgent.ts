@@ -19,11 +19,12 @@ import { useJarvisStore } from "../state/store";
  * fast-follow once this vision engine has been used live for a while.
  */
 export function useGlobalVisionAgent() {
-  const { start, stop } = useHandTrackingEngine();
+  const { start, stop, getVideoElement } = useHandTrackingEngine();
   const cameraRequested = useJarvisStore((s) => s.cameraRequested);
   const cameraActive = useJarvisStore((s) => s.cameraActive);
   const privacyMode = useJarvisStore((s) => s.privacyMode);
   const setCameraRequested = useJarvisStore((s) => s.setCameraRequested);
+  const setVisionGetVideoElement = useJarvisStore((s) => s.setVisionGetVideoElement);
 
   useEffect(() => {
     if (privacyMode) {
@@ -38,5 +39,15 @@ export function useGlobalVisionAgent() {
     }
   }, [cameraRequested, cameraActive, privacyMode, start, stop, setCameraRequested]);
 
-  return { start, stop };
+  // Published once so distant components (CalibrationWizard) can reach the one real camera
+  // feed through the store, the same indirection this hook's own doc comment already uses
+  // for start/stop — getVideoElement always reads the engine's current videoRef live, so a
+  // stale closure here is harmless.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setVisionGetVideoElement(getVideoElement);
+    return () => setVisionGetVideoElement(null);
+  }, []);
+
+  return { start, stop, getVideoElement };
 }

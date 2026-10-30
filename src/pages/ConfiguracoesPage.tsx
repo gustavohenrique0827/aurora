@@ -317,7 +317,7 @@ export function ConfiguracoesPage() {
           <li className="flex items-center justify-between">
             <span className="text-white/60">n8n</span>
             <a
-              href="https://automacao-target-n8n.vr4mar.easypanel.host"
+              href="https://n8n.spycrm.com.br"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1 text-jarvis-accent hover:underline"
@@ -328,7 +328,7 @@ export function ConfiguracoesPage() {
           <li className="flex items-center justify-between">
             <span className="text-white/60">WAHA (WhatsApp)</span>
             <a
-              href="https://automacao-target-waha.vr4mar.easypanel.host"
+              href="https://waha.spycrm.com.br"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1 text-jarvis-accent hover:underline"

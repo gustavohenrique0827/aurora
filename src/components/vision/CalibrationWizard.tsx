@@ -18,10 +18,41 @@ import { detectProjectedSurface } from "../../lib/projection/surfaceDetector";
 
 interface CalibrationWizardProps {
   onClose?: () => void;
+  /** Optional override — when omitted (the normal case, since no current caller passes one)
+   * the wizard reaches the one real camera feed itself via the store (see visionGetVideoElement
+   * in visionSlice.ts / useGlobalVisionAgent.ts). */
   videoElement?: HTMLVideoElement | null;
 }
 
-export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardProps) {
+/**
+ * Live preview of the SAME MediaStream useHandTrackingEngine feeds to MediaPipe — not a second
+ * getUserMedia call. Deliberately NOT mirrored: detectProjectedSurface and the manual 4-point
+ * drag below both work in raw (un-mirrored) camera pixel space, so the preview has to match
+ * that space exactly or a corner the user drags to what they see would land on the wrong side.
+ */
+function CameraFeedPreview({ source }: { source: HTMLVideoElement | null }) {
+  const previewRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = previewRef.current;
+    const stream = source?.srcObject;
+    if (el && stream instanceof MediaStream) {
+      el.srcObject = stream;
+    }
+  }, [source]);
+
+  if (!source) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center text-[11px] text-white/35">
+        Câmera indisponível — ative-a no Passo 2.
+      </div>
+    );
+  }
+
+  return <video ref={previewRef} autoPlay muted playsInline className="absolute inset-0 h-full w-full object-cover" />;
+}
+
+export function CalibrationWizard({ onClose, videoElement: videoElementProp }: CalibrationWizardProps) {
   const [step, setStep] = useState(1);
   const surfaceProfiles = useJarvisStore((s) => s.surfaceProfiles);
   const activeProfileId = useJarvisStore((s) => s.activeProfileId);
@@ -29,6 +60,16 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
   const setSurfaceQuad = useJarvisStore((s) => s.setSurfaceQuad);
   const cameraActive = useJarvisStore((s) => s.cameraActive);
   const setCameraRequested = useJarvisStore((s) => s.setCameraRequested);
+  const visionGetVideoElement = useJarvisStore((s) => s.visionGetVideoElement);
+
+  // Re-resolved whenever the camera starts/stops — the element only exists once the engine's
+  // getUserMedia call actually resolves, which can happen well after this wizard first mounts
+  // (user opens the wizard on Step 1, only activates the camera on Step 2).
+  const [liveVideoElement, setLiveVideoElement] = useState<HTMLVideoElement | null>(null);
+  useEffect(() => {
+    setLiveVideoElement(cameraActive ? visionGetVideoElement?.() ?? null : null);
+  }, [cameraActive, visionGetVideoElement]);
+  const videoElement = videoElementProp ?? liveVideoElement;
   const dominantHand = useJarvisStore((s) => s.dominantHand);
   const hand = useJarvisStore((s) => s.hands[dominantHand]);
   const pointerPosition = useJarvisStore((s) => s.pointerPosition);
@@ -227,6 +268,9 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                   Posicione a câmera para que o retângulo projetado fique centralizado no campo de visão, sem oclusões.
                   O sistema de homografia ajustará qualquer inclinação ou perspectiva angular.
                 </p>
+                <div className="relative mt-4 aspect-[4/3] w-full max-w-xl overflow-hidden rounded-xl border border-jarvis-border/60 bg-black">
+                  <CameraFeedPreview source={videoElement} />
+                </div>
               </div>
             </div>
           )}
@@ -243,7 +287,8 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                 <button
                   type="button"
                   onClick={handleAutoDetect}
-                  disabled={!cameraActive || autoDetecting}
+                  disabled={!videoElement || autoDetecting}
+                  title={!videoElement ? "Ative a câmera no Passo 2 primeiro" : undefined}
                   className="flex items-center gap-1.5 rounded-lg border border-jarvis-accent/40 bg-jarvis-accent/10 px-3 py-1.5 text-xs text-jarvis-accentBright hover:bg-jarvis-accent/20 disabled:opacity-40"
                 >
                   <Sparkles size={13} /> {autoDetecting ? "Detectando..." : "Auto-Detectar"}
@@ -256,7 +301,8 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                 </div>
               )}
 
-              {/* Interactive 4-Corner Quad Canvas */}
+              {/* Interactive 4-Corner Quad Canvas — live camera feed behind the overlay so the
+                  drag targets real corners instead of an empty box (see CameraFeedPreview). */}
               <div
                 className="relative mx-auto aspect-[4/3] w-full max-w-xl overflow-hidden rounded-xl border border-jarvis-accent/40 bg-black"
                 onPointerMove={(e) => {
@@ -267,6 +313,8 @@ export function CalibrationWizard({ onClose, videoElement }: CalibrationWizardPr
                 }}
                 onPointerUp={() => setActiveCorner(null)}
               >
+                <CameraFeedPreview source={videoElement} />
+
                 {/* Visual Quad Overlay SVG */}
                 <svg className="absolute inset-0 h-full w-full pointer-events-none">
                   <polygon
