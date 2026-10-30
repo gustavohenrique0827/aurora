@@ -78,7 +78,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
       {debugMode && cameraActive && <GestureDebugPanel />}
-      <GestureCursor />
+      {/* The immersive /aurora view renders its own HolographicCursor (click-pulse ripples,
+          pinch HUD readout, projector-mode support) — this plainer global one would otherwise
+          double up on the exact same pointerPosition, producing two visibly offset reticles. */}
+      {!immersive && <GestureCursor />}
       <RadialMenu />
     </div>
     </VoiceAgentContext.Provider>

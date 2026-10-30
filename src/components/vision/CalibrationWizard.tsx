@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   CheckCircle2,
   Maximize2,
@@ -15,6 +15,8 @@ import { GlassPanel } from "../common/GlassPanel";
 import { useJarvisStore } from "../../state/store";
 import type { CalibrationCorner, CalibrationQuad, Point2D } from "@jarvis/shared";
 import { detectProjectedSurface } from "../../lib/projection/surfaceDetector";
+import { CameraFeedPreview } from "./CameraFeedPreview";
+import { useLiveVideoElement } from "../../hooks/useLiveVideoElement";
 
 interface CalibrationWizardProps {
   onClose?: () => void;
@@ -24,33 +26,11 @@ interface CalibrationWizardProps {
   videoElement?: HTMLVideoElement | null;
 }
 
-/**
- * Live preview of the SAME MediaStream useHandTrackingEngine feeds to MediaPipe — not a second
- * getUserMedia call. Deliberately NOT mirrored: detectProjectedSurface and the manual 4-point
- * drag below both work in raw (un-mirrored) camera pixel space, so the preview has to match
- * that space exactly or a corner the user drags to what they see would land on the wrong side.
- */
-function CameraFeedPreview({ source }: { source: HTMLVideoElement | null }) {
-  const previewRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const el = previewRef.current;
-    const stream = source?.srcObject;
-    if (el && stream instanceof MediaStream) {
-      el.srcObject = stream;
-    }
-  }, [source]);
-
-  if (!source) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center text-[11px] text-white/35">
-        Câmera indisponível — ative-a no Passo 2.
-      </div>
-    );
-  }
-
-  return <video ref={previewRef} autoPlay muted playsInline className="absolute inset-0 h-full w-full object-cover" />;
-}
+const NO_CAMERA_FALLBACK = (
+  <div className="absolute inset-0 flex items-center justify-center text-[11px] text-white/35">
+    Câmera indisponível — ative-a no Passo 2.
+  </div>
+);
 
 export function CalibrationWizard({ onClose, videoElement: videoElementProp }: CalibrationWizardProps) {
   const [step, setStep] = useState(1);
@@ -60,15 +40,7 @@ export function CalibrationWizard({ onClose, videoElement: videoElementProp }: C
   const setSurfaceQuad = useJarvisStore((s) => s.setSurfaceQuad);
   const cameraActive = useJarvisStore((s) => s.cameraActive);
   const setCameraRequested = useJarvisStore((s) => s.setCameraRequested);
-  const visionGetVideoElement = useJarvisStore((s) => s.visionGetVideoElement);
-
-  // Re-resolved whenever the camera starts/stops — the element only exists once the engine's
-  // getUserMedia call actually resolves, which can happen well after this wizard first mounts
-  // (user opens the wizard on Step 1, only activates the camera on Step 2).
-  const [liveVideoElement, setLiveVideoElement] = useState<HTMLVideoElement | null>(null);
-  useEffect(() => {
-    setLiveVideoElement(cameraActive ? visionGetVideoElement?.() ?? null : null);
-  }, [cameraActive, visionGetVideoElement]);
+  const liveVideoElement = useLiveVideoElement();
   const videoElement = videoElementProp ?? liveVideoElement;
   const dominantHand = useJarvisStore((s) => s.dominantHand);
   const hand = useJarvisStore((s) => s.hands[dominantHand]);
@@ -269,7 +241,7 @@ export function CalibrationWizard({ onClose, videoElement: videoElementProp }: C
                   O sistema de homografia ajustará qualquer inclinação ou perspectiva angular.
                 </p>
                 <div className="relative mt-4 aspect-[4/3] w-full max-w-xl overflow-hidden rounded-xl border border-jarvis-border/60 bg-black">
-                  <CameraFeedPreview source={videoElement} />
+                  <CameraFeedPreview source={videoElement} mirrored={false} fallback={NO_CAMERA_FALLBACK} className="absolute inset-0 h-full w-full object-cover" />
                 </div>
               </div>
             </div>
@@ -313,7 +285,7 @@ export function CalibrationWizard({ onClose, videoElement: videoElementProp }: C
                 }}
                 onPointerUp={() => setActiveCorner(null)}
               >
-                <CameraFeedPreview source={videoElement} />
+                <CameraFeedPreview source={videoElement} mirrored={false} fallback={NO_CAMERA_FALLBACK} className="absolute inset-0 h-full w-full object-cover" />
 
                 {/* Visual Quad Overlay SVG */}
                 <svg className="absolute inset-0 h-full w-full pointer-events-none">

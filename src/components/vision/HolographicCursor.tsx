@@ -63,11 +63,11 @@ export function HolographicCursor({ projectorMode = false }: HolographicCursorPr
         />
       ))}
 
-      {/* Main Holographic Reticle */}
-      <div
-        className="absolute -translate-x-1/2 -translate-y-1/2 transition-transform duration-75 ease-out"
-        style={{ left: posX, top: posY }}
-      >
+      {/* Main Holographic Reticle — no position transition here: pointerPosition is already
+          jitter-filtered upstream (OneEuroFilter2D in usePointerMode.ts), so animating left/top
+          again on top of that would only add a second, redundant layer of lag between the real
+          hand position and where the reticle appears. */}
+      <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: posX, top: posY }}>
         {/* Outer Rotating Energy Ring */}
         <div
           className={`relative flex items-center justify-center rounded-full border transition-all duration-150 ${

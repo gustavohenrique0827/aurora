@@ -26,6 +26,7 @@ import { CalibrationWizard } from "../components/vision/CalibrationWizard";
 import { DeviceManagerModal } from "../components/vision/DeviceManagerModal";
 import { SurfaceSettingsPanel } from "../components/vision/SurfaceSettingsPanel";
 import { CameraPermissionGate } from "../components/vision/CameraPermissionGate";
+import { SelfViewPip } from "../components/vision/SelfViewPip";
 import { AgentDetailPanel } from "../components/sphere/aurora/AgentDetailPanel";
 import { AuroraRail } from "../components/aurora/AuroraRail";
 import { AuroraChatPanel } from "../components/aurora/AuroraChatPanel";
@@ -144,6 +145,7 @@ export function AuroraPage() {
         <SpatialWindowManager />
         <MultimodalHighlight />
         <HolographicCursor />
+        <SelfViewPip />
 
         {/* Greeting */}
         <div
