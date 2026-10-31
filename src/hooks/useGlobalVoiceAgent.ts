@@ -10,6 +10,8 @@ import { matchDemonstrativeIntent } from "../lib/demonstrativeIntent";
 import { resolvePointedTarget } from "../lib/handTracking/pointedTarget";
 import { matchDocumentSummonIntent, matchDocumentCloseIntent } from "../lib/documentSummonIntent";
 import { PLACEHOLDER_DOCUMENT_PAGES, buildPlaceholderDocumentTitle } from "../lib/documentPlaceholderContent";
+import { matchInvestigationIntent, matchInvestigationCloseIntent } from "../lib/investigationIntent";
+import { buildPlaceholderEvidenceCards } from "../lib/evidenceBoardPlaceholderContent";
 
 function checkVoiceActionShortcuts(text: string, navigate: (path: string) => void): boolean {
   const norm = text.toLowerCase().trim();
@@ -47,6 +49,14 @@ function checkVoiceActionShortcuts(text: string, navigate: (path: string) => voi
   }
   if (matchDocumentCloseIntent(text)) {
     state.closeDocument();
+    return true;
+  }
+  if (matchInvestigationIntent(text)) {
+    state.summonEvidenceBoard("Exemplo", buildPlaceholderEvidenceCards());
+    return true;
+  }
+  if (matchInvestigationCloseIntent(text)) {
+    state.closeEvidenceBoard();
     return true;
   }
 
