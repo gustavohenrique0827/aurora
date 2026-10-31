@@ -19,7 +19,13 @@ export function getHandLandmarker(): Promise<HandLandmarker> {
         return await HandLandmarker.createFromOptions(vision, {
           baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
           runningMode: "VIDEO",
-          numHands: 2,
+          // Tracking a 2nd hand roughly doubles this call's cost every single frame (it runs
+          // unthrottled, every rAF tick — see useHandTrackingEngine.ts) for one feature only
+          // (two-hand pinch-zoom on the orb, SphereScene.tsx); every other gesture (click,
+          // drag, open/close, page-turn) only ever needs one. Gustavo reported real FPS
+          // dropping to ~20 with real hardware — this is the single biggest lever available
+          // without touching detection quality.
+          numHands: 1,
         });
       } catch (gpuErr) {
         // The GPU delegate (WebGL-backed) is a known failure point on a real slice of
@@ -33,7 +39,7 @@ export function getHandLandmarker(): Promise<HandLandmarker> {
         return HandLandmarker.createFromOptions(vision, {
           baseOptions: { modelAssetPath: MODEL_URL, delegate: "CPU" },
           runningMode: "VIDEO",
-          numHands: 2,
+          numHands: 1,
         });
       }
     });
