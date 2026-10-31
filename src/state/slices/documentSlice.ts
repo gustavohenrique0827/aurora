@@ -39,7 +39,11 @@ export const createDocumentSlice: StateCreator<DocumentSlice> = (set, get) => ({
         pages,
         pageIndex: 0,
         opened: false,
-        position: [1.3, -0.05, 1.1],
+        // Left of the orb rather than right — a real browser test (1400px viewport) showed the
+        // old [1.3, ...] landing mostly behind the chat panel, which sits on the right third of
+        // the screen; [-1.3, ...] still overlapped Aurora's own face silhouette. Still worth
+        // Gustavo eyeballing on his own screen size/aspect — this is tuned against one viewport.
+        position: [-1.6, -0.15, 0.95],
         grabbedBy: null,
         summonedAt: Date.now(),
       },
