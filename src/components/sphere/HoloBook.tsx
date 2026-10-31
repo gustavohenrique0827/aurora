@@ -32,7 +32,16 @@ const COVER_COLOR = new THREE.Color("#2a1608");
  */
 export function HoloBook() {
   const doc = useJarvisStore((s) => s.holoDocument);
-  const { camera, raycaster } = useThree();
+  const { camera, raycaster, controls } = useThree();
+  // OrbitControls (EnergySphere.tsx) listens on the canvas DOM element directly, outside R3F's
+  // own synthetic event system — e.stopPropagation() on our pointer handlers below does NOT
+  // reach it, so without this a book/card drag also rotates the camera at the same time,
+  // fighting the raycast every frame (looked like an inverted/broken drag direction; it was
+  // actually a moving camera, confirmed by logging camera.position mid-drag).
+  const setOrbitControlsEnabled = (enabled: boolean) => {
+    const c = controls as { enabled?: boolean } | null;
+    if (c && "enabled" in c) c.enabled = enabled;
+  };
 
   const entranceGroupRef = useRef<THREE.Group>(null);
   const turnGroupRef = useRef<THREE.Group>(null);
@@ -50,6 +59,13 @@ export function HoloBook() {
   const lastGestureTsRef = useRef<Record<HandSide, number>>({ left: 0, right: 0 });
   const grabOffsetRef = useRef(new THREE.Vector3());
   const grabPlaneRef = useRef(new THREE.Plane());
+  // Real mouse/trackpad/touchscreen drag — independent of the camera/gesture pipeline above,
+  // same raycast-vs-plane math, just driven by a real PointerEvent instead of a hand frame.
+  // This is the path that actually answers "I touch and she does it": the camera/pinch path
+  // is an alternative input, not the only one.
+  const pointerDraggingRef = useRef(false);
+  const pointerGrabOffsetRef = useRef(new THREE.Vector3());
+  const pointerGrabPlaneRef = useRef(new THREE.Plane());
 
   const startTurn = (direction: 1 | -1) => {
     if (!doc || !doc.opened || turning) return;
@@ -71,10 +87,24 @@ export function HoloBook() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc?.id, doc?.opened, doc?.pageIndex, turning]);
 
-  useFrame((_, rawDelta) => {
+  useFrame((state, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05);
-    if (!doc) return;
+    if (!doc) {
+      if (pointerDraggingRef.current) setOrbitControlsEnabled(true);
+      pointerDraggingRef.current = false;
+      return;
+    }
     const store = useJarvisStore.getState();
+
+    // --- Real mouse/trackpad/touchscreen drag ----------------------------------------------
+    if (pointerDraggingRef.current) {
+      raycaster.setFromCamera(state.pointer, camera);
+      const point = new THREE.Vector3();
+      if (raycaster.ray.intersectPlane(pointerGrabPlaneRef.current, point)) {
+        const next = point.sub(pointerGrabOffsetRef.current);
+        store.setDocumentPosition([next.x, next.y, next.z]);
+      }
+    }
 
     // --- Entrance (fly-in on summon) ------------------------------------------------------
     if (doc.summonedAt !== lastSummonedAt.current) {
@@ -180,8 +210,31 @@ export function HoloBook() {
           <meshStandardMaterial color={ACCENT} emissive={ACCENT} emissiveIntensity={0.35} toneMapped={false} />
         </mesh>
 
-        {/* Invisible full-book hit area for grab/drag — behind everything else. */}
-        <mesh ref={grabHitRef} position={[W / 2, 0, -0.03]} visible={false}>
+        {/* Invisible full-book hit area for grab/drag — behind everything else. Real
+            mouse/trackpad/touchscreen drag: R3F raycasts real PointerEvents against this same
+            mesh automatically, no camera needed. */}
+        <mesh
+          ref={grabHitRef}
+          position={[W / 2, 0, -0.03]}
+          visible={false}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            pointerDraggingRef.current = true;
+            setOrbitControlsEnabled(false);
+            pointerGrabOffsetRef.current.copy(e.point).sub(new THREE.Vector3(...doc.position));
+            pointerGrabPlaneRef.current.setFromNormalAndCoplanarPoint(
+              camera.getWorldDirection(new THREE.Vector3()).negate(),
+              e.point
+            );
+            (e.target as Element).setPointerCapture?.(e.pointerId);
+          }}
+          onPointerUp={(e) => {
+            e.stopPropagation();
+            pointerDraggingRef.current = false;
+            setOrbitControlsEnabled(true);
+            (e.target as Element).releasePointerCapture?.(e.pointerId);
+          }}
+        >
           <planeGeometry args={[W + 0.08, H + 0.08]} />
           <meshBasicMaterial transparent opacity={0} />
         </mesh>

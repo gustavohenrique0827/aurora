@@ -107,6 +107,7 @@ export function EnergySphere({ cameraZ = 5.6 }: { cameraZ?: number } = {}) {
           <SphereScene lowPower={lowPower} interacting={interacting} />
           <FpsWatcher perfLowPower={perfLowPower} onPerfLowPowerChange={setPerfLowPower} />
           <OrbitControls
+            makeDefault
             enablePan={false}
             enableZoom
             minDistance={3.5}

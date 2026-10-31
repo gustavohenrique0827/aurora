@@ -30,7 +30,14 @@ const KIND_LABEL_COLOR: Record<EvidenceCardKind, string> = {
  */
 export function EvidenceBoard() {
   const cards = useJarvisStore((s) => s.evidenceCards);
-  const { camera, raycaster } = useThree();
+  const { camera, raycaster, controls } = useThree();
+  // See the identical comment in HoloBook.tsx — OrbitControls listens on the canvas DOM
+  // element directly, outside R3F's synthetic event system, so it must be disabled explicitly
+  // during a card drag or it fights the raycast with its own camera rotation.
+  const setOrbitControlsEnabled = (enabled: boolean) => {
+    const c = controls as { enabled?: boolean } | null;
+    if (c && "enabled" in c) c.enabled = enabled;
+  };
 
   const hitRefs = useRef<Record<string, THREE.Mesh | null>>({});
   const lastGestureTsRef = useRef<Record<HandSide, number>>({ left: 0, right: 0 });
@@ -38,10 +45,30 @@ export function EvidenceBoard() {
   const grabPlaneRef = useRef<Record<HandSide, THREE.Plane>>({ left: new THREE.Plane(), right: new THREE.Plane() });
   const grabCardIdRef = useRef<Record<HandSide, string | null>>({ left: null, right: null });
 
-  useFrame(() => {
+  // Real mouse/trackpad/touchscreen drag — independent of the camera/gesture pipeline above,
+  // same raycast-vs-plane math, just driven by a real PointerEvent on the card itself instead
+  // of a hand frame. Only one real pointer device at a time, so a single slot (not per-hand).
+  const pointerDragCardIdRef = useRef<string | null>(null);
+  const pointerGrabOffsetRef = useRef(new THREE.Vector3());
+  const pointerGrabPlaneRef = useRef(new THREE.Plane());
+
+  useFrame((state) => {
     const store = useJarvisStore.getState();
     const liveCards = store.evidenceCards;
-    if (liveCards.length === 0) return;
+    if (liveCards.length === 0) {
+      if (pointerDragCardIdRef.current) setOrbitControlsEnabled(true);
+      pointerDragCardIdRef.current = null;
+      return;
+    }
+
+    if (pointerDragCardIdRef.current) {
+      raycaster.setFromCamera(state.pointer, camera);
+      const point = new THREE.Vector3();
+      if (raycaster.ray.intersectPlane(pointerGrabPlaneRef.current, point)) {
+        const next = point.sub(pointerGrabOffsetRef.current);
+        store.setEvidenceCardPosition(pointerDragCardIdRef.current, [next.x, next.y, next.z]);
+      }
+    }
 
     const visionLive = store.cameraActive && !store.privacyMode;
     if (!visionLive) {
@@ -110,7 +137,27 @@ export function EvidenceBoard() {
     <>
       {cards.map((card) => (
         <group key={card.id} position={card.position}>
-          <mesh ref={(el) => { hitRefs.current[card.id] = el; }}>
+          <mesh
+            ref={(el) => { hitRefs.current[card.id] = el; }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              if (card.grabbedBy !== null || pointerDragCardIdRef.current !== null) return;
+              pointerDragCardIdRef.current = card.id;
+              setOrbitControlsEnabled(false);
+              pointerGrabOffsetRef.current.copy(e.point).sub(new THREE.Vector3(...card.position));
+              pointerGrabPlaneRef.current.setFromNormalAndCoplanarPoint(
+                camera.getWorldDirection(new THREE.Vector3()).negate(),
+                e.point
+              );
+              (e.target as Element).setPointerCapture?.(e.pointerId);
+            }}
+            onPointerUp={(e) => {
+              e.stopPropagation();
+              if (pointerDragCardIdRef.current === card.id) pointerDragCardIdRef.current = null;
+              setOrbitControlsEnabled(true);
+              (e.target as Element).releasePointerCapture?.(e.pointerId);
+            }}
+          >
             <planeGeometry args={[CARD_W, CARD_H]} />
             <meshStandardMaterial color={KIND_COLOR[card.kind]} roughness={0.55} />
           </mesh>
